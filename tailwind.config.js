@@ -7,5 +7,8 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  screens: {
+    'smg': '300px',
+  },
 }
 

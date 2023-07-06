@@ -7,10 +7,6 @@
   max-height: 125px;
 }
 
-.upload-logo {
-  width: 150px;
-  height: 150px;
-}
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
@@ -40,4 +36,45 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+@media (max-width: 768px) {
+
+  .upload-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .ant-layout-content {
+    padding: 5px!important;
+  }
+
+  .first-flex-div {
+    order: 1;
+    padding: 20px;
+  }
+
+  .second-flex-div {
+    order: 2;
+    display: block;
+  } 
+}
+
+
+@media (min-width: 640px) {
+
+
+}
+
+@media (min-width: 768px) {
+
+}
+@media (min-width: 1024px) {
+
+}
+@media (min-width: 1280px) {
+
+}
+@media (min-width: 1536px) {
+
 }
