@@ -46,6 +46,11 @@ const App: React.FC = () => {
               key:2,
               label: `upload`,
               onClick: () => { navigate(routes.upload); }
+            },
+            {
+              key:3,
+              label: `thumbnail`,
+              onClick: () => { navigate(routes.thumbnail); }
             }
           ]
           }

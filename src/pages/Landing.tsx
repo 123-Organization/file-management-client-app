@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React from 'react'
 
 const Landing: React.FC = () : JSX.Element => {
   return (

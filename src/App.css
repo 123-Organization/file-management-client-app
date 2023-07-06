@@ -8,10 +8,15 @@
 }
 
 
+.App-logo-icon {
+  max-width: 55px;
+  max-height: 55px;
+}
+
+
+
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    /* animation: App-logo-spin infinite 20s linear; */
-  }
+
 }
 
 .App-header {
@@ -38,6 +43,13 @@
   }
 }
 
+/*=======================================Max Media Query========================================================= */
+
+@media (max-width: 640px) {
+
+
+}
+
 @media (max-width: 768px) {
 
   .upload-logo {
@@ -60,6 +72,19 @@
   } 
 }
 
+@media (max-width: 1024px) {
+
+}
+
+@media (max-width: 1280px) {
+
+}
+
+@media (max-width: 1536px) {
+
+}
+
+/*=======================================Min Media Query========================================================= */
 
 @media (min-width: 640px) {
 

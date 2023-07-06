@@ -1,17 +1,13 @@
 import React, { Suspense, lazy } from "react";
 import { Route, Routes } from "react-router-dom";
-import { useSelector } from "react-redux";
-
 import { routes } from "../config/routes";
-
-
 
 const Login = lazy(() => import("../pages/Login"));
 const Landing = lazy(() => import("../pages/Landing"));
 const Upload = lazy(() => import("../pages/Upload"));
+const Thumbnail = lazy(() => import("../pages/Thumbnail"));
 
-
-const Router = () => {
+const Router: React.FC = (): JSX.Element  => {
   
   const userData = null;
 
@@ -32,6 +28,7 @@ const Router = () => {
         }
       >
         <Routes>
+          <Route path={routes.thumbnail} Component={Thumbnail} />
           <Route path={routes.upload} Component={Upload} />
           <Route path={routes.login} Component={Login} />
           <Route path="*" Component={initialRoute()} />

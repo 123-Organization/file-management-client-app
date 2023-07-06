@@ -67,7 +67,7 @@ const Upload: React.FC = (): JSX.Element => {
 
         </div>
       </div>
-      <Checkbox className='pl-10 pb-10 font-bold text-gray-600 ' style={{ fontSize: '15px' }}>I acknowledgement I am permitted to print the images I am sumbmitting. See our <a className='text-blue-400'>terms of service </a></Checkbox>
+      <Checkbox className='pl-10 pb-10  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am sumbmitting. See our <a className='underline'>terms of service </a></Checkbox>
     </div>
   )
 }
