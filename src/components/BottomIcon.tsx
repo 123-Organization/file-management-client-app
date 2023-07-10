@@ -21,7 +21,10 @@ const BottomIcon: React.FC = (): JSX.Element => {
                   
 
                 </div>
-                <Pagination className='ml-96 mt-3 basis-1/2' defaultCurrent={6} total={500} />
+                <div className='flex w-full justify-end'>
+
+                    <Pagination className=' mt-3 mr-3' defaultCurrent={6} defaultPageSize={50} total={500} />
+                </div>
             </div>
 
         </div>

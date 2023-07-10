@@ -6,7 +6,10 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from "react-router-dom";
 import { store } from './store/store';
 import { Provider } from 'react-redux';
+import { QueryClient, QueryClientProvider } from "react-query";
+import { DynamicDataProvider } from './context/DynamicDataProvider';
 
+const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
@@ -14,7 +17,12 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
     <BrowserRouter>
+    <DynamicDataProvider>
+
+    <QueryClientProvider client={queryClient}>
       <App />
+      </QueryClientProvider>
+    </DynamicDataProvider>
     </BrowserRouter>
     </Provider>
   </React.StrictMode>

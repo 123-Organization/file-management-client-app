@@ -40,6 +40,17 @@
   color: #61dafb;
 }
 
+.filterSorting :where(
+  .ant-select-selection-item,
+  .ant-select-focused
+){
+  @apply text-gray-400
+}
+
+.filterSorting .ant-space-item{
+  gap: 20px!important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

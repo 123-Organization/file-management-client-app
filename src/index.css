@@ -22,3 +22,7 @@ code {
   height: 150px;
 }
 
+.isSelectedImg{
+  background-color: gray;
+  border: solid 2px gray;
+}

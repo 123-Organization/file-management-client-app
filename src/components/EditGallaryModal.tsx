@@ -5,9 +5,10 @@ import { JsxEmit } from 'typescript';
 interface EditGallaryModalProps {
   openModel: boolean;
   setOpen: Dispatch<SetStateAction<boolean>> ;
+  imgURL: string;
 }
 
-const EditGallaryModal = ({openModel, setOpen} : EditGallaryModalProps) => {
+const EditGallaryModal = ({openModel, setOpen, imgURL} : EditGallaryModalProps) => {
 
   
   const [loading, setLoading] = useState(false);
@@ -33,7 +34,7 @@ const EditGallaryModal = ({openModel, setOpen} : EditGallaryModalProps) => {
       open={openModel}
       onOk={() => setOpen(false)}
       onCancel={() => setOpen(false)}
-      width={'70%'}
+      width={'78%'}
       footer={[
         <button data-tooltip-target="tooltip-document" type="button" className="absolute left-2 inline-flex ml-10 flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
           <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
@@ -53,7 +54,7 @@ const EditGallaryModal = ({openModel, setOpen} : EditGallaryModalProps) => {
         <section className="text-gray-600 body-font">
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
             <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
-              <img className="object-cover object-center rounded" alt="hero" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg" />
+              <img className="object-cover object-center rounded" alt="hero" src={ imgURL? imgURL : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
             </div>
             <div className="lg:w-1/2 md:w-1/2 bg-white flex flex-col md:ml-auto w-full md:py-8 mt-8 md:mt-0">
               <h2 className="text-gray-400 text-base leading-7 mb-1 font-semibold title-font">

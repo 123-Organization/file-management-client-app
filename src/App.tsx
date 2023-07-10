@@ -11,6 +11,7 @@ import { getComments } from './store/actionCreators/getComment';
 import { routes } from './config/routes';
 import HeaderIcon from './components/HeaderIcon';
 
+
 const { Header, Footer, Sider, Content } = Layout;
 
 const App: React.FC = () => {
