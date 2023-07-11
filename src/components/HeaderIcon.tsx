@@ -46,7 +46,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                     </button>
                     {
                         referrer.hasSelected &&
-                        <button type="button" className="text-white absolute right-14 mt-1 whitespace-nowrap bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-1 h-12 text-center" disabled>Create Prints</button>
+                        <button type="button" className="absolute fw-sky-btn" disabled>Create Prints</button>
 
                     }
                 </div>

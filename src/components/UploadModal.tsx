@@ -5,7 +5,7 @@ import googleDriveImg from '../assets/provider/icon_googledrive.svg';
 import dropBoxImg from '../assets/provider/icon_dropbox.svg';
 import artzipImg from '../assets/provider/icon_artzip.svg';
 
-
+import ImageUploading from 'react-images-uploading';
 
 import {
   CloseCircleOutlined
@@ -42,6 +42,17 @@ const handleChange = (value: string) => {
   console.log(`selected ${value}`);
 };
 
+const [images, setImages] = React.useState([]);
+  const maxNumber = 2;
+  const maxFileSize = 1024*11;
+
+
+  const onChange = (imageList:any, addUpdateIndex:any) => {
+    // data for submit
+    console.log(imageList, addUpdateIndex);
+    setImages(imageList);
+  };
+
   return (
     <Modal
     style={{height:'60%'}}
@@ -59,14 +70,82 @@ const handleChange = (value: string) => {
           <div
             className="first-flex-div rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-sm:border-b sm:border-r border-gray-300 ">
             <Title level={4} className="text-gray-300" disabled >My Computer / Device</Title>
-            <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
+            {/* <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
               shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
               rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
             focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
 
+               */}
+              {/* <input id="uploadImage" className="text-sm cursor-pointer w-36 hidden" type="file" /> */}
+              <ImageUploading
+        multiple
+        value={images}
+        onChange={onChange}
+        maxNumber={maxNumber}
+        dataURLKey="data_url"
+        maxFileSize={maxFileSize}
+      >
+        {({
+          imageList,
+          onImageUpload,
+          onImageRemoveAll,
+          onImageUpdate,
+          onImageRemove,
+          isDragging,
+          dragProps,
+          errors
+        }) => (
+          // write your building UI
+          <div className="upload__image-wrapper text-center w-full">
+             <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
+              shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
+              rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
+            focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
+
+            <button
+              style={isDragging ? { color: 'red' } : undefined}
+              onClick={onImageUpload}
+              {...dragProps}
+            >
               Select Images
-              <input id="uploadImage" className="text-sm cursor-pointer w-36 hidden" type="file" />
+            </button>
             </label>
+            &nbsp;
+            {
+
+            !!images?.length && 
+            <>
+              <br /><br />
+              <button className='fw-sky-btn' onClick={onImageRemoveAll}>Remove all images</button>
+            </>
+            }
+            {imageList.map((image, index) => (
+              <div key={index} className="image-item">
+                <img src={image['data_url']} alt="" width="100" />
+                <div className="image-item__btn-wrapper">
+                  <button className='fw-primary-btn' onClick={() => onImageUpdate(index)}>Update</button>
+                  <button className='fw-primary-btn' onClick={() => onImageRemove(index)}>Remove</button>
+                </div>
+              </div>
+            ))}
+
+
+            <div>
+                 { errors && <div className='text-red-500 font-medium'>
+                    {errors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}</span>}
+                    {errors.acceptType && <span>Your selected file type is not allow</span>}
+                    {errors.maxFileSize && <span>Selected file size exceed maxFileSize ({humanFileSize(maxFileSize)})</span>}
+                    {errors.resolution && <span>Selected file is not match your desired resolution</span>}
+                  </div>
+                 }
+            </div>
+
+            
+          </div>
+        )}
+      </ImageUploading>
+            {/* </label> */}
+            
           </div>
           <div
             className="second-flex-div flex flex-col relative order-first md:order-last h-28 md:h-auto justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat bg-center bg-origin-padding bg-cover">
@@ -111,6 +190,38 @@ const handleChange = (value: string) => {
     </div>
   </Modal>
   )
+}
+
+/**
+ * Format bytes as human-readable text.
+ * 
+ * @param bytes Number of bytes.
+ * @param si True to use metric (SI) units, aka powers of 1000. False to use 
+ *           binary (IEC), aka powers of 1024.
+ * @param dp Number of decimal places to display.
+ * 
+ * @return Formatted string.
+ */
+ function humanFileSize(bytes:number, si=false, dp=1) {
+  const thresh = si ? 1000 : 1024;
+
+  if (Math.abs(bytes) < thresh) {
+    return bytes + ' B';
+  }
+
+  const units = si 
+    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] 
+    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+  let u = -1;
+  const r = 10**dp;
+
+  do {
+    bytes /= thresh;
+    ++u;
+  } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+  return bytes.toFixed(dp) + ' ' + units[u];
 }
 
 export default UploadModal
