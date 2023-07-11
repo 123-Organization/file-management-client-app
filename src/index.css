@@ -23,6 +23,7 @@ code {
 }
 
 .isSelectedImg{
-  background-color: gray;
-  border: solid 2px gray;
+  background-color: lightgray;
+  border: solid 3px lightgray;
+  border-radius: 4px;
 }

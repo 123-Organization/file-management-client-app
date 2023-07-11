@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import logo from '../assets/logo/finerworks_logo_icon.svg';
 import FilterSortModal from './FilterSortModal';
 import UploadModal from './UploadModal';
-import {useQuery} from 'react-query'
 
 import { useDynamicData } from "../context/DynamicDataProvider";
 
@@ -46,7 +45,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                         <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Filter & Sort</span>
                     </button>
                     {
-                        !!referrer.hasSelected &&
+                        referrer.hasSelected &&
                         <button type="button" className="text-white absolute right-14 mt-1 whitespace-nowrap bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-1 h-12 text-center" disabled>Create Prints</button>
 
                     }

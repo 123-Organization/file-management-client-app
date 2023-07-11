@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 import EditGallaryModal from './EditGallaryModal';
-import { Gallery } from "react-grid-gallery";
-import GallarySelection from './GallarySelection';
 import { useDynamicData } from "../context/DynamicDataProvider";
 
 
@@ -60,7 +58,7 @@ const Gallary: React.FC = (): JSX.Element => {
     const [open, setOpen] = useState(false);
     const [imageURL, setImageURL] = useState('');
     const [images, setImages] = useState(IMAGES);
-    const hasSelected = images.some((image) => image.isSelected);
+    
 
     const dynamicData: any = useDynamicData();
     const { referrer, setReferrerData } = dynamicData.state;
@@ -70,7 +68,7 @@ const Gallary: React.FC = (): JSX.Element => {
           i === index ? { ...image, isSelected: !image.isSelected } : image
         );
         setImages(nextImages);
-
+        const hasSelected = nextImages.some((image) => image.isSelected);
         const referrerObj = {hasSelected}
         console.log('referrer',referrer)
         console.log('referrerObj',referrerObj)

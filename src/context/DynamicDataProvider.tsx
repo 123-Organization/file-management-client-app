@@ -7,12 +7,12 @@ type DynamicDataProviderProps = {
 }
 
 interface IFileUpload {
-  hasSelectedFile: boolean
+  hasSelected: boolean
 }
 
 
 const referrer: IFileUpload = {
-  "hasSelectedFile": false
+  "hasSelected": false
 };
 
 const initialState = {
