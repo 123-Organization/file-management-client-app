@@ -15,8 +15,8 @@ phases:
       - npm run build
 
 artifacts:
-  files:
-    - '**/*'
-    #- "my-app/build/**/*"
-  base-directory: 'fine.work.file-manage/build'
-  #discard-paths: yes
+  type: S3
+  name: MyBuildArtifacts
+  s3Location:
+    bucket: fine.work.file-manage
+    path: '/'
