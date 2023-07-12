@@ -14,11 +14,9 @@ phases:
       - echo Build started on 'date'
       - npm run build
 
-artifacts:
+aartifacts:
   files:
     - '**/*'
-    #- "file-app/build/**/*"
-       "build/**/*"
-  #base-directory: 'file-app/build'
-  #base-directory: 'build'
+    - "build/**/*"
+  #base-directory: 'my-app/build'
   #discard-paths: yes
