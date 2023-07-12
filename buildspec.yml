@@ -18,5 +18,6 @@ artifacts:
   files:
     - '**/*'
     #- "file-app/build/**/*"
-  base-directory: 'file-app/build'
+  #base-directory: 'file-app/build'
+  base-directory: 'build'
   #discard-paths: yes
