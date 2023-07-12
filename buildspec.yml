@@ -20,3 +20,4 @@ artifacts:
     #- "file-app/build/**/*"
   base-directory: 'my-app/build'
   #discard-paths: yes
+  
