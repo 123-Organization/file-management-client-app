@@ -15,8 +15,7 @@ phases:
       - npm run build
 
 artifacts:
-  type: S3
-  name: MyBuildArtifacts
-  s3Location:
-    bucket: fine.work.file-manage
-    path: '/'
+  files:
+   - '**/*'
+  base-directory: build
+  name: output
