@@ -27,3 +27,8 @@ code {
   border: solid 3px lightgray;
   border-radius: 4px;
 }
+
+.bg-orange-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 115 22 / var(--tw-bg-opacity))!important;
+}
