@@ -160,6 +160,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       open={imageListModal}
                       onOk={() => setImageListModal(false)}
                       onCancel={() => setImageListModal(false)}
+                      closeIcon={<></>}
                       width={'70%'}
                       footer={[
                         // images?.length>=1 &&
@@ -183,8 +184,8 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
 
                         {imageList.map((image, index) => (
-                          <div key={index} className={`image-item  ${image.isSelected?'isSelectedImg':''}`} >
-                            <img className='h-auto cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
+                          <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
+                            <img className='h-[57%] cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
                             <div className='flex relative w-full flex-col'>
                                 <div className='text-sm pt-10 mb-2'>Lorem ipsum </div>
                                 <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
