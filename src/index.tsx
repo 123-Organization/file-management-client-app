@@ -16,7 +16,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-    <BrowserRouter basename="/app">
+    <BrowserRouter basename="/">
     <DynamicDataProvider>
 
     <QueryClientProvider client={queryClient}>
