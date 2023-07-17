@@ -2,9 +2,34 @@ import React, { useState } from 'react'
 import logo from '../assets/logo/finerworks_logo_icon.svg';
 import FilterSortModal from './FilterSortModal';
 import UploadModal from './UploadModal';
+import type { MenuProps } from 'antd';
+import { Button, Dropdown, Space, message } from 'antd';
+import { FileOutlined, FileTextOutlined } from '@ant-design/icons';
+
 
 import { useDynamicData } from "../context/DynamicDataProvider";
 import { useNavigate } from 'react-router';
+
+const items: MenuProps['items'] = [
+    {
+      label: 'Temporary',
+      key: '1',
+      icon: <FileOutlined className='gallary-text-lg' />,
+      
+    },
+    {
+      label: 'Inventory',
+      key: '2',
+      icon: <FileTextOutlined className='gallary-text-lg'  />,
+    }
+];
+
+    
+const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    message.info('Click on left button.');
+    console.log('click left button', e);
+  };
+
 
 
 const HeaderIcon: React.FC = (): JSX.Element => {
@@ -13,13 +38,33 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     const navigate = useNavigate();
 
     const dynamicData: any = useDynamicData();
-    const { referrer } = dynamicData.state;
+    const { referrer, fileLocation } = dynamicData.state;
+    
+    const handleMenuClick: MenuProps['onClick'] = (e) => {
+        //message.info('Click on menu item.');
+        console.log('click', e);
+        const fileLocationObj= {selected:((e.key==='2')?'inventory':'temporary')}
+
+        let isUpdated = JSON.stringify(fileLocation) !== JSON.stringify(fileLocationObj);
+        console.log('isUpdated',isUpdated)
+    
+        isUpdated && dynamicData.mutations.setFileLocationData(fileLocationObj);
+        
+    };
+        
+ 
+    const menuProps = {
+        items,
+        onClick: handleMenuClick,
+      };
+
+  
     
     
     
     return (
         <div className='flex w-full'>
-            <div className=" top-20 left-0 z-50 w-full h-18 bg-white  my-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+            <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
                 <div className="grid  max-w-[700px] grid-cols-7 font-medium">
                     <img src={logo} onClick={()=>{ navigate('/') }} className="App-logo-icon cursor-pointer " alt="logo" />    
                     <button onClick={()=>{ navigate('/') }} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
@@ -32,7 +77,14 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                         <svg className="w-5 h-5 mb-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6M9 8h6m-6 3h6M4.996 5h.01m-.01 3h.01m-.01 3h.01M2 1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
                         </svg>
-                        <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Gallary</span>
+                        <span className="text-sm text-gray-500 whitespace-nowrap dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">
+                        {/* Gallary */}
+                        <Dropdown menu={menuProps}>
+                            <Space>
+                               My Libraries
+                            </Space>
+                        </Dropdown>
+                        </span>
                     </button>
                     <button  onClick={() => setOpenUpload(true)}  data-tooltip-target="tooltip-document" type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
                         <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">

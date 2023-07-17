@@ -1,5 +1,6 @@
 
 import { createContext, useContext, FunctionComponent, useState } from "react";
+import { IFileLocationType } from "../types/IFileLocationType";
 const DynamicDataContext = createContext({});
 
 type DynamicDataProviderProps = {
@@ -10,13 +11,23 @@ interface IFileUpload {
   hasSelected: boolean
 }
 
+interface IFileLocation {
+  selected: string
+}
+
 
 const referrer: IFileUpload = {
   "hasSelected": false
 };
 
+const fileLocation: IFileLocation = {
+  "selected": IFileLocationType.Temporary
+};
+
+
 const initialState = {
   referrer,
+  fileLocation
  }
 
 
@@ -34,6 +45,9 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
   const mutations = {
     setReferrerData: (referrer: IFileUpload): void => {
       setState((state: any) => ({ ...state, referrer }));
+    },
+    setFileLocationData: (fileLocation: IFileLocation): void => {
+      setState((state: any) => ({ ...state, fileLocation }));
     },
    
 

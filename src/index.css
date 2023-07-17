@@ -32,3 +32,15 @@ code {
   --tw-bg-opacity: 1;
   background-color: rgb(249 115 22 / var(--tw-bg-opacity))!important;
 }
+
+:where(.css-dev-only-do-not-override-14wwjjs).ant-pagination .ant-pagination-prev, :where(.css-dev-only-do-not-override-14wwjjs).ant-pagination .ant-pagination-next, :where(.css-dev-only-do-not-override-14wwjjs).ant-pagination .ant-pagination-jump-prev, :where(.css-dev-only-do-not-override-14wwjjs).ant-pagination .ant-pagination-jump-next{
+  min-width: 15px;
+}
+
+.gallary-text-lg {
+  font-size: 18px !important;
+}
+
+:where(.css-dev-only-do-not-override-14wwjjs).ant-tree .ant-tree-node-content-wrapper .ant-tree-iconEle, :where(.css-dev-only-do-not-override-14wwjjs).ant-tree .ant-tree-checkbox+span .ant-tree-iconEle{
+  height: 36px;
+}

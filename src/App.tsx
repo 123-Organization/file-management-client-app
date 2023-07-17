@@ -3,13 +3,14 @@ import logo from './assets/logo/finerworks_logo.svg';
 import './App.css';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import Router from "./routes";
-import { BrowserRouter, useNavigate } from "react-router-dom";
+import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 
 import { useDispatch } from 'react-redux';
 import { useTypedSelector } from './hooks/useTypeSelector';
 import { getComments } from './store/actionCreators/getComment';
 import { routes } from './config/routes';
 import HeaderIcon from './components/HeaderIcon';
+import BottomIcon from './components/BottomIcon';
 
 
 const { Header, Footer, Sider, Content } = Layout;
@@ -17,6 +18,8 @@ const { Header, Footer, Sider, Content } = Layout;
 const App: React.FC = () => {
   const dispatch = useDispatch();
   const [postId, setPostID] = useState("");
+  const location = useLocation();
+  console.log(location.pathname);
   const { comments, loading, error } = useTypedSelector((state) => state.comments);
   const navigate = useNavigate();
 
@@ -45,7 +48,10 @@ const App: React.FC = () => {
           <Router />
         </div>
       </Content>
-      <Footer style={{ textAlign: 'center' }}>Finer Works ©2023</Footer>
+      <Footer style={{ textAlign: 'center', backgroundColor: '#fff', }}>
+        {location.pathname==='/thumbnail' && <BottomIcon />}
+          FinerWorks ©2023
+        </Footer>
     </Layout>
 
   );
