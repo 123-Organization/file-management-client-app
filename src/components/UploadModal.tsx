@@ -4,6 +4,7 @@ import icloudImg from '../assets/provider/icon_icloud.svg';
 import googleDriveImg from '../assets/provider/icon_googledrive.svg';
 import dropBoxImg from '../assets/provider/icon_dropbox.svg';
 import artzipImg from '../assets/provider/icon_artzip.svg';
+import * as tus from 'tus-js-client'
 
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
 
@@ -26,7 +27,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [imageListModal, setImageListModal] = React.useState(false);
 
   const maxNumber = 8;
-  const maxFileSize = 1024 * 40;
+  const maxFileSize = 1024 * 1024 * 40; //40 MB
   
   const dynamicData: any = useDynamicData();
   const { referrer, setReferrerData } = dynamicData.state;
@@ -52,6 +53,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     console.log(`selected ${value}`);
   };
 
+    
 
 
   const onChange = (imageList: any, addUpdateIndex: any) => {
@@ -59,6 +61,61 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     console.log(imageList, addUpdateIndex);
     setImages(imageList);
     setImageListModal(true)
+    if (!tus.isSupported) {
+      alert('This browser does not support uploads. Please use a modern browser instead.')
+      return false;
+    }
+  
+    const accessToken = 'token8ejrKK333imj30';
+    const headerPost = {
+      Authorization: `bearer ${accessToken}`,
+      'Content-Type': 'multipart/form-data'
+    };
+  
+    for (const files of imageList) {
+      let file = files.file;
+      // Create a new tus upload
+        let upload = new tus.Upload(file, {
+          endpoint: "http://app-filemanager.finerworks.com:5000/api/uploadimage",
+          retryDelays: [0, 3000, 5000, 10000, 20000],
+          metadata: {
+              filename: file.name,
+              filetype: file.type,
+              title: "This is a test",
+              description: "This is a test description",
+              libraryName: "temporary",
+              librarySessionId: "81de5dba-0300-4988-a1cb-df97dfa4e3721",
+              libraryAccountKey: "kqdzaai2xyzppcxuhgsjorv21",
+              librarySiteId: "2",
+          },
+          // uploadUrl: files.data_url,
+          headers: {},
+          
+          onError: function(error) {
+              console.log("Failed because: " + error)
+          },
+          onProgress: function(bytesUploaded, bytesTotal) {
+              var percentage = (bytesUploaded / bytesTotal * 100).toFixed(2)
+              console.log(bytesUploaded, bytesTotal, percentage + "%")
+          },
+          onSuccess: function() {
+              console.log("Download %s from %s", upload.file, upload.url)
+          }
+      })
+
+      // Check if there are any previous uploads to continue.
+      upload.findPreviousUploads().then(function (previousUploads) {
+          // Found previous uploads so we select the first one. 
+          if (previousUploads.length) {
+              upload.resumeFromPreviousUpload(previousUploads[0])
+          }
+
+          // Start the upload
+          upload.start()
+      })
+    } 
+      
+
   };
 
   const onError = (errors: ErrorsType) => {
@@ -86,6 +143,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   };
 
+  
   return (
     <Modal
       style={{ height: '60%' }}
@@ -125,6 +183,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                 maxNumber={maxNumber}
                 dataURLKey="data_url"
                 maxFileSize={maxFileSize}
+                acceptType={['jpg', 'bmp', 'png', 'tif']}
               >
                 {({
                   imageList,
@@ -138,20 +197,22 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                 }) => (
                   // write your building UI
                   <div className="upload__image-wrapper text-center w-full">
-                    <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
-              shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
-              rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
-            focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
+                    <label
+                      style={isDragging ? { color: 'red' } : undefined}
+                      onClick={onImageUpload}
+                      {...dragProps}
+                      className="cursor-pointer hover:opacity-80 inline-flex items-center 
+                shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
+                rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
+              focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
 
-                      <button
-                        style={isDragging ? { color: 'red' } : undefined}
-                        onClick={onImageUpload}
-                        {...dragProps}
-                      >
-                        Select Images
-                      </button>
-                    </label>
-                    &nbsp;
+                        <button
+                        
+                        >
+                          Select Images
+                        </button>
+                      </label>
+                      &nbsp;
 
 
                     <Modal
