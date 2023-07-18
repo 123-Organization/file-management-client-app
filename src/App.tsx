@@ -7,7 +7,7 @@ import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 
 import { useDispatch } from 'react-redux';
 import { useTypedSelector } from './hooks/useTypeSelector';
-import { getComments } from './store/actionCreators/getComment';
+import { postUploadFiles } from './store/actionCreators/uploadFiles';
 import { routes } from './config/routes';
 import HeaderIcon from './components/HeaderIcon';
 import BottomIcon from './components/BottomIcon';
@@ -20,13 +20,13 @@ const App: React.FC = () => {
   const [postId, setPostID] = useState("");
   const location = useLocation();
   console.log(location.pathname);
-  const { comments, loading, error } = useTypedSelector((state) => state.comments);
+  const { images, loading, error } = useTypedSelector((state) => state.images);
   const navigate = useNavigate();
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    await dispatch(getComments(postId) as any);
+    await dispatch(postUploadFiles(postId) as any);
   }
 
   const {

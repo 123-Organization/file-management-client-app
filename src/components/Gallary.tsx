@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
 import axios from 'axios';
+import { Empty } from 'antd';
 
 
 const IMAGES = [
@@ -132,7 +133,11 @@ const Gallary: React.FC = (): JSX.Element => {
        
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 p-8">
-            {images.map(
+            {
+            images.length
+             ?
+                <>
+                {images.map(
                   (image, i) => (            
                         <div key={i} className={`${image.isSelected?'isSelectedImg':''}`} >
                             <img className={`h-[200px] cursor-pointer w-full rounded-lg `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
@@ -150,8 +155,11 @@ const Gallary: React.FC = (): JSX.Element => {
                             </div>
                         </div>
                     )
-            )}
-                       <EditGallaryModal openModel={open} setOpen={setOpen} imgURL={imageURL} />
+                )}
+                <EditGallaryModal openModel={open} setOpen={setOpen} imgURL={imageURL} />
+                </>
+            : <Empty />
+            }
         </div>
     )
 }
