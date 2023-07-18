@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
-import commentReducer from './index';
+import imageReducer from './index';
 
 const reducers = combineReducers({
-    comments: commentReducer
+    images: imageReducer
 });
 
 export default reducers;

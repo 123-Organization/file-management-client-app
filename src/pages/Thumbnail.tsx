@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Gallary from '../components/Gallary'
 import { DownOutlined } from '@ant-design/icons';
 import { Tree } from 'antd';
 import type { DataNode, TreeProps } from 'antd/es/tree';
 import { FileFilled, FileTextOutlined, FileOutlined, FileTextFilled  } from '@ant-design/icons';
 import { useDynamicData } from '../context/DynamicDataProvider';
+import axios from 'axios';
 
 const treeData: DataNode[] = [
   {
@@ -30,7 +31,6 @@ const treeData: DataNode[] = [
 
 const Thumbnail: React.FC = (): JSX.Element => {
 
-
   const dynamicData: any = useDynamicData();
   const { referrer, fileLocation } = dynamicData.state;
 
@@ -42,6 +42,27 @@ const Thumbnail: React.FC = (): JSX.Element => {
 
     isUpdated && dynamicData.mutations.setFileLocationData(fileLocationObj);
   };
+
+  useEffect(() => {
+
+    const options = {
+        "libraryName": "temporary",
+        "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e3721",
+        "libraryAccountKey": "kqdzaai2xyzppcxuhgsjorv21",
+        "librarySiteId": "2",
+        "filterSearchFilter": "",
+        "filterPageNumber": "1",
+        "filterPerPage": "10"
+      };
+    axios.post('http://app-filemanager.finerworks.com:5000/api/getallimages',options)
+    .then((response) => {
+      console.log('get all images',response);
+    }, (error) => {
+      console.log('Error : get all images',error);
+    });
+    
+
+  },[]);
 
   return (
     <div className='realtive'>

@@ -1,48 +1,50 @@
 import { Action, ActionType } from '../actionTypes/index';
 
-export interface Comment {
-    postId: number,
-    id: number,
-    name: string,
-    email: string,
-    body: string
+export interface ImageUpload {
+    title?: string,
+    description?: string,
+    image: File,
+    libraryName: string,
+    librarySessionId: string,
+    libraryAccountKey: string,
+    librarySiteId: string,
 }
 
 interface State {
-    comments: Comment[];
+    images: ImageUpload[];
     loading: boolean;
     error: string | null;
 }
 
 const initialState = {
-    comments: [],
+    images: [],
     loading: false, 
     error: null 
 }
 
-const commentReducer = (state: State = initialState, action: Action):State => {
+const imageReducer = (state: State = initialState, action: Action):State => {
     switch(action.type) {
-        case ActionType.GET_POST_COMMENTS_PENDING:
+        case ActionType.GET_POST_UPLOAD_IMAGE_PENDING:
             return {
                 loading: true,
-                comments: [],
+                images: [],
                 error: null  
             } 
-        case ActionType.GET_POST_COMMENTS_SUCCESS:
+        case ActionType.GET_POST_UPLOAD_IMAGE_SUCCESS:
             return {
                 loading: false,
-                comments: action.payload,
+                images: action.payload,
                 error: null 
             }
-        case ActionType.GET_POST_COMMENTS_FAIL:
+        case ActionType.GET_POST_UPLOAD_IMAGE_FAIL:
             return {
                 loading: false,
                 error: action.payload,
-                comments: []
+                images: []
             }
         default: 
             return state;
     }
 }
 
-export default commentReducer;
+export default imageReducer;

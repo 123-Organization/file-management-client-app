@@ -13,6 +13,7 @@ import {
   StopOutlined
 } from '@ant-design/icons';
 import { useDynamicData } from '../context/DynamicDataProvider';
+import axios from 'axios';
 
 const { Title, Text } = Typography;
 
@@ -74,45 +75,79 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   
     for (const files of imageList) {
       let file = files.file;
+
+      try {
+        axios({
+          baseURL: 'http://app-filemanager.finerworks.com:5000/api/uploadimage',
+          url: '',
+          method: 'post',
+          data: {
+            title:'This is a test',
+            description:'This is a test description',
+            libraryName:'temporary',
+            librarySessionId:'81de5dba-0300-4988-a1cb-df97dfa4e3721',
+            libraryAccountKey:'kqdzaai2xyzppcxuhgsjorv21',
+            librarySiteId:2,
+            image:file
+          },
+          headers:headerPost,
+          onUploadProgress: progress => {
+            const { loaded, total } = progress
+            const percentageProgress = Math.floor((loaded/(total?total:1)) * 100)
+            files.percentageProgress = percentageProgress;
+            console.log('percentageProgress',percentageProgress)
+            // dispatch(setUploadProgress(file.id, percentageProgress))
+          },
+        })
+        console.log('successUploadFile')
+        // dispatch(successUploadFile(file.id))
+        setImages(imageList)
+      } catch (error) {
+        console.log('failureUploadFile',error)
+        // dispatch(failureUploadFile(file.id))
+      }
+
       // Create a new tus upload
-        let upload = new tus.Upload(file, {
-          endpoint: "http://app-filemanager.finerworks.com:5000/api/uploadimage",
-          retryDelays: [0, 3000, 5000, 10000, 20000],
-          metadata: {
-              filename: file.name,
-              filetype: file.type,
-              title: "This is a test",
-              description: "This is a test description",
-              libraryName: "temporary",
-              librarySessionId: "81de5dba-0300-4988-a1cb-df97dfa4e3721",
-              libraryAccountKey: "kqdzaai2xyzppcxuhgsjorv21",
-              librarySiteId: "2",
-          },
-          // uploadUrl: files.data_url,
-          headers: {},
+      //https://tusd.tusdemo.net/files/
+      //   let upload = new tus.Upload(file, {
+      //     endpoint: "http://app-filemanager.finerworks.com:5000/api/uploadimage",
+      //     retryDelays: [0, 3000, 5000, 10000, 20000],
+      //     // chunkSize: 250 * 1024 * 1024,
+      //     metadata: {
+      //         filename: file.name,
+      //         filetype: file.type,
+      //         title: "This is a test",
+      //         description: "This is a test description",
+      //         libraryName: "temporary",
+      //         librarySessionId: "81de5dba-0300-4988-a1cb-df97dfa4e3721",
+      //         libraryAccountKey: "kqdzaai2xyzppcxuhgsjorv21",
+      //         librarySiteId: "2",
+      //     },
+      //     // uploadUrl: files.data_url,
+      //     headers: {},
           
-          onError: function(error) {
-              console.log("Failed because: " + error)
-          },
-          onProgress: function(bytesUploaded, bytesTotal) {
-              var percentage = (bytesUploaded / bytesTotal * 100).toFixed(2)
-              console.log(bytesUploaded, bytesTotal, percentage + "%")
-          },
-          onSuccess: function() {
-              console.log("Download %s from %s", upload.file, upload.url)
-          }
-      })
+      //     onError: function(error) {
+      //         console.log("Failed because: " + error)
+      //     },
+      //     onProgress: function(bytesUploaded, bytesTotal) {
+      //         var percentage = (bytesUploaded / bytesTotal * 100).toFixed(2)
+      //         console.log(bytesUploaded, bytesTotal, percentage + "%")
+      //     },
+      //     onSuccess: function() {
+      //         console.log("Download %s from %s", upload.file, upload.url)
+      //     }
+      // })
 
-      // Check if there are any previous uploads to continue.
-      upload.findPreviousUploads().then(function (previousUploads) {
-          // Found previous uploads so we select the first one. 
-          if (previousUploads.length) {
-              upload.resumeFromPreviousUpload(previousUploads[0])
-          }
+      // // Check if there are any previous uploads to continue.
+      // upload.findPreviousUploads().then(function (previousUploads) {
+      //     // Found previous uploads so we select the first one. 
+      //     if (previousUploads.length) {
+      //         upload.resumeFromPreviousUpload(previousUploads[0])
+      //     }
 
-          // Start the upload
-          upload.start()
-      })
+      //     // Start the upload
+      //     upload.start()
+      // })
     } 
       
 
@@ -250,7 +285,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                             <div className='flex relative w-full flex-col'>
                                 <div className='text-sm pt-10 mb-2'>Lorem ipsum </div>
                                 <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                                  <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: "45%"}}> 45%</div>
+                                  <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${image.percentageProgress?image.percentageProgress:'20'}%` }}> {image.percentageProgress?image.percentageProgress:'0'}%</div>
                                 </div>
                                 <div>
 
