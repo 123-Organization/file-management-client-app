@@ -1,14 +1,16 @@
 import React, { useState, Dispatch, SetStateAction  } from 'react'
 import { Button, Modal } from 'antd';
 import { JsxEmit } from 'typescript';
+import { deleteImages } from '../api/gallaryApi';
 
 interface EditGallaryModalProps {
   openModel: boolean;
   setOpen: Dispatch<SetStateAction<boolean>> ;
-  imgURL: string;
+  imgURL: any;
+  onDeleteHandler: Function
 }
 
-const EditGallaryModal = ({openModel, setOpen, imgURL} : EditGallaryModalProps) => {
+const EditGallaryModal = ({openModel, setOpen, imgURL,onDeleteHandler} : EditGallaryModalProps) => {
 
   
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ const EditGallaryModal = ({openModel, setOpen, imgURL} : EditGallaryModalProps) 
       onCancel={() => setOpen(false)}
       width={'78%'}
       footer={[
-        <button data-tooltip-target="tooltip-document" type="button" className="absolute left-2 inline-flex ml-10 flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+        <button onClick={()=>onDeleteHandler(imgURL.guid,false)} data-tooltip-target="tooltip-document" type="button" className="absolute left-2 inline-flex ml-10 flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
           <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z" />
           </svg>
@@ -54,7 +56,7 @@ const EditGallaryModal = ({openModel, setOpen, imgURL} : EditGallaryModalProps) 
         <section className="text-gray-600 body-font">
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
             <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
-              <img className="object-cover object-center rounded" alt="hero" src={ imgURL? imgURL : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
+              <img className="object-cover object-center rounded" alt="hero" src={ imgURL.public_preview_uri ? imgURL.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
             </div>
             <div className="lg:w-1/2 md:w-1/2 bg-white flex flex-col md:ml-auto w-full md:py-8 mt-8 md:mt-0">
               <h2 className="text-gray-400 text-base leading-7 mb-1 font-semibold title-font">

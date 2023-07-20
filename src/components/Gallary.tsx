@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react'
 import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
 import axios from 'axios';
-import { Empty } from 'antd';
+import { Empty, message } from 'antd';
+import { useMutation } from 'react-query';
+import { deleteImages } from '../api/gallaryApi';
 
 
 const IMAGES = [
@@ -81,11 +83,49 @@ const IMAGES = [
   ];
 
 const Gallary: React.FC = (): JSX.Element => {
-    const [open, setOpen] = useState(false);
-    const [imageURL, setImageURL] = useState('');
-    const [images, setImages] = useState(IMAGES);
-    
 
+    const {
+        mutate: deleteImageFn,
+        isLoading,
+        isError,
+        error,
+        data,
+        isSuccess,
+      } = useMutation((data: any) => deleteImages(data), {
+        onSuccess(data) {},
+        onError(error: any) {},
+      });
+    const [open, setOpen] = useState(false);
+    const [imageURL, setImageURL] = useState({});
+    const [images, setImages] = useState(IMAGES);
+    const [messageApi, contextHolder] = message.useMessage();
+    
+    const onDeleteHandler = (guids: string,multiple:boolean=true) => {
+        console.log('guids',guids)
+        if(multiple){
+            //@ts-ignore
+            guids = images.filter((img)=>img.isSelected).map((img)=>img.guid).join();
+            console.log('guids',guids);
+            // return false;
+        }
+        if (window.confirm('Are you sure')) {
+          let data = {
+                guids,
+                "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e3721",
+                "libraryAccountKey": "kqdzaai2xyzppcxuhgsjorv21",
+                "librarySiteId": "2"
+            }; 
+          deleteImageFn(data);
+        }
+    };
+    const success = () => {
+        messageApi.open({
+          type: 'success',
+          content: 'This is a success message',
+        });
+    };
+    isSuccess && success()
+ 
     const dynamicData: any = useDynamicData();
     const { referrer, setReferrerData } = dynamicData.state;
 
@@ -133,6 +173,7 @@ const Gallary: React.FC = (): JSX.Element => {
        
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 p-8">
+            {contextHolder}
             {
             images.length
              ?
@@ -146,7 +187,8 @@ const Gallary: React.FC = (): JSX.Element => {
                                 <div>
                                 <svg onClick={() => {
                                     setOpen(true)
-                                    setImageURL(image.public_preview_uri)
+                                    setImageURL(image)
+
                                     
                                 }}  className="absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h2v5m-2 0h4M9.408 5.5h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
@@ -156,7 +198,7 @@ const Gallary: React.FC = (): JSX.Element => {
                         </div>
                     )
                 )}
-                <EditGallaryModal openModel={open} setOpen={setOpen} imgURL={imageURL} />
+                <EditGallaryModal onDeleteHandler={onDeleteHandler} openModel={open} setOpen={setOpen} imgURL={imageURL} />
                 </>
             : <Empty />
             }
