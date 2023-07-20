@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
-import { Typography, Checkbox, Modal, Button } from 'antd';
+import { Typography, Checkbox, Modal, Button, message } from 'antd';
 import icloudImg from '../assets/provider/icon_icloud.svg';
 import googleDriveImg from '../assets/provider/icon_googledrive.svg';
 import dropBoxImg from '../assets/provider/icon_dropbox.svg';
@@ -29,6 +29,8 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const maxFileSize = 1024 * 1024 * 40; //40 MB
 
   const [images, setImages] = React.useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([...new Array(maxNumber)].fill(10,1,8));
   const [imageListModal, setImageListModal] = React.useState(false);
   const [imageListEvent, setImageListEvent] = React.useState(false);
@@ -58,7 +60,6 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     console.log(`selected ${value}`);
   };
 
-    
 
 
   const onChange = (imageList: any, addUpdateIndex: any) => {
@@ -138,7 +139,16 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                 });
                 // dispatch(setUploadProgress(file.id, percentageProgress))
               },
-            })
+            }).catch(
+              function (error) {
+                console.log('Show error notification!')
+                console.log('failureUploadFile',error)
+                  messageApi.open({
+                    type: 'error',
+                    content: error.response.data.message,
+                  });
+                //return Promise.reject(error.response.data.message)
+              });
             
             console.log('Before2...',imagesProgress)
             //setImagesProgress(imagesProgress)
@@ -148,6 +158,10 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
             
           } catch (error) {
             console.log('failureUploadFile',error)
+              // messageApi.open({
+              //   type: 'error',
+              //   content: error,
+              // });
             // dispatch(failureUploadFile(file.id))
           }
 
@@ -193,16 +207,29 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       //     // Start the upload
       //     upload.start()
       // })
-    } 
-
-  }, 0);
+        if((imageList.length-1)===index){
+          flushSync(() => {
+              // setImageListModal(false)
+          })
+          messageApi.open({
+            type: 'success',
+            content: 'Files has been uploaded',
+          });
+         
+          setTimeout(() => {
+            window.location.reload();
+          }, 6000);
+         
+        }
+      } 
+    }, 0);
 
       
 
   };
 
   useEffect(() => {
-    console.log(`UseEffect Called:  ${images} ${imagesProgress}`);
+    console.log(`UseEffect Called:  ${images} ${imagesProgress}`,images);
   }, [images,imagesProgress,imageListEvent]);
 
   const onError = (errors: ErrorsType) => {
@@ -332,7 +359,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       </>
                       } */}
                       <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
-
+                      {contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
                             <img className='h-[57%] cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
