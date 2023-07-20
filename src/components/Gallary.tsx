@@ -140,7 +140,7 @@ const Gallary: React.FC = (): JSX.Element => {
                 {images.map(
                   (image, i) => (            
                         <div key={i} className={`${image.isSelected?'isSelectedImg':''}`} >
-                            <img className={`h-[200px] cursor-pointer w-full rounded-lg `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
+                            <img className={`h-[190px] cursor-pointer w-[190px] rounded-lg object-cover aspect-square  `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
                             <div className='flex relative w-full'>
                                 <div className='text-sm pt-10'>{` ${image.title?image.title: 'Lorem ipsum'}` }</div>
                                 <div>

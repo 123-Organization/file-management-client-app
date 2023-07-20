@@ -298,7 +298,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                 maxNumber={maxNumber}
                 dataURLKey="data_url"
                 maxFileSize={maxFileSize}
-                acceptType={['jpg', 'bmp', 'png', 'tif']}
+                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif']}
               >
                 {({
                   imageList,
