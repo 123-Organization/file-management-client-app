@@ -1,5 +1,5 @@
-import React, { Dispatch, FC, SetStateAction, useState } from 'react'
-import { Typography, Checkbox, Modal, Button } from 'antd';
+import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
+import { Typography, Checkbox, Modal, Button, message } from 'antd';
 import icloudImg from '../assets/provider/icon_icloud.svg';
 import googleDriveImg from '../assets/provider/icon_googledrive.svg';
 import dropBoxImg from '../assets/provider/icon_dropbox.svg';
@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useDynamicData } from '../context/DynamicDataProvider';
 import axios from 'axios';
+import { flushSync } from 'react-dom';
 
 const { Title, Text } = Typography;
 
@@ -24,11 +25,16 @@ interface UploadModalProps {
 
 const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
-  const [images, setImages] = React.useState([]);
-  const [imageListModal, setImageListModal] = React.useState(false);
-
   const maxNumber = 8;
   const maxFileSize = 1024 * 1024 * 40; //40 MB
+
+  const [images, setImages] = React.useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const [imagesProgress, setImagesProgress] = React.useState<number[]>([...new Array(maxNumber)].fill(10,1,8));
+  const [imageListModal, setImageListModal] = React.useState(false);
+  const [imageListEvent, setImageListEvent] = React.useState(false);
+
   
   const dynamicData: any = useDynamicData();
   const { referrer, setReferrerData } = dynamicData.state;
@@ -54,63 +60,116 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     console.log(`selected ${value}`);
   };
 
-    
 
 
   const onChange = (imageList: any, addUpdateIndex: any) => {
-    // data for submit
-    console.log(imageList, addUpdateIndex);
-    setImages(imageList);
-    setImageListModal(true)
-    if (!tus.isSupported) {
-      alert('This browser does not support uploads. Please use a modern browser instead.')
-      return false;
-    }
-  
-    const accessToken = 'token8ejrKK333imj30';
-    const headerPost = {
-      Authorization: `bearer ${accessToken}`,
-      'Content-Type': 'multipart/form-data'
-    };
-  
-    for (const files of imageList) {
-      let file = files.file;
 
-      try {
-        axios({
-          baseURL: 'http://app-filemanager.finerworks.com:5000/api/uploadimage',
-          url: '',
-          method: 'post',
-          data: {
-            title:'This is a test',
-            description:'This is a test description',
-            libraryName:'temporary',
-            librarySessionId:'81de5dba-0300-4988-a1cb-df97dfa4e3721',
-            libraryAccountKey:'kqdzaai2xyzppcxuhgsjorv21',
-            librarySiteId:2,
-            image:file
-          },
-          headers:headerPost,
-          onUploadProgress: progress => {
-            const { loaded, total } = progress
-            const percentageProgress = Math.floor((loaded/(total?total:1)) * 100)
-            files.percentageProgress = percentageProgress;
-            console.log('percentageProgress',percentageProgress)
-            // dispatch(setUploadProgress(file.id, percentageProgress))
-          },
-        })
-        console.log('successUploadFile')
-        // dispatch(successUploadFile(file.id))
-        setImages(imageList)
-      } catch (error) {
-        console.log('failureUploadFile',error)
-        // dispatch(failureUploadFile(file.id))
-      }
+    setTimeout(() => {
+      
+            // data for submit
+        //setImagesProgress([...new Array(maxNumber)].fill(10,1,8));
+        console.log(imageList, addUpdateIndex);
+        console.log('imagesProgress[index]',imagesProgress[0])
+        flushSync(() => {
+          setImages(imageList);
+        });
+        flushSync(() => {
+          setImageListEvent(false);
+        });
+        flushSync(() => {
+          setImageListModal(true)
+        }); 
+        if (!tus.isSupported) {
+          alert('This browser does not support uploads. Please use a modern browser instead.')
+          return false;
+        }
+      
+        const accessToken = 'token8ejrKK333imj30';
+        const headerPost = {
+          Authorization: `bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data'
+        };
+        console.log('first...',imagesProgress)
+        // let index=0;
+        for (const [index,files] of imageList.entries()) {
+          let file = files.file;
 
+          try {
+            axios({
+              baseURL: 'http://app-filemanager.finerworks.com:5000/api/uploadimage',
+              url: '',
+              method: 'post',
+              data: {
+                title:'This is a test',
+                description:'This is a test description',
+                libraryName:'temporary',
+                librarySessionId:'81de5dba-0300-4988-a1cb-df97dfa4e3721',
+                libraryAccountKey:'kqdzaai2xyzppcxuhgsjorv21',
+                librarySiteId:2,
+                image:file
+              },
+              headers:headerPost,
+              onUploadProgress: progress => {
+                const { loaded, total } = progress
+                const percentageProgress = Math.floor((loaded/(total?total:1)) * 100)
+                console.log('index',index)
+                imagesProgress[index] = percentageProgress;
+                imageList[index]['percentageProgress'] = percentageProgress;
+                console.log('percentageProgress',percentageProgress)
+                // setImagesProgress
+
+                flushSync(() => {
+                  setImages(imageList);
+                });
+
+                flushSync(() => {
+                  setImagesProgress(imagesProgress);
+                });
+                flushSync(() => {
+                  // console
+                  console.log('Before...',imagesProgress)
+                  //setImagesProgress(imagesProgress)
+                 
+                  console.log('After...',imagesProgress)
+                  //if(percentageProgress!==imagesProgress[index])
+                    setImageListEvent(true)
+                    // setTimeout(() => {
+                    //  onChange(imageList, addUpdateIndex);
+                    // }, (5000));
+                });
+                // dispatch(setUploadProgress(file.id, percentageProgress))
+              },
+            }).catch(
+              function (error) {
+                console.log('Show error notification!')
+                console.log('failureUploadFile',error)
+                  messageApi.open({
+                    type: 'error',
+                    content: error.response.data.message,
+                  });
+                //return Promise.reject(error.response.data.message)
+              });
+            
+            console.log('Before2...',imagesProgress)
+            //setImagesProgress(imagesProgress)
+            console.log('After2...',imagesProgress)
+            console.log('successUploadFile',imageList)
+            // dispatch(successUploadFile(file.id))
+            
+          } catch (error) {
+            console.log('failureUploadFile',error)
+              // messageApi.open({
+              //   type: 'error',
+              //   content: error,
+              // });
+            // dispatch(failureUploadFile(file.id))
+          }
+
+          // setImages(imageList)
       // Create a new tus upload
-      //https://tusd.tusdemo.net/files/
+      // https://tusd.tusdemo.net/files/
       //   let upload = new tus.Upload(file, {
-      //     endpoint: "http://app-filemanager.finerworks.com:5000/api/uploadimage",
+      //     endpoint: "https://tusd.tusdemo.net/files/",
       //     retryDelays: [0, 3000, 5000, 10000, 20000],
       //     // chunkSize: 250 * 1024 * 1024,
       //     metadata: {
@@ -148,10 +207,30 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       //     // Start the upload
       //     upload.start()
       // })
-    } 
+        if((imageList.length-1)===index){
+          flushSync(() => {
+              // setImageListModal(false)
+          })
+          messageApi.open({
+            type: 'success',
+            content: 'Files has been uploaded',
+          });
+         
+          setTimeout(() => {
+            window.location.reload();
+          }, 6000);
+         
+        }
+      } 
+    }, 0);
+
       
 
   };
+
+  useEffect(() => {
+    console.log(`UseEffect Called:  ${images} ${imagesProgress}`,images);
+  }, [images,imagesProgress,imageListEvent]);
 
   const onError = (errors: ErrorsType) => {
     // data for submit
@@ -175,6 +254,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     console.log('isUpdated',isUpdated)
 
     isUpdated && dynamicData.mutations.setReferrerData(referrerObj);
+
 
   };
 
@@ -210,7 +290,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
                */}
               {/* <input id="uploadImage" className="text-sm cursor-pointer w-36 hidden" type="file" /> */}
-              <ImageUploading
+              {imagesProgress && <ImageUploading
                 multiple
                 value={images}
                 onChange={onChange}
@@ -263,6 +343,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                         <Button key="submit" className='py-2 bg-orange-500' size={'large'} type="primary" loading={loading} onClick={() => {
                           handleOk();
                           onImageRemoveAll();
+                          window.location.reload();
                         }}>
                           Cancel All
                         </Button>,
@@ -278,14 +359,14 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       </>
                       } */}
                       <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
-
-                        {imageList.map((image, index) => (
+                      {contextHolder}
+                        {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
                             <img className='h-[57%] cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
                             <div className='flex relative w-full flex-col'>
                                 <div className='text-sm pt-10 mb-2'>Lorem ipsum </div>
                                 <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                                  <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${image.percentageProgress?image.percentageProgress:'20'}%` }}> {image.percentageProgress?image.percentageProgress:'0'}%</div>
+                                  <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${imagesProgress[index]?imagesProgress[index]:'20'}%`, minWidth:'20%' }}> {imagesProgress[index]?imagesProgress[index] :'0'}%</div>
                                 </div>
                                 <div>
 
@@ -323,6 +404,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                   </div>
                 )}
               </ImageUploading>
+            }
               {/* </label> */}
 
             </div>
