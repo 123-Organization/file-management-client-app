@@ -5,11 +5,11 @@ const BASE_URL = 'http://app-filemanager.finerworks.com:5000/api/';
 
 export const authApi = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,
+  withCredentials: false,
 });
 
 authApi.defaults.headers.common['Content-Type'] = 'application/json';
-authApi.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+// authApi.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 
 export const refreshAccessTokenFn = async () => {

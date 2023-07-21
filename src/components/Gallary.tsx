@@ -92,7 +92,14 @@ const Gallary: React.FC = (): JSX.Element => {
         data,
         isSuccess,
       } = useMutation((data: any) => deleteImages(data), {
-        onSuccess(data) {},
+        onSuccess(data) {
+          messageApi.open({
+            type: 'success',
+            content: 'File has been deleted',
+          });
+          setOpen(false)
+          getAllImages();
+        },
         onError(error: any) {},
       });
     const [open, setOpen] = useState(false);
@@ -118,13 +125,7 @@ const Gallary: React.FC = (): JSX.Element => {
           deleteImageFn(data);
         }
     };
-    const success = () => {
-        messageApi.open({
-          type: 'success',
-          content: 'This is a success message',
-        });
-    };
-    isSuccess && success()
+
  
     const dynamicData: any = useDynamicData();
     const { referrer, setReferrerData } = dynamicData.state;
@@ -145,31 +146,34 @@ const Gallary: React.FC = (): JSX.Element => {
         isUpdated && dynamicData.mutations.setReferrerData(referrerObj);
 
       };
+
+      const getAllImages = () => {
+            const options = {
+              "libraryName": "temporary",
+              "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e3721",
+              "libraryAccountKey": "kqdzaai2xyzppcxuhgsjorv21",
+              "librarySiteId": "2",
+              "filterSearchFilter": "",
+              "filterPageNumber": "1",
+              "filterPerPage": "10"
+            };
+          axios.post('http://app-filemanager.finerworks.com:5000/api/getallimages',options)
+          .then((response) => {
+            console.log('get all images',response);
+            response.data.data.images.map((image:any) => image.isSelected=false)
+            console.log('only images',response.data.data.images);
+            setImages(response.data.data.images)
+            
+          }, (error) => {
+            console.log('Error : get all images',error);
+          });
+      }
     
       useEffect(() => {
-
-        const options = {
-            "libraryName": "temporary",
-            "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e3721",
-            "libraryAccountKey": "kqdzaai2xyzppcxuhgsjorv21",
-            "librarySiteId": "2",
-            "filterSearchFilter": "",
-            "filterPageNumber": "1",
-            "filterPerPage": "10"
-          };
-        axios.post('http://app-filemanager.finerworks.com:5000/api/getallimages',options)
-        .then((response) => {
-          console.log('get all images',response);
-          response.data.data.images.map((image:any) => image.isSelected=false)
-          console.log('only images',response.data.data.images);
-          setImages(response.data.data.images)
-          
-        }, (error) => {
-          console.log('Error : get all images',error);
-        });
-        
-    
+        getAllImages();
       },[]);
+
+      
        
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 p-8">
