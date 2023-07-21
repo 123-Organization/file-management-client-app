@@ -9,7 +9,7 @@ export const authApi = axios.create({
 });
 
 authApi.defaults.headers.common['Content-Type'] = 'application/json';
-// authApi.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+authApi.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 
 export const refreshAccessTokenFn = async () => {
