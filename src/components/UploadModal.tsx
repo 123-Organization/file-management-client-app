@@ -217,6 +217,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
           });
          
           setTimeout(() => {
+            setImages([])
             window.location.reload();
           }, 6000);
          
@@ -359,7 +360,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       </>
                       } */}
                       <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
-                      {contextHolder}
+                      {imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
                             <img className='h-[57%] cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
