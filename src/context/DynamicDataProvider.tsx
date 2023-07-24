@@ -41,7 +41,7 @@ const userInfo: IUserInfo = {
   "librarySiteId": "2",
   "filterSearchFilter": "",
   "filterPageNumber": "1",
-  "filterPerPage": "10"
+  "filterPerPage": "12"
 }
 
 const initialState = {

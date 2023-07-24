@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
 import { Empty, message } from 'antd';
-import { useMutation } from 'react-query';
+import { QueryClient, useMutation } from 'react-query';
 import { deleteImages, getImages } from '../api/gallaryApi';
 import images from "../json/images.json"
 
@@ -53,6 +53,7 @@ const Gallary: React.FC = (): JSX.Element => {
         onSuccess(data:any) {
           console.log('getAll images',data.data.images);
           setImages(data.data.images)
+          // QueryClient.setQueryData('allImages', newArticle);
         },
         onError(error: any) {},
     });
@@ -107,8 +108,8 @@ const Gallary: React.FC = (): JSX.Element => {
       }
     
       useEffect(() => {
-        getAllImagesFn(getAllImageParams("1"));
-      },[]);
+        getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+      },[userInfo]);
 
 /**
  * ****************************************************************** JSX  ***************************************************************************

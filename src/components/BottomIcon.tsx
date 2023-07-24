@@ -3,14 +3,23 @@ import type { PaginationProps } from 'antd';
 import { Pagination } from 'antd';
 import { useDynamicData } from '../context/DynamicDataProvider';
 
-const onChange: PaginationProps['onChange'] = (pageNumber) => {
-    console.log('Page: ', pageNumber);
-  };
 
 
 const BottomIcon: React.FC = (): JSX.Element => {
     const dynamicData: any = useDynamicData();
-    const { referrer, fileLocation } = dynamicData.state;
+    const { userInfo, referrer, fileLocation } = dynamicData.state;
+    
+    const onChange: PaginationProps['onChange'] = (filterPageNumber) => {
+        console.log('Page: ', filterPageNumber);
+    
+        let userInfoObj = {...userInfo,filterPageNumber};
+    
+        let isUpdated = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
+        console.log('isUpdated',isUpdated,userInfo,userInfoObj)
+    
+        isUpdated && dynamicData.mutations.setUserInfoData(userInfoObj);
+      };
+    
     console.log('fileLocation',fileLocation)
     return (
         <div className='flex'>
