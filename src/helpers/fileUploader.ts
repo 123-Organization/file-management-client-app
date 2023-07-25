@@ -28,7 +28,7 @@ export class Uploader {
     // this must be bigger than or equal to 5MB,
     // otherwise AWS will respond with:
     // "Your proposed upload is smaller than the minimum allowed size"
-    this.chunkSize = options.chunkSize || 1024 * 1024 * 5
+    this.chunkSize = options.chunkSize || 1024 * 1024 * 10
     // number of parallel uploads
     this.threadsQuantity = Math.min(options.threadsQuantity || 5, 15)
     this.file = options.file
@@ -75,32 +75,35 @@ export class Uploader {
 
       const AWSFileDataOutput = initializeReponse.data
 
-      this.fileId = '555666';//AWSFileDataOutput.UploadId
-      this.fileKey = 'Keyewe09440'; //AWSFileDataOutput.Key
+      this.fileId = '5556662';//AWSFileDataOutput.UploadId
+      this.fileKey = 'Keyewe094402'; //AWSFileDataOutput.Key
 
-      // retrieving the pre-signed URLs
-      const numberOfparts = Math.ceil(this.file.size / this.chunkSize)
-      this.fileId = AWSFileDataOutput.uploadId;
-      const AWSMultipartFileDataInput = {
-        uploadId: this.fileId,
-        name: this.fileKey,
-        fileName,
-        partNumber: numberOfparts,
-        Tagging: `basecamp_project_id=${this.basecampProjectID}`,
-      }
-
-      const urlsResponse = await api.request({
-        url: "/get-upload-url",
-        method: "GET",
-        params: AWSMultipartFileDataInput,
-      })
       
 
+      const numberOfparts = Math.ceil(this.file.size / this.chunkSize)
       const newParts: any[] = [];
-      for (let i = 0; i < numberOfparts; i++) {
+      this.fileId = AWSFileDataOutput.uploadId;
+      for (let i = 1; i <= numberOfparts; i++) {
+
+        // retrieving the pre-signed URLs
+        const AWSMultipartFileDataInput = {
+          uploadId: this.fileId,
+          name: this.fileKey,
+          fileName,
+          partNumber: i,
+          Tagging: `basecamp_project_id=${this.basecampProjectID}`,
+        }
+
+        const urlsResponse = await api.request({
+          url: "/get-upload-url",
+          method: "GET",
+          params: AWSMultipartFileDataInput,
+        })
+      
+
         newParts.push({
           signedUrl: urlsResponse.data.presignedUrl,
-          PartNumber: i + 1
+          PartNumber: i 
         })
       }
       this.parts.push(...newParts)
@@ -172,6 +175,7 @@ export class Uploader {
   // finalizing the multipart upload request on success by calling
   // the finalization API
   async sendCompleteRequest() {
+    this.uploadedParts.sort((a, b) => parseFloat(a.PartNumber) - parseFloat(b.PartNumber));
     if (this.fileId && this.fileKey) {
       const videoFinalizationMultiPartInput = {"params": {
         uploadId: this.fileId,

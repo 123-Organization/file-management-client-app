@@ -29,7 +29,7 @@ interface UploadModalProps {
 const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   const maxNumber = 8;
-  const maxFileSize = 1024 * 1024 * 40; //40 MB
+  const maxFileSize = 1024 * 1024 * 70; //40 MB
 
   const [images, setImages] = React.useState([]);
   const [messageApi, contextHolder] = message.useMessage();
