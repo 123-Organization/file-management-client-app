@@ -13,7 +13,10 @@ export const startUpload = async (data:any) => {
 
     const params = {
       fileName,
-      fileType
+      fileType,
+      "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e3721",
+      "libraryAccountKey": "kqdzaai2xyzppcxuhgsjorv21",
+      "librarySiteId": "2",
       
     }
 

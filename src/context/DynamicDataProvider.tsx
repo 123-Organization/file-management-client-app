@@ -1,4 +1,3 @@
-
 import { createContext, useContext, FunctionComponent, useState } from "react";
 import { IFileLocationType } from "../types/IFileLocationType";
 const DynamicDataContext = createContext({});
@@ -8,16 +7,26 @@ type DynamicDataProviderProps = {
 }
 
 interface IFileUpload {
-  hasSelected: boolean
+  hasSelected: boolean,
+  fileSelected: string[]
 }
 
 interface IFileLocation {
   selected: string
 }
 
-
+interface IUserInfo {
+  libraryName:string
+  librarySessionId:string
+  libraryAccountKey:string
+  librarySiteId:string
+  filterSearchFilter:string
+  filterPageNumber:string
+  filterPerPage:string
+}  
 const referrer: IFileUpload = {
-  "hasSelected": false
+  "hasSelected": false,
+  "fileSelected": []
 };
 
 const fileLocation: IFileLocation = {
@@ -25,9 +34,20 @@ const fileLocation: IFileLocation = {
 };
 
 
+const userInfo: IUserInfo = {
+  "libraryName": "temporary",
+  "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e3721",
+  "libraryAccountKey": "kqdzaai2xyzppcxuhgsjorv21",
+  "librarySiteId": "2",
+  "filterSearchFilter": "",
+  "filterPageNumber": "1",
+  "filterPerPage": "12"
+}
+
 const initialState = {
   referrer,
-  fileLocation
+  fileLocation,
+  userInfo
  }
 
 
@@ -48,6 +68,9 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
     },
     setFileLocationData: (fileLocation: IFileLocation): void => {
       setState((state: any) => ({ ...state, fileLocation }));
+    },
+    setUserInfoData: (userInfo: IUserInfo): void => {
+      setState((state: any) => ({ ...state, userInfo }));
     },
    
 

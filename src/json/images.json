@@ -1,0 +1,76 @@
+{
+  "gallaryImages":[
+    {
+       "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg",
+       "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg",
+       "isSelected": false,
+       "title":"first image"
+    },
+    {
+       "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg",
+       "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg",
+       "isSelected": false,
+       "title":"second image"
+    },
+    {
+       "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg",
+       "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg",
+       "isSelected": false,
+       "title":"third image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg",
+        "isSelected": false,
+        "title":"fourth image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-4.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-4.jpg",
+        "isSelected": false,
+        "title":"fifth image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-5.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-5.jpg",
+        "isSelected": false,
+        "title":"six image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-6.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-6.jpg",
+        "isSelected": false,
+        "title":"seven image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-7.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-7.jpg",
+        "isSelected": false,
+        "title":"eight image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-8.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-8.jpg",
+        "isSelected": false,
+        "title":"nineth image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-9.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-9.jpg",
+        "isSelected": false,
+        "title":"tenth image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-10.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-10.jpg",
+        "isSelected": false,
+        "title":"eleventh image"
+    },
+    {
+        "public_thumbnail_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg",
+        "public_preview_uri": "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg",
+        "isSelected": false,
+        "title":"twelth image"
+    }
+  ]
+}

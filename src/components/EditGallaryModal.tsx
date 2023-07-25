@@ -1,7 +1,9 @@
-import React, { useState, Dispatch, SetStateAction  } from 'react'
+import React, { useState, Dispatch, SetStateAction, FC  } from 'react'
 import { Button, Modal } from 'antd';
-import { JsxEmit } from 'typescript';
-import { deleteImages } from '../api/gallaryApi';
+
+/**
+ * ****************************************************************** Outer Function **********************************************************
+ */
 
 interface EditGallaryModalProps {
   openModel: boolean;
@@ -10,8 +12,11 @@ interface EditGallaryModalProps {
   onDeleteHandler: Function
 }
 
-const EditGallaryModal = ({openModel, setOpen, imgURL,onDeleteHandler} : EditGallaryModalProps) => {
+/**
+ * ****************************************************************** Function Components *******************************************************
+ */
 
+const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgURL, onDeleteHandler} ) : JSX.Element => {
   
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +32,9 @@ const EditGallaryModal = ({openModel, setOpen, imgURL,onDeleteHandler} : EditGal
       setOpen(false);
     };    
 
-    
+/**
+ * ****************************************************************** JSX  ***************************************************************************
+ */    
   return (
     <>
     <Modal

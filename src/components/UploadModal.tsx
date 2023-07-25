@@ -15,6 +15,9 @@ import {
 import { useDynamicData } from '../context/DynamicDataProvider';
 import axios from 'axios';
 import { flushSync } from 'react-dom';
+import { useMutation } from 'react-query';
+import { startImageUpload } from '../api/gallaryApi';
+import { Uploader } from '../helpers/fileUploader';
 
 const { Title, Text } = Typography;
 
@@ -34,8 +37,24 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([...new Array(maxNumber)].fill(10,1,8));
   const [imageListModal, setImageListModal] = React.useState(false);
   const [imageListEvent, setImageListEvent] = React.useState(false);
+  const [uploader, setUploader] = useState<any>(undefined)
+  const [progress, setProgress] = useState(0)
 
-  
+//   const {
+//     mutate : startImageUploadFn,
+//     isLoading:isLoadingImg,
+//     isError:isErrorImg,
+//     error:errorImg,
+//     data:dataImg,
+//     isSuccess:isSuccessImg,
+//   } = useMutation((data: any) => startImageUpload(data), {
+//     onSuccess(data:any) {
+//       console.log('getAll images',data.data.images);
+//       setImages(data.data.images)
+//     },
+//     onError(error: any) {},
+// });
+
   const dynamicData: any = useDynamicData();
   const { referrer, setReferrerData } = dynamicData.state;
 
@@ -60,9 +79,50 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     console.log(`selected ${value}`);
   };
 
-
-
   const onChange = (imageList: any, addUpdateIndex: any) => {
+
+    console.log('imageList',imagesProgress[0])
+
+      let file = imageList[0].file;
+      const params = {
+        filename: file.name,
+        filetype: file.type,
+        "basecampProjectID": "",
+      }
+
+      if (file) {
+        console.log(file);
+        
+        let percentage: any = undefined
+  
+       const videoUploaderOptions = {
+          fileName: file.name,
+          fileType: file.type,
+          file,
+        }
+        const uploader = new Uploader(videoUploaderOptions)
+        setUploader(uploader)
+  
+        uploader
+          .onProgress(({ percentage: newPercentage }: any) => {
+            // to avoid the same percentage to be logged twice
+            if (newPercentage !== percentage) {
+              percentage = newPercentage
+              setProgress(percentage)
+              console.log('percentage', `${percentage}%`)
+            }
+          })
+          .onError((error: any) => {
+            //setFile(undefined)
+            console.error(error)
+          })
+  
+        uploader.start()
+      }
+  
+  }
+
+  const onChange1 = (imageList: any, addUpdateIndex: any) => {
 
     setTimeout(() => {
       
@@ -93,6 +153,12 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         // let index=0;
         for (const [index,files] of imageList.entries()) {
           let file = files.file;
+          const params = {
+            filename: file.name,
+            filetype: file.type,
+            "basecampProjectID": "",
+          }
+
 
           try {
             axios({
@@ -313,6 +379,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                 }) => (
                   // write your building UI
                   <div className="upload__image-wrapper text-center w-full">
+                    
                     <label
                       style={isDragging ? { color: 'red' } : undefined}
                       onClick={onImageUpload}
@@ -360,6 +427,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       </>
                       } */}
                       <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
+                      <p>Progress: {progress} %</p>
                       {imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >

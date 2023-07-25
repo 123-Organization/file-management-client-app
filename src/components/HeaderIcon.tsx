@@ -1,15 +1,16 @@
-import React, { useState } from 'react'
+import React, { CSSProperties, useState } from 'react'
 import logo from '../assets/logo/finerworks_logo_icon.svg';
 import FilterSortModal from './FilterSortModal';
 import UploadModal from './UploadModal';
-import type { MenuProps } from 'antd';
-import { Button, Dropdown, Space, message } from 'antd';
+import { Checkbox, MenuProps } from 'antd';
+import { Dropdown, Space, Modal, message } from 'antd';
 import { FileOutlined, FileTextOutlined } from '@ant-design/icons';
-
-
 import { useDynamicData } from "../context/DynamicDataProvider";
 import { useNavigate } from 'react-router';
 
+/**
+ * ****************************************************************** Outer Function ****************************************************
+ */
 const items: MenuProps['items'] = [
     {
       label: 'Temporary',
@@ -30,24 +31,29 @@ const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log('click left button', e);
   };
 
+const MODAL_STYLES: CSSProperties = {
+    fontSize: '16px'
+}
 
-
+/**
+ * ****************************************************************** Function Components **********************************************
+ */
 const HeaderIcon: React.FC = (): JSX.Element => {
+
     const [openFilter, setOpenFilter] = useState(false);
     const [openUpload, setOpenUpload] = useState(false);
+    
     const navigate = useNavigate();
 
     const dynamicData: any = useDynamicData();
     const { referrer, fileLocation } = dynamicData.state;
     
     const handleMenuClick: MenuProps['onClick'] = (e) => {
-        //message.info('Click on menu item.');
-        console.log('click', e);
-        const fileLocationObj= {selected:((e.key==='2')?'inventory':'temporary')}
 
+        const fileLocationObj= {selected:((e.key==='2')?'inventory':'temporary')} 
+        
         let isUpdated = JSON.stringify(fileLocation) !== JSON.stringify(fileLocationObj);
         console.log('isUpdated',isUpdated)
-    
         isUpdated && dynamicData.mutations.setFileLocationData(fileLocationObj);
         
     };
@@ -56,12 +62,32 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     const menuProps = {
         items,
         onClick: handleMenuClick,
+    };
+    
+    const createPrints = () => {
+        let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid).join()
+        window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
+    }
+    
+    const info = () => {
+        Modal.info({
+          title: 'Print Acknowledgement',
+          content: (
+            <div>
+              <p> 
+                <Checkbox className='py-10 align-text-top  text-gray-400 ' style={MODAL_STYLES}>
+                    I acknowledge I am the copyright holder or <a href='#' className='text-blue-400'>authorized</a> to print this images.
+                </Checkbox>
+            </p>                                                                                                                                                                                                                                          
+            </div>
+          ),
+          onOk() { createPrints() },
+          onCancel() {  },
+        });
       };
-
-  
-    
-    
-    
+/**
+ * ****************************************************************** JSX  ***************************************************************************
+ */
     return (
         <div className='flex w-full'>
             <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
@@ -106,7 +132,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                     </button>
                     {
                         referrer.hasSelected &&
-                        <button type="button" className="absolute fw-sky-btn" disabled>Create Prints</button>
+                        <button type="button" onClick={info} className="absolute fw-sky-btn ">Create Prints</button>
 
                     }
                 </div>
