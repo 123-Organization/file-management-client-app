@@ -97,7 +97,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   
        const videoUploaderOptions = {
           fileName: file.name,
-          filetype: file.type,
+          fileType: file.type,
           file,
         }
         const uploader = new Uploader(videoUploaderOptions)

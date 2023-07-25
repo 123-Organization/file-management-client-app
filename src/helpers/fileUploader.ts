@@ -3,6 +3,7 @@ import axios from "axios"
 // initializing axios
 const api = axios.create({
   baseURL: 'http://app-filemanager.finerworks.com:5000/api/',
+  withCredentials: false,
 })
 
 // original source: https://github.com/pilovm/multithreaded-uploader/blob/master/frontend/uploader.js
@@ -19,8 +20,8 @@ export class Uploader {
   basecampProjectID:number
   parts: any[]
   uploadedParts: any[]
-  fileId: null
-  fileKey: null
+  fileId: null | string
+  fileKey: null | string
   onProgressFn: (err: any) => void
   onErrorFn: (err: any) => void
   constructor(options: any) {
@@ -35,7 +36,7 @@ export class Uploader {
     this.fileType = options.fileType
     this.aborted = false
     this.uploadedSize = 0
-    this.basecampProjectID = 2234
+    this.basecampProjectID = 223433
     this.progressCache = {}
     this.activeConnections = {}
     this.parts = []
@@ -74,31 +75,31 @@ export class Uploader {
 
       const AWSFileDataOutput = initializeReponse.data
 
-      this.fileId = AWSFileDataOutput.UploadId
-      this.fileKey = AWSFileDataOutput.Key
+      this.fileId = '555666';//AWSFileDataOutput.UploadId
+      this.fileKey = 'Keyewe09440'; //AWSFileDataOutput.Key
 
       // retrieving the pre-signed URLs
       const numberOfparts = Math.ceil(this.file.size / this.chunkSize)
-
+      this.fileId = AWSFileDataOutput.uploadId;
       const AWSMultipartFileDataInput = {
         uploadId: this.fileId,
         name: this.fileKey,
         fileName,
-        parts: numberOfparts,
+        partNumber: numberOfparts,
         Tagging: `basecamp_project_id=${this.basecampProjectID}`,
       }
 
       const urlsResponse = await api.request({
         url: "/get-upload-url",
-        method: "POST",
-        data: AWSMultipartFileDataInput,
+        method: "GET",
+        params: AWSMultipartFileDataInput,
       })
       
 
       const newParts: any[] = [];
       for (let i = 0; i < numberOfparts; i++) {
         newParts.push({
-          signedUrl: urlsResponse.data,
+          signedUrl: urlsResponse.data.presignedUrl,
           PartNumber: i + 1
         })
       }
@@ -172,14 +173,15 @@ export class Uploader {
   // the finalization API
   async sendCompleteRequest() {
     if (this.fileId && this.fileKey) {
-      const videoFinalizationMultiPartInput = {
-        UploadId: this.fileId,
+      const videoFinalizationMultiPartInput = {"params": {
+        uploadId: this.fileId,
         Key: this.fileKey,
         parts: this.uploadedParts,
-      }
+        fileName: this.fileName,
+      }}
 
       await api.request({
-        url: "/complete-multipart",
+        url: "/complete-upload",
         method: "POST",
         data: videoFinalizationMultiPartInput,
       })
