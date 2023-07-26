@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Typography, Checkbox, Modal, Button, message } from 'antd';
+import { Typography, Checkbox, Modal, Button, message, notification } from 'antd';
 import icloudImg from '../assets/provider/icon_icloud.svg';
 import googleDriveImg from '../assets/provider/icon_googledrive.svg';
 import dropBoxImg from '../assets/provider/icon_dropbox.svg';
@@ -18,6 +18,7 @@ import { flushSync } from 'react-dom';
 import { useMutation } from 'react-query';
 import { startImageUpload } from '../api/gallaryApi';
 import { Uploader } from '../helpers/fileUploader';
+import { makeUniqueFileName } from '../helpers/fileHelper';
 
 const { Title, Text } = Typography;
 
@@ -37,25 +38,6 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
   const [imageListModal, setImageListModal] = React.useState(false);
   const [imageListEvent, setImageListEvent] = React.useState(false);
-  const [uploader, setUploader] = useState<any>(undefined)
-  const [progress, setProgress] = useState(0)
-  const [progressInfos, setProgressInfos] = useState({ val: [] });
-  //const progressInfosRef = useRef<object|null>(null)
-
-//   const {
-//     mutate : startImageUploadFn,
-//     isLoading:isLoadingImg,
-//     isError:isErrorImg,
-//     error:errorImg,
-//     data:dataImg,
-//     isSuccess:isSuccessImg,
-//   } = useMutation((data: any) => startImageUpload(data), {
-//     onSuccess(data:any) {
-//       console.log('getAll images',data.data.images);
-//       setImages(data.data.images)
-//     },
-//     onError(error: any) {},
-// });
 
   const dynamicData: any = useDynamicData();
   const { referrer, setReferrerData } = dynamicData.state;
@@ -130,7 +112,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const uploadImage = async(file: any, addUpdateIndex: any) => {
 
     const params = {
-      filename: file.name,
+      filename: await makeUniqueFileName(file.name),
       filetype: file.type,
       "basecampProjectID": "",
     }
@@ -163,9 +145,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         })
         .onError((error: any) => {
           //setFile(undefined)
-          imagesProgress[addUpdateIndex] = 0;
+          imagesProgress[addUpdateIndex] = 100;
           flushImagesProgress(imagesProgress);
-          console.error(error)
+          console.error('error file upload',error)
+          messageApi.open({
+            type: 'error',
+            content: 'File having issue while upload',
+          });
         })
 
       return await uploader.start()
@@ -179,6 +165,10 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       let totalProcess = imagesProgress.reduce((a,b) => a+b);
       console.log('totalProcess',totalProcess)
       if(totalProcess===(images.length*100)){
+        messageApi.open({
+          type: 'success',
+          content: 'File has been uploaded',
+        });
         setTimeout(() => {
           setUploadImageModal([],false)
           window.location.reload();

@@ -30,7 +30,7 @@ export class Uploader {
     // "Your proposed upload is smaller than the minimum allowed size"
     this.chunkSize = options.chunkSize || 1024 * 1024 * 10
     // number of parallel uploads
-    this.threadsQuantity = Math.min(options.threadsQuantity || 5, 15)
+    this.threadsQuantity = Math.min(options.threadsQuantity || 20, 30)
     this.file = options.file
     this.fileName = options.fileName
     this.fileType = options.fileType
