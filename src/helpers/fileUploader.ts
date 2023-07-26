@@ -48,8 +48,8 @@ export class Uploader {
   }
 
   // starting the multipart upload request
-  start() {
-    this.initialize()
+  async start() {
+    await this.initialize()
   }
 
   async initialize() {
