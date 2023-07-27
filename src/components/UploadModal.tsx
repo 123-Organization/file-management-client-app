@@ -40,7 +40,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [imageListEvent, setImageListEvent] = React.useState(false);
 
   const dynamicData: any = useDynamicData();
-  const { referrer, setReferrerData } = dynamicData.state;
+  const { referrer, userInfo } = dynamicData.state;
 
   const [loading, setLoading] = useState(false);
   const [uploadErrors, setUploadErrors] = useState<any>(null);
@@ -111,21 +111,17 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   const uploadImage = async(file: any, addUpdateIndex: any) => {
 
-    const params = {
-      filename: await makeUniqueFileName(file.name),
-      filetype: file.type,
-      "basecampProjectID": "",
-    }
-
     if (file) {
       console.log(file);
       
       let percentage: any = 0
 
      const videoUploaderOptions = {
-        fileName: file.name,
+        fileName: makeUniqueFileName(file.name),
         fileType: file.type,
         file,
+        userInfo,
+        basecampProjectID:(Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000))
       }
       //@ts-ignore
       // let _progressInfos = [...progressInfosRef?.current?.val];
@@ -171,7 +167,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         });
         setTimeout(() => {
           setUploadImageModal([],false)
-          window.location.reload();
+          //window.location.reload();
         }, 1000);
       }
     }
