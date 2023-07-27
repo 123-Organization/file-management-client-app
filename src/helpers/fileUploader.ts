@@ -13,6 +13,7 @@ export class Uploader {
   file: any
   fileName: any
   fileType: any
+  userInfo: object
   aborted: boolean
   uploadedSize: number
   progressCache: any
@@ -28,15 +29,16 @@ export class Uploader {
     // this must be bigger than or equal to 5MB,
     // otherwise AWS will respond with:
     // "Your proposed upload is smaller than the minimum allowed size"
-    this.chunkSize = options.chunkSize || 1024 * 1024 * 10
+    this.chunkSize = options.chunkSize || 1024 * 1024 * 10 // 5 MB
     // number of parallel uploads
-    this.threadsQuantity = Math.min(options.threadsQuantity || 5, 15)
+    this.threadsQuantity = Math.min(options.threadsQuantity || 20, 30)
     this.file = options.file
     this.fileName = options.fileName
     this.fileType = options.fileType
+    this.userInfo = options.userInfo
     this.aborted = false
     this.uploadedSize = 0
-    this.basecampProjectID = 223433
+    this.basecampProjectID = options.basecampProjectID
     this.progressCache = {}
     this.activeConnections = {}
     this.parts = []
@@ -47,9 +49,10 @@ export class Uploader {
     this.onErrorFn = () => {}
   }
 
+ 
   // starting the multipart upload request
-  start() {
-    this.initialize()
+  async start() {
+    await this.initialize()
   }
 
   async initialize() {
@@ -182,6 +185,8 @@ export class Uploader {
         Key: this.fileKey,
         parts: this.uploadedParts,
         fileName: this.fileName,
+        userInfo: this.userInfo,
+        fileSize:this.file.size
       }}
 
       await api.request({

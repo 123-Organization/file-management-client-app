@@ -1,5 +1,5 @@
-import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
-import { Typography, Checkbox, Modal, Button, message } from 'antd';
+import React, { Dispatch, FC, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Typography, Checkbox, Modal, Button, message, notification } from 'antd';
 import icloudImg from '../assets/provider/icon_icloud.svg';
 import googleDriveImg from '../assets/provider/icon_googledrive.svg';
 import dropBoxImg from '../assets/provider/icon_dropbox.svg';
@@ -18,6 +18,7 @@ import { flushSync } from 'react-dom';
 import { useMutation } from 'react-query';
 import { startImageUpload } from '../api/gallaryApi';
 import { Uploader } from '../helpers/fileUploader';
+import { makeUniqueFileName } from '../helpers/fileHelper';
 
 const { Title, Text } = Typography;
 
@@ -34,29 +35,12 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [images, setImages] = React.useState([]);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [imagesProgress, setImagesProgress] = React.useState<number[]>([...new Array(maxNumber)].fill(10,1,8));
+  const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
   const [imageListModal, setImageListModal] = React.useState(false);
   const [imageListEvent, setImageListEvent] = React.useState(false);
-  const [uploader, setUploader] = useState<any>(undefined)
-  const [progress, setProgress] = useState(0)
-
-//   const {
-//     mutate : startImageUploadFn,
-//     isLoading:isLoadingImg,
-//     isError:isErrorImg,
-//     error:errorImg,
-//     data:dataImg,
-//     isSuccess:isSuccessImg,
-//   } = useMutation((data: any) => startImageUpload(data), {
-//     onSuccess(data:any) {
-//       console.log('getAll images',data.data.images);
-//       setImages(data.data.images)
-//     },
-//     onError(error: any) {},
-// });
 
   const dynamicData: any = useDynamicData();
-  const { referrer, setReferrerData } = dynamicData.state;
+  const { referrer, userInfo } = dynamicData.state;
 
   const [loading, setLoading] = useState(false);
   const [uploadErrors, setUploadErrors] = useState<any>(null);
@@ -69,7 +53,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   };
 
   
-  !images.length && imageListModal && setImageListModal(false);
+  //!images.length && imageListModal && setImageListModal(false);
   const handleCancel = () => {
     setOpen(false);
   };
@@ -79,225 +63,115 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     console.log(`selected ${value}`);
   };
 
-  const onChange = (imageList: any, addUpdateIndex: any) => {
-
-    console.log('imageList',imagesProgress[0])
-
-      let file = imageList[0].file;
-      const params = {
-        filename: file.name,
-        filetype: file.type,
-        "basecampProjectID": "",
-      }
-
-      if (file) {
-        console.log(file);
-        
-        let percentage: any = undefined
-  
-       const videoUploaderOptions = {
-          fileName: file.name,
-          fileType: file.type,
-          file,
-        }
-        const uploader = new Uploader(videoUploaderOptions)
-        setUploader(uploader)
-  
-        uploader
-          .onProgress(({ percentage: newPercentage }: any) => {
-            // to avoid the same percentage to be logged twice
-            if (newPercentage !== percentage) {
-              percentage = newPercentage
-              setProgress(percentage)
-              console.log('percentage', `${percentage}%`)
-            }
-          })
-          .onError((error: any) => {
-            //setFile(undefined)
-            console.error(error)
-          })
-  
-        uploader.start()
-      }
-  
+  const setUploadImageModal = (imageList: any, modal: boolean) => {
+    flushSync(() => {
+      setImages(imageList);
+      setImageListModal(modal)
+    });  
   }
 
-  const onChange1 = (imageList: any, addUpdateIndex: any) => {
+  const flushImagesProgress = (arrPercentage: number[]) => {
+    flushSync(() => {
+      setTimeout(() => {
+        setImagesProgress(arrPercentage)
+      }, 1000);
+    });  
+  }
 
-    setTimeout(() => {
+  const onChange = async(imageList: any, addUpdateIndex: any) => {
+    
+    setImagesProgress([...new Array(maxNumber)].fill(1,0,(imageList.length)));
+    setUploadImageModal(imageList,true);
+    
+    console.log('imageList....',imageList)
+    // let _progressInfos = (imageList && imageList.length) 
+    // //@ts-ignore
+    // ? imageList.map((image) => ({ percentage: 0, fileName: image?.file?.name }))
+    // : null;
+    // console.log('_progressInfos',_progressInfos)
+    // if(!_progressInfos) return;
+    // progressInfosRef.current = {
+    //   val: _progressInfos,
+    // }
+    console.log('imageList',imageList)
+    
+    // return;
+    
+    //@ts-ignore
+    const uploadPromises = imageList.map((img, i) => uploadImage(img?.file,i));
+
+    await Promise.allSettled(uploadPromises)
+      .then((results) => results.forEach((result) => console.log(result.status)))
+      .then(()=>{
+       
+      });
+    //setUploadImageModal([],false)
+
+  }
+
+  const uploadImage = async(file: any, addUpdateIndex: any) => {
+
+    if (file) {
+      console.log(file);
       
-            // data for submit
-        //setImagesProgress([...new Array(maxNumber)].fill(10,1,8));
-        console.log(imageList, addUpdateIndex);
-        console.log('imagesProgress[index]',imagesProgress[0])
-        flushSync(() => {
-          setImages(imageList);
-        });
-        flushSync(() => {
-          setImageListEvent(false);
-        });
-        flushSync(() => {
-          setImageListModal(true)
-        }); 
-        if (!tus.isSupported) {
-          alert('This browser does not support uploads. Please use a modern browser instead.')
-          return false;
-        }
-      
-        const accessToken = 'token8ejrKK333imj30';
-        const headerPost = {
-          Authorization: `bearer ${accessToken}`,
-          'Content-Type': 'multipart/form-data'
-        };
-        console.log('first...',imagesProgress)
-        // let index=0;
-        for (const [index,files] of imageList.entries()) {
-          let file = files.file;
-          const params = {
-            filename: file.name,
-            filetype: file.type,
-            "basecampProjectID": "",
-          }
+      let percentage: any = 0
 
+     const videoUploaderOptions = {
+        fileName: makeUniqueFileName(file.name),
+        fileType: file.type,
+        file,
+        userInfo,
+        basecampProjectID:(Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000))
+      }
+      //@ts-ignore
+      // let _progressInfos = [...progressInfosRef?.current?.val];
+      const uploader = new Uploader(videoUploaderOptions)
+      //setUploader(uploader)
 
-          try {
-            axios({
-              baseURL: 'http://app-filemanager.finerworks.com:5000/api/uploadimage',
-              url: '',
-              method: 'post',
-              data: {
-                title:'This is a test',
-                description:'This is a test description',
-                libraryName:'temporary',
-                librarySessionId:'81de5dba-0300-4988-a1cb-df97dfa4e3721',
-                libraryAccountKey:'kqdzaai2xyzppcxuhgsjorv21',
-                librarySiteId:2,
-                image:file
-              },
-              headers:headerPost,
-              onUploadProgress: progress => {
-                const { loaded, total } = progress
-                const percentageProgress = Math.floor((loaded/(total?total:1)) * 100)
-                console.log('index',index)
-                imagesProgress[index] = percentageProgress;
-                imageList[index]['percentageProgress'] = percentageProgress;
-                console.log('percentageProgress',percentageProgress)
-                // setImagesProgress
-
-                flushSync(() => {
-                  setImages(imageList);
-                });
-
-                flushSync(() => {
-                  setImagesProgress(imagesProgress);
-                });
-                flushSync(() => {
-                  // console
-                  console.log('Before...',imagesProgress)
-                  //setImagesProgress(imagesProgress)
-                 
-                  console.log('After...',imagesProgress)
-                  //if(percentageProgress!==imagesProgress[index])
-                    setImageListEvent(true)
-                    // setTimeout(() => {
-                    //  onChange(imageList, addUpdateIndex);
-                    // }, (5000));
-                });
-                // dispatch(setUploadProgress(file.id, percentageProgress))
-              },
-            }).catch(
-              function (error) {
-                console.log('Show error notification!')
-                console.log('failureUploadFile',error)
-                  messageApi.open({
-                    type: 'error',
-                    content: error.response.data.message,
-                  });
-                //return Promise.reject(error.response.data.message)
-              });
-            
-            console.log('Before2...',imagesProgress)
-            //setImagesProgress(imagesProgress)
-            console.log('After2...',imagesProgress)
-            console.log('successUploadFile',imageList)
-            // dispatch(successUploadFile(file.id))
-            
-          } catch (error) {
-            console.log('failureUploadFile',error)
-              // messageApi.open({
-              //   type: 'error',
-              //   content: error,
-              // });
-            // dispatch(failureUploadFile(file.id))
-          }
-
-          // setImages(imageList)
-      // Create a new tus upload
-      // https://tusd.tusdemo.net/files/
-      //   let upload = new tus.Upload(file, {
-      //     endpoint: "https://tusd.tusdemo.net/files/",
-      //     retryDelays: [0, 3000, 5000, 10000, 20000],
-      //     // chunkSize: 250 * 1024 * 1024,
-      //     metadata: {
-      //         filename: file.name,
-      //         filetype: file.type,
-      //         title: "This is a test",
-      //         description: "This is a test description",
-      //         libraryName: "temporary",
-      //         librarySessionId: "81de5dba-0300-4988-a1cb-df97dfa4e3721",
-      //         libraryAccountKey: "kqdzaai2xyzppcxuhgsjorv21",
-      //         librarySiteId: "2",
-      //     },
-      //     // uploadUrl: files.data_url,
-      //     headers: {},
-          
-      //     onError: function(error) {
-      //         console.log("Failed because: " + error)
-      //     },
-      //     onProgress: function(bytesUploaded, bytesTotal) {
-      //         var percentage = (bytesUploaded / bytesTotal * 100).toFixed(2)
-      //         console.log(bytesUploaded, bytesTotal, percentage + "%")
-      //     },
-      //     onSuccess: function() {
-      //         console.log("Download %s from %s", upload.file, upload.url)
-      //     }
-      // })
-
-      // // Check if there are any previous uploads to continue.
-      // upload.findPreviousUploads().then(function (previousUploads) {
-      //     // Found previous uploads so we select the first one. 
-      //     if (previousUploads.length) {
-      //         upload.resumeFromPreviousUpload(previousUploads[0])
-      //     }
-
-      //     // Start the upload
-      //     upload.start()
-      // })
-        if((imageList.length-1)===index){
-          flushSync(() => {
-              // setImageListModal(false)
-          })
+      await uploader
+        .onProgress(({ percentage: newPercentage }: any) => {
+          // to avoid the same percentage to be logged twice
+          setImageListEvent(false)
+          if (newPercentage !== percentage) {
+            imagesProgress[addUpdateIndex] = percentage = newPercentage
+            console.log('percentage', `${percentage}%`)
+            flushImagesProgress(imagesProgress);
+            setImageListEvent(true)
+          } 
+        })
+        .onError((error: any) => {
+          //setFile(undefined)
+          imagesProgress[addUpdateIndex] = 100;
+          flushImagesProgress(imagesProgress);
+          console.error('error file upload',error)
           messageApi.open({
-            type: 'success',
-            content: 'Files has been uploaded',
+            type: 'error',
+            content: 'File having issue while upload',
           });
-         
-          setTimeout(() => {
-            setImages([])
-            window.location.reload();
-          }, 6000);
-         
-        }
-      } 
-    }, 0);
+        })
 
-      
+      return await uploader.start()
 
-  };
+    }
+  }   
 
   useEffect(() => {
     console.log(`UseEffect Called:  ${images} ${imagesProgress}`,images);
-  }, [images,imagesProgress,imageListEvent]);
+    if(images?.length){
+      let totalProcess = imagesProgress.reduce((a,b) => a+b);
+      console.log('totalProcess',totalProcess)
+      if(totalProcess===(images.length*100)){
+        messageApi.open({
+          type: 'success',
+          content: 'File has been uploaded',
+        });
+        setTimeout(() => {
+          setUploadImageModal([],false)
+          //window.location.reload();
+        }, 1000);
+      }
+    }
+  }, [imagesProgress,imageListEvent]);
 
   const onError = (errors: ErrorsType) => {
     // data for submit
@@ -427,7 +301,6 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       </>
                       } */}
                       <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
-                      <p>Progress: {progress} %</p>
                       {imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
@@ -511,7 +384,6 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                   <Text type="secondary" className='text-lg'>ArtZip</Text>
                 </div>
               </div>
-
             </div>
 
           </div>
