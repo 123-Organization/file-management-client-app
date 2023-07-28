@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Gallery } from "react-grid-gallery";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { useDynamicData } from "../context/DynamicDataProvider";
 

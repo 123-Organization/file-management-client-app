@@ -6,7 +6,8 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, HashRouter } from "react-router-dom";
 import { store } from './store/store';
 import { Provider } from 'react-redux';
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { DynamicDataProvider } from './context/DynamicDataProvider';
 
 const queryClient = new QueryClient();
@@ -21,7 +22,8 @@ root.render(
 
     <QueryClientProvider client={queryClient}>
       <App />
-      </QueryClientProvider>
+      <ReactQueryDevtools />  
+    </QueryClientProvider>
     </DynamicDataProvider>
     </HashRouter>
     </Provider>

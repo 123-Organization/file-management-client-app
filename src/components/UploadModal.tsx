@@ -15,6 +15,7 @@ import { useDynamicData } from '../context/DynamicDataProvider';
 import { flushSync } from 'react-dom';
 import { Uploader } from '../helpers/fileUploader';
 import { makeUniqueFileName } from '../helpers/fileHelper';
+import { useQueryClient } from '@tanstack/react-query';
 
 const { Title, Text } = Typography;
 
@@ -31,6 +32,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [images, setImages] = React.useState([]);
   const [uploaders, setUploaders] = React.useState<object[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
+  const queryClient = useQueryClient()
 
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
   const [imageListModal, setImageListModal] = React.useState(false);
@@ -147,7 +149,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         });
         setTimeout(() => {
           setUploadImageModal([],false)
-          window.location.reload();
+          //window.location.reload();
         }, 1000);
       }
     } else {
@@ -177,6 +179,12 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const onImageRemoveHandler = async(index: number) => {
     const uploader = uploaders[index];
     console.log(uploader);
+    //@ts-ignore
+    console.log('uploader.completeResponse',uploader.completeResponse);
+    //@ts-ignore
+    console.log('uploader.basecampProjectID',uploader.basecampProjectID);
+    //@ts-ignore
+    console.log('completeResponseData',uploader.completeResponse[uploader.basecampProjectID]);
     //@ts-ignore
     await uploader.abort();
 

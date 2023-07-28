@@ -6,6 +6,7 @@ const api = axios.create({
   withCredentials: false,
 })
 
+
 // original source: https://github.com/pilovm/multithreaded-uploader/blob/master/frontend/uploader.js
 export class Uploader {
   chunkSize: any
@@ -17,6 +18,7 @@ export class Uploader {
   aborted: boolean
   uploadedSize: number
   progressCache: any
+  completeResponse: any
   activeConnections: any
   basecampProjectID:number
   parts: any[]
@@ -40,6 +42,7 @@ export class Uploader {
     this.uploadedSize = 0
     this.basecampProjectID = options.basecampProjectID
     this.progressCache = {}
+    this.completeResponse = {}
     this.activeConnections = {}
     this.parts = []
     this.uploadedParts = []
@@ -189,11 +192,13 @@ export class Uploader {
         fileSize:this.file.size
       }}
 
-      await api.request({
+      const res = await api.request({
         url: "/complete-upload",
         method: "POST",
         data: videoFinalizationMultiPartInput,
       })
+
+      this.completeResponse[this.basecampProjectID] = res;
     }
   }
 
