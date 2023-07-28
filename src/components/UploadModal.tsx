@@ -4,7 +4,6 @@ import icloudImg from '../assets/provider/icon_icloud.svg';
 import googleDriveImg from '../assets/provider/icon_googledrive.svg';
 import dropBoxImg from '../assets/provider/icon_dropbox.svg';
 import artzipImg from '../assets/provider/icon_artzip.svg';
-import * as tus from 'tus-js-client'
 
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
 
@@ -13,10 +12,7 @@ import {
   StopOutlined
 } from '@ant-design/icons';
 import { useDynamicData } from '../context/DynamicDataProvider';
-import axios from 'axios';
 import { flushSync } from 'react-dom';
-import { useMutation } from 'react-query';
-import { startImageUpload } from '../api/gallaryApi';
 import { Uploader } from '../helpers/fileUploader';
 import { makeUniqueFileName } from '../helpers/fileHelper';
 
@@ -33,6 +29,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const maxFileSize = 1024 * 1024 * 70; //40 MB
 
   const [images, setImages] = React.useState([]);
+  const [uploaders, setUploaders] = React.useState<object[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
 
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
@@ -82,30 +79,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     
     setImagesProgress([...new Array(maxNumber)].fill(1,0,(imageList.length)));
     setUploadImageModal(imageList,true);
-    
     console.log('imageList....',imageList)
-    // let _progressInfos = (imageList && imageList.length) 
-    // //@ts-ignore
-    // ? imageList.map((image) => ({ percentage: 0, fileName: image?.file?.name }))
-    // : null;
-    // console.log('_progressInfos',_progressInfos)
-    // if(!_progressInfos) return;
-    // progressInfosRef.current = {
-    //   val: _progressInfos,
-    // }
-    console.log('imageList',imageList)
-    
-    // return;
     
     //@ts-ignore
     const uploadPromises = imageList.map((img, i) => uploadImage(img?.file,i));
 
     await Promise.allSettled(uploadPromises)
       .then((results) => results.forEach((result) => console.log(result.status)))
-      .then(()=>{
-       
-      });
-    //setUploadImageModal([],false)
 
   }
 
@@ -123,10 +103,10 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         userInfo,
         basecampProjectID:(Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000))
       }
-      //@ts-ignore
-      // let _progressInfos = [...progressInfosRef?.current?.val];
+
       const uploader = new Uploader(videoUploaderOptions)
-      //setUploader(uploader)
+      uploaders[addUpdateIndex] = uploader;
+      setUploaders(uploaders);
 
       await uploader
         .onProgress(({ percentage: newPercentage }: any) => {
@@ -167,9 +147,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         });
         setTimeout(() => {
           setUploadImageModal([],false)
-          //window.location.reload();
+          window.location.reload();
         }, 1000);
       }
+    } else {
+      setTimeout(() => {
+        setUploadImageModal([],false)
+      }, 1000);
     }
   }, [imagesProgress,imageListEvent]);
 
@@ -180,6 +164,29 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     // setImageListModal(true)
   };
 
+  const onImageRemoveAllHandler = async() => {
+
+     //@ts-ignore
+     const abortUploadPromises = imageList.map((img, i) => onImageRemoveHandler(i));
+
+     await Promise.allSettled(abortUploadPromises)
+     //@ts-ignore
+       .then((results) => results.forEach((result) => console.log(result.status)))
+  }
+
+  const onImageRemoveHandler = async(index: number) => {
+    const uploader = uploaders[index];
+    console.log(uploader);
+    //@ts-ignore
+    await uploader.abort();
+
+    if(index!=(imagesProgress.length-1)){
+      imagesProgress[index] = imagesProgress[index+1]
+      console.log('onImageRemoveHandler', imagesProgress)
+      flushImagesProgress(imagesProgress);
+    }
+
+  }
 
   const handleSelect = (index: number) => {
     const nextImages = images.map((image, i) =>
@@ -283,6 +290,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       footer={[
                         // images?.length>=1 &&
                         <Button key="submit" className='py-2 bg-orange-500' size={'large'} type="primary" loading={loading} onClick={() => {
+                          onImageRemoveAllHandler();
                           handleOk();
                           onImageRemoveAll();
                           window.location.reload();
@@ -301,7 +309,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       </>
                       } */}
                       <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
-                      {imageList.length && contextHolder}
+                      {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
                             <img className='h-[57%] cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
@@ -314,8 +322,9 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
                                 <StopOutlined 
                                   className="image-item__btn-wrapper absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500"
-                                onClick={() => {
-                                    onImageRemove(index)
+                                onClick={async() => {
+                                    await onImageRemoveHandler(index);
+                                    onImageRemove(index);
                                     
                                 }}   />
                                 {/* <svg onClick={() => {

@@ -158,15 +158,15 @@ export class Uploader {
 
   // terminating the multipart upload request on success or failure
   async complete(error?: any) {
-    if (error && !this.aborted) {
+    if (error || this.aborted) {
       this.onErrorFn(error)
       return
     }
 
-    if (error) {
-      this.onErrorFn(error)
-      return
-    }
+    // if (error) {
+    //   this.onErrorFn(error)
+    //   return
+    // }
 
     try {
       await this.sendCompleteRequest()
@@ -313,12 +313,12 @@ export class Uploader {
   }
 
   abort() {
+    this.aborted = true
     Object.keys(this.activeConnections)
       .map(Number)
       .forEach((id) => {
         this.activeConnections[id].abort()
       })
 
-    this.aborted = true
   }
 }
