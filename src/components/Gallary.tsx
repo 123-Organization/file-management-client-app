@@ -124,9 +124,11 @@ const Gallary: React.FC = (): JSX.Element => {
                 <>
                 {images.map(
                   (image, i) => (            
-                        <div key={i} className={`${image.isSelected?'isSelectedImg':''}`} >
-                            <img className={`h-[190px] cursor-pointer w-[190px] rounded-lg object-cover aspect-square  `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
-                            <div className='flex relative w-full'>
+                        <div key={i} className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected?'isSelectedImg':''}`} >
+                            <div className='flex justify-center'>
+                              <img className={`m-2 min-h-[200px] cursor-pointer max-w-[200px]   object-contain   `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
+                            </div>                      
+                            <div className='flex relative w-full justify-center pb-2'>
                                 <div className='text-sm pt-10'>{` ${image.title?image.title: 'Lorem ipsum'}` }</div>
                                 <div>
                                 <svg onClick={() => {
@@ -134,7 +136,7 @@ const Gallary: React.FC = (): JSX.Element => {
                                     setImageURL(image)
 
                                     
-                                }}  className="absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                }}  className="absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-2 mr-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h2v5m-2 0h4M9.408 5.5h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                                 </svg>
                                 </div>
