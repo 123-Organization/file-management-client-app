@@ -79,7 +79,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   const onChange = async(imageList: any, addUpdateIndex: any) => {
     
-    setImagesProgress([...new Array(maxNumber)].fill(1,0,(imageList.length)));
+    setImagesProgress([...new Array(maxNumber)].fill(0,0,(imageList.length)));
     setUploadImageModal(imageList,true);
     console.log('imageList....',imageList)
     
@@ -123,8 +123,8 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         })
         .onError((error: any) => {
           //setFile(undefined)
-          imagesProgress[addUpdateIndex] = 100;
-          flushImagesProgress(imagesProgress);
+          // imagesProgress[addUpdateIndex] = 100;
+          // flushImagesProgress(imagesProgress);
           console.error('error file upload',error)
           messageApi.open({
             type: 'error',
@@ -140,7 +140,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   useEffect(() => {
     console.log(`UseEffect Called:  ${images} ${imagesProgress}`,images);
     if(images?.length){
-      let totalProcess = imagesProgress.reduce((a,b) => a+b);
+      let totalProcess = imagesProgress.reduce((a,b) => Number(a)+Number(b));
       console.log('totalProcess',totalProcess)
       if(totalProcess===(images.length*100)){
         messageApi.open({
@@ -148,7 +148,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
           content: 'File has been uploaded',
         });
         setTimeout(() => {
+          //@ts-ignore
+          console.log(`uploader.completeResponse `,uploaders[0].completeResponse);
           setUploadImageModal([],false)
+
+          // uploaders.map((uploader, i) =>{
+          // });
+          
           //window.location.reload();
         }, 1000);
       }
@@ -188,11 +194,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     //@ts-ignore
     await uploader.abort();
 
-    if(index!=(imagesProgress.length-1)){
-      imagesProgress[index] = imagesProgress[index+1]
+    // if(index!=(imagesProgress.length-1)){
+      imagesProgress.splice(index, 1);
+      //imagesProgress[index] = imagesProgress[index+1]
+      //imagesProgress[index+1] = 0
       console.log('onImageRemoveHandler', imagesProgress)
       flushImagesProgress(imagesProgress);
-    }
+    // }
 
   }
 

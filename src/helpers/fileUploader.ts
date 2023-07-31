@@ -191,6 +191,11 @@ export class Uploader {
         userInfo: this.userInfo,
         fileSize:this.file.size
       }}
+      
+      if (this.aborted) {
+        console.log('sendCompleteRequest aborted', videoFinalizationMultiPartInput)
+        return
+      }
 
       const res = await api.request({
         url: "/complete-upload",
@@ -298,6 +303,7 @@ export class Uploader {
         }
 
         xhr.onabort = () => {
+          this.aborted = true
           reject(new Error("Upload canceled by user"))
           delete this.activeConnections[part.PartNumber - 1]
         }
