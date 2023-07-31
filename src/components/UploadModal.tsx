@@ -79,7 +79,11 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   const onChange = async(imageList: any, addUpdateIndex: any) => {
     
-    setImagesProgress([...new Array(maxNumber)].fill(0,0,(imageList.length)));
+    if(imageListModal) { console.log('change event aborted') }
+    if(!imagesProgress.length){
+
+      setImagesProgress([...new Array(maxNumber)].fill(0,0,(imageList.length)));
+    }
     setUploadImageModal(imageList,true);
     console.log('imageList....',imageList)
     
@@ -142,14 +146,16 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     if(images?.length){
       let totalProcess = imagesProgress.reduce((a,b) => Number(a)+Number(b));
       console.log('totalProcess',totalProcess)
-      if(totalProcess===(images.length*100)){
+      let totalImagesProgress = (imagesProgress.filter(imagesProgress => Number(imagesProgress)).length*100)
+      console.log('totalImagesProgress',totalImagesProgress)
+      if(totalProcess===totalImagesProgress){
         messageApi.open({
           type: 'success',
           content: 'File has been uploaded',
         });
         setTimeout(() => {
           //@ts-ignore
-          console.log(`uploader.completeResponse `,uploaders[0].completeResponse);
+          console.log(`uploader.completeResponse `,uploaders);
           setUploadImageModal([],false)
 
           // uploaders.map((uploader, i) =>{
@@ -193,9 +199,15 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     console.log('completeResponseData',uploader.completeResponse[uploader.basecampProjectID]);
     //@ts-ignore
     await uploader.abort();
+    //@ts-ignore
+    uploader.aborted = true;
+    uploaders[index] = uploader;
+    setUploaders(uploaders);
 
     // if(index!=(imagesProgress.length-1)){
-      imagesProgress.splice(index, 1);
+      //imagesProgress.splice(index, 1);
+      imagesProgress[index] = 100;
+      imagesProgress.filter(imagesProgress => Boolean(imagesProgress))
       //imagesProgress[index] = imagesProgress[index+1]
       //imagesProgress[index+1] = 0
       console.log('onImageRemoveHandler', imagesProgress)

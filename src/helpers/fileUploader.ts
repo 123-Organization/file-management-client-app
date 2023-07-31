@@ -198,7 +198,7 @@ export class Uploader {
       }
 
       const res = await api.request({
-        url: "/complete-upload",
+        url: "/complete-upload1",
         method: "POST",
         data: videoFinalizationMultiPartInput,
       })
@@ -298,6 +298,7 @@ export class Uploader {
         }
 
         xhr.onerror = (error) => {
+          this.aborted = true
           reject(error)
           delete this.activeConnections[part.PartNumber - 1]
         }
@@ -325,11 +326,11 @@ export class Uploader {
 
   abort() {
     this.aborted = true
-    Object.keys(this.activeConnections)
-      .map(Number)
-      .forEach((id) => {
-        this.activeConnections[id].abort()
-      })
+    // Object.keys(this.activeConnections)
+    //   .map(Number)
+    //   .forEach((id) => {
+    //     this.activeConnections[id].abort()
+    //   })
 
   }
 }
