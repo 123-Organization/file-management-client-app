@@ -12,10 +12,10 @@ import axios from 'axios';
 const uppy = new Uppy({ autoProceed: false })
   .use(AwsS3, {
     shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
-    companionUrl: 'http://companion.uppy.io/',
+    companionUrl: 'http://localhost:5000/companion',
   })
   .use(GoogleDrive, {
-    companionUrl: 'http://companion.uppy.io/',
+    companionUrl: 'http://localhost:5000/companion',
   })
   .on("complete", (result) => {
     if (result.failed.length === 0) {

@@ -198,7 +198,7 @@ export class Uploader {
       }
 
       const res = await api.request({
-        url: "/complete-upload1",
+        url: "/complete-upload",
         method: "POST",
         data: videoFinalizationMultiPartInput,
       })

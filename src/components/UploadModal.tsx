@@ -77,13 +77,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   const onChange = async(imageList: any, addUpdateIndex: any) => {
     
-    if(imageListModal) { console.log('change event aborted') }
     if(!imagesProgress.length){
-
+      
       setImagesProgress([...new Array(maxNumber)].fill(0,0,(imageList.length)));
     }
     setUploadImageModal(imageList,true);
     console.log('imageList....',imageList)
+    if(imageListModal) { console.log('change event aborted'); return true; }
     
     //@ts-ignore
     const uploadPromises = imageList.map((img, i) => uploadImage(img?.file,i));
@@ -95,6 +95,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   const uploadImage = async(file: any, addUpdateIndex: any) => {
 
+    if(imageListModal) { console.log('change event aborted') }
     if (file) {
       console.log(file);
       
