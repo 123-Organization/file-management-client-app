@@ -6,6 +6,7 @@ const api = axios.create({
   withCredentials: false,
 })
 
+
 // original source: https://github.com/pilovm/multithreaded-uploader/blob/master/frontend/uploader.js
 export class Uploader {
   chunkSize: any
@@ -17,6 +18,7 @@ export class Uploader {
   aborted: boolean
   uploadedSize: number
   progressCache: any
+  completeResponse: any
   activeConnections: any
   basecampProjectID:number
   parts: any[]
@@ -40,6 +42,7 @@ export class Uploader {
     this.uploadedSize = 0
     this.basecampProjectID = options.basecampProjectID
     this.progressCache = {}
+    this.completeResponse = {}
     this.activeConnections = {}
     this.parts = []
     this.uploadedParts = []
@@ -188,12 +191,19 @@ export class Uploader {
         userInfo: this.userInfo,
         fileSize:this.file.size
       }}
+      
+      if (this.aborted) {
+        console.log('sendCompleteRequest aborted', videoFinalizationMultiPartInput)
+        return
+      }
 
-      await api.request({
+      const res = await api.request({
         url: "/complete-upload",
         method: "POST",
         data: videoFinalizationMultiPartInput,
       })
+
+      this.completeResponse[this.basecampProjectID] = res;
     }
   }
 
@@ -288,11 +298,13 @@ export class Uploader {
         }
 
         xhr.onerror = (error) => {
+          this.aborted = true
           reject(error)
           delete this.activeConnections[part.PartNumber - 1]
         }
 
         xhr.onabort = () => {
+          this.aborted = true
           reject(new Error("Upload canceled by user"))
           delete this.activeConnections[part.PartNumber - 1]
         }
@@ -314,11 +326,11 @@ export class Uploader {
 
   abort() {
     this.aborted = true
-    Object.keys(this.activeConnections)
-      .map(Number)
-      .forEach((id) => {
-        this.activeConnections[id].abort()
-      })
+    // Object.keys(this.activeConnections)
+    //   .map(Number)
+    //   .forEach((id) => {
+    //     this.activeConnections[id].abort()
+    //   })
 
   }
 }

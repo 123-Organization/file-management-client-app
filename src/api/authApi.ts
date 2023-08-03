@@ -2,6 +2,7 @@ import axios from 'axios';
 import { GenericResponse, ILoginResponse, IUserResponse } from '../types/IUsertype';
 
 const BASE_URL = 'http://app-filemanager.finerworks.com:5000/api/';
+// const BASE_URL = 'http://localhost:5000/api/';
 
 export const authApi = axios.create({
   baseURL: BASE_URL,
