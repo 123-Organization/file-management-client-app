@@ -15,6 +15,7 @@
     "@uppy/core": "^3.3.1",
     "@uppy/dashboard": "^3.5.0",
     "@uppy/drag-drop": "^3.0.2",
+    "@uppy/dropbox": "^3.1.2",
     "@uppy/file-input": "^3.0.2",
     "@uppy/google-drive": "^3.2.0",
     "@uppy/progress-bar": "^3.0.2",
