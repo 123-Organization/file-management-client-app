@@ -9,13 +9,21 @@ import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
 import axios from 'axios';
 
-const uppy = new Uppy({ autoProceed: false })
+const SERVER_BASE_URL = 'http://localhost:3020';
+
+
+const uppy = new Uppy({ autoProceed: false,
+  restrictions:{
+    maxFileSize: (1024*1024*80),
+    maxNumberOfFiles: 20,
+    allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif']
+  } })
   .use(AwsS3, {
     shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
-    companionUrl: 'http://localhost:5000/companion',
+    companionUrl: `${SERVER_BASE_URL}`,
   })
   .use(GoogleDrive, {
-    companionUrl: 'http://localhost:5000/companion',
+    companionUrl: `${SERVER_BASE_URL}`,
   })
   .on("complete", (result) => {
     if (result.failed.length === 0) {
