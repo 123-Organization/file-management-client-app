@@ -1,9 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Typography, Checkbox, Modal, Button, message, notification } from 'antd';
-import icloudImg from '../assets/provider/icon_icloud.svg';
-import googleDriveImg from '../assets/provider/icon_googledrive.svg';
-import dropBoxImg from '../assets/provider/icon_dropbox.svg';
-import artzipImg from '../assets/provider/icon_artzip.svg';
+
 
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
 
@@ -15,6 +12,8 @@ import { useDynamicData } from '../context/DynamicDataProvider';
 import { flushSync } from 'react-dom';
 import { Uploader } from '../helpers/fileUploader';
 import { makeUniqueFileName } from '../helpers/fileHelper';
+import { useQueryClient } from '@tanstack/react-query';
+import UppyUploadBox from './UppyUploadBox';
 
 const { Title, Text } = Typography;
 
@@ -31,6 +30,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [images, setImages] = React.useState([]);
   const [uploaders, setUploaders] = React.useState<object[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
+  const queryClient = useQueryClient()
 
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
   const [imageListModal, setImageListModal] = React.useState(false);
@@ -77,9 +77,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   const onChange = async(imageList: any, addUpdateIndex: any) => {
     
-    setImagesProgress([...new Array(maxNumber)].fill(1,0,(imageList.length)));
+    if(!imagesProgress.length){
+      
+      setImagesProgress([...new Array(maxNumber)].fill(0,0,(imageList.length)));
+    }
     setUploadImageModal(imageList,true);
     console.log('imageList....',imageList)
+    if(imageListModal) { console.log('change event aborted'); return true; }
     
     //@ts-ignore
     const uploadPromises = imageList.map((img, i) => uploadImage(img?.file,i));
@@ -91,6 +95,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
   const uploadImage = async(file: any, addUpdateIndex: any) => {
 
+    if(imageListModal) { console.log('change event aborted') }
     if (file) {
       console.log(file);
       
@@ -121,8 +126,8 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         })
         .onError((error: any) => {
           //setFile(undefined)
-          imagesProgress[addUpdateIndex] = 100;
-          flushImagesProgress(imagesProgress);
+          // imagesProgress[addUpdateIndex] = 100;
+          // flushImagesProgress(imagesProgress);
           console.error('error file upload',error)
           messageApi.open({
             type: 'error',
@@ -138,17 +143,23 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   useEffect(() => {
     console.log(`UseEffect Called:  ${images} ${imagesProgress}`,images);
     if(images?.length){
-      let totalProcess = imagesProgress.reduce((a,b) => a+b);
+      let totalProcess = imagesProgress.reduce((a,b) => Number(a)+Number(b));
       console.log('totalProcess',totalProcess)
-      if(totalProcess===(images.length*100)){
+      let totalImagesProgress = (imagesProgress.filter(imagesProgress => Number(imagesProgress)).length*100)
+      console.log('totalImagesProgress',totalImagesProgress)
+      if(totalProcess===totalImagesProgress){
         messageApi.open({
           type: 'success',
           content: 'File has been uploaded',
         });
         setTimeout(() => {
+          //@ts-ignore
+          console.log(`uploader.completeResponse `,uploaders);
           setUploadImageModal([],false)
-          window.location.reload();
         }, 1000);
+        setTimeout(() => {
+          window.location.reload();
+        },5000);
       }
     } else {
       setTimeout(() => {
@@ -178,13 +189,27 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
     const uploader = uploaders[index];
     console.log(uploader);
     //@ts-ignore
+    console.log('uploader.completeResponse',uploader.completeResponse);
+    //@ts-ignore
+    console.log('uploader.basecampProjectID',uploader.basecampProjectID);
+    //@ts-ignore
+    console.log('completeResponseData',uploader.completeResponse[uploader.basecampProjectID]);
+    //@ts-ignore
     await uploader.abort();
+    //@ts-ignore
+    uploader.aborted = true;
+    uploaders[index] = uploader;
+    setUploaders(uploaders);
 
-    if(index!=(imagesProgress.length-1)){
-      imagesProgress[index] = imagesProgress[index+1]
+    // if(index!=(imagesProgress.length-1)){
+      //imagesProgress.splice(index, 1);
+      imagesProgress[index] = 100;
+      imagesProgress.filter(imagesProgress => Boolean(imagesProgress))
+      //imagesProgress[index] = imagesProgress[index+1]
+      //imagesProgress[index+1] = 0
       console.log('onImageRemoveHandler', imagesProgress)
       flushImagesProgress(imagesProgress);
-    }
+    // }
 
   }
 
@@ -361,38 +386,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
             </div>
             <div
               className="second-flex-div flex flex-col relative order-first md:order-last h-28 md:h-auto justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat bg-center bg-origin-padding bg-cover">
-              <div className='relative justify-center w-full flex '>
-                <Title level={4} className="text-gray-300 sm:pl-20" disabled >Other File Sources</Title>
-                {/* <div className='absolute -top-2 right-0 text-lg'><CloseCircleOutlined style={{ fontSize: '25px' }} /></div> */}
-              </div>
-              <div className='flex flex-row h-full w-full items-center text-center '>
-                <div className='basis-2/4 flex flex-col'>
-                  <div className='pb-5'>
-                    <img src={icloudImg} className="upload-logo inline cursor-pointer" alt="logo" />
-                  </div>
-                  <Text type="secondary" className='text-lg'>iCloud</Text>
-                </div>
-                <div className='basis-2/4 flex flex-col'>
-                  <div className='pb-5'>
-                    <img src={dropBoxImg} className="upload-logo inline cursor-pointer " alt="logo" />
-                  </div>
-                  <Text type="secondary" className='text-lg'>DropBox</Text>
-                </div>
-              </div>
-              <div className='flex flex-row h-full w-full items-center text-center '>
-                <div className='basis-2/4 flex flex-col'>
-                  <div className='pb-5'>
-                    <img src={googleDriveImg} className="upload-logo inline cursor-pointer " alt="logo" />
-                  </div>
-                  <Text type="secondary" className='text-lg'>Google Drive</Text>
-                </div>
-                <div className='basis-2/4 flex flex-col'>
-                  <div className='pb-5'>
-                    <img src={artzipImg} className="upload-logo inline cursor-pointer " alt="logo" />
-                  </div>
-                  <Text type="secondary" className='text-lg'>ArtZip</Text>
-                </div>
-              </div>
+              <UppyUploadBox></UppyUploadBox>
             </div>
 
           </div>

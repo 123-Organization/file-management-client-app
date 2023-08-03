@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
 import { Empty, message } from 'antd';
-import { QueryClient, useMutation } from 'react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { deleteImages, getImages } from '../api/gallaryApi';
 import images from "../json/images.json"
 
@@ -125,11 +125,14 @@ const Gallary: React.FC = (): JSX.Element => {
                 {images.map(
                   (image, i) => (            
                         <div key={i} className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected?'isSelectedImg':''}`} >
-                            <div className='flex justify-center'>
+                            <div className='min-h-[240px] flex justify-center items-center'>
+                              <div>
+
                               <img className={`m-2 min-h-[200px] cursor-pointer max-w-[200px]   object-contain   `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
+                              </div>
                             </div>                      
                             <div className='flex relative w-full justify-center pb-2'>
-                                <div className='text-sm pt-10'>{` ${image.title?image.title: 'Lorem ipsum'}` }</div>
+                                <div className='text-sm pt-2'>{` ${image.title?image.title: 'Lorem ipsum'}` }</div>
                                 <div>
                                 <svg onClick={() => {
                                     setOpen(true)
