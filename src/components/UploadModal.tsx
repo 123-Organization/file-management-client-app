@@ -156,12 +156,10 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
           //@ts-ignore
           console.log(`uploader.completeResponse `,uploaders);
           setUploadImageModal([],false)
-
-          // uploaders.map((uploader, i) =>{
-          // });
-          
-          //window.location.reload();
         }, 1000);
+        setTimeout(() => {
+          window.location.reload();
+        },5000);
       }
     } else {
       setTimeout(() => {
