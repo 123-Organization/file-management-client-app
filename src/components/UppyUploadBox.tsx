@@ -29,6 +29,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     
   const dynamicData: any = useDynamicData();
   const { userInfo } = dynamicData.state;
+  
 
   const {
     mutate: fileUploadPostDataFn,
@@ -37,7 +38,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
      window.location.reload();
     },
     onError(error: any) {},
-});
+  });
 
   const uppy = new Uppy({ 
     logger: debugLogger,
