@@ -49,9 +49,16 @@ const App: React.FC = () => {
         </div>
       </Content>
       <Footer style={{ textAlign: 'center', backgroundColor: '#fff', }}>
-        {location.pathname==='/thumbnail' && <BottomIcon />}
-          FinerWorks ©2023
+        {
+          location.pathname==='/thumbnail' && 
+            <>
+              <div className="pb-4">FinerWorks ©2023</div>
+              <BottomIcon />
+            </>
+        }
+        FinerWorks ©2023  
         </Footer>
+        
     </Layout>
 
   );
