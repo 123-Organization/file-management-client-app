@@ -12,7 +12,8 @@ import { useDynamicData } from '../context/DynamicDataProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { postUppyImages } from '../api/gallaryApi';
 
-const SERVER_BASE_URL = 'http://localhost:3020';
+const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
+
 // const SERVER_BASE_URL = 'http://13.50.227.147:5000';
 const getTimeStamp = () => {
   return Date.now()

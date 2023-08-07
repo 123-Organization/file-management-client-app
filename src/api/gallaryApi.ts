@@ -19,12 +19,17 @@ export const startImageUpload = async (data:object) => {
 };
 
 export const postUppyImages = async (data:object) => {
-  const response = await authApi.post<any>(`getallimages`,data);
+  const response = await authApi.post<any>(`uploadimageurl`,data);
   return response.data;
 };
 
 
 export const putImages = async (data:object) => {
   const response = await authApi.put<any>(`updateimage`,data);
+  return response.data;
+};
+
+export const postPrintImages = async (data:object) => {
+  const response = await authApi.post<any>(`uploadimageurl`,data);
   return response.data;
 };
