@@ -23,6 +23,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
     console.log('fileLocation',fileLocation)
     return (
         <div className='flex'>
+            <div></div>
             <div className="flex fixed bottom-0 left-0  w-full h-16 bg-white  border-b mt-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
                 <div className="grid h-full max-w-lg grid-cols-4 font-medium basis-1/2">
                     {

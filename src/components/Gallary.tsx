@@ -19,7 +19,7 @@ const IMAGES = images.gallaryImages;
 const Gallary: React.FC = (): JSX.Element => {
 
     const [open, setOpen] = useState(false);
-    const [imageURL, setImageURL] = useState({});
+    const [imgData, setImgData] = useState({});
     const [images, setImages] = useState(IMAGES);
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -136,7 +136,7 @@ const Gallary: React.FC = (): JSX.Element => {
                                 <div>
                                 <svg onClick={() => {
                                     setOpen(true)
-                                    setImageURL(image)
+                                    setImgData(image)
 
                                     
                                 }}  className="absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-2 mr-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -147,7 +147,7 @@ const Gallary: React.FC = (): JSX.Element => {
                         </div>
                     )
                 )}
-                <EditGallaryModal onDeleteHandler={onDeleteHandler} openModel={open} setOpen={setOpen} imgURL={imageURL} />
+                <EditGallaryModal onDeleteHandler={onDeleteHandler} openModel={open} setOpen={setOpen} imgData={imgData} />
                 </>
             : <Empty />
             }
