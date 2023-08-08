@@ -30,6 +30,6 @@ export const putImages = async (data:object) => {
 };
 
 export const postPrintImages = async (data:object) => {
-  const response = await authApi.post<any>(`uploadimageurl`,data);
+  const response = await authApi.post<any>(`printimages`,data);
   return response.data;
 };

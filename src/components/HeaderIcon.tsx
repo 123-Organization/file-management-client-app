@@ -7,6 +7,8 @@ import { Dropdown, Space, Modal, message } from 'antd';
 import { FileOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useDynamicData } from "../context/DynamicDataProvider";
 import { useNavigate } from 'react-router';
+import { useMutation } from '@tanstack/react-query';
+import { postPrintImages } from '../api/gallaryApi';
 
 /**
  * ****************************************************************** Outer Function ****************************************************
@@ -42,11 +44,27 @@ const HeaderIcon: React.FC = (): JSX.Element => {
 
     const [openFilter, setOpenFilter] = useState(false);
     const [openUpload, setOpenUpload] = useState(false);
+    const [messageApi, contextHolder] = message.useMessage();
     
     const navigate = useNavigate();
 
     const dynamicData: any = useDynamicData();
     const { referrer, fileLocation } = dynamicData.state;
+
+    const {
+        mutate: printImagesDataFn,
+       } = useMutation((data: any) => postPrintImages(data), {
+        onSuccess(data) {
+            console.log('postPrintImages...', data)
+            messageApi.open({
+                type: 'success',
+                content: 'Print api',
+              });
+              window.open(`https://finerworks.com/apps/orderform/post.aspx?guid=${data.data}`, "_blank")  
+        },
+        onError(error: any) {},
+      });
+    
     
     const handleMenuClick: MenuProps['onClick'] = (e) => {
 
@@ -65,8 +83,10 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     };
     
     const createPrints = () => {
-        let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid).join()
-        window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
+        let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid);
+        printImagesDataFn({guids});
+        // window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
+
     }
     
     const info = () => {
