@@ -56,10 +56,10 @@ const Thumbnail: React.FC = (): JSX.Element => {
   return (
     <div className='realtive'>
       <div className='flex '>
-        <div className='w-10/12'>
+        <div className='w-10/12 max-md:w-full'>
           <Gallary />
         </div>
-        <div className='w-2/12 '>
+        <div className='md:w-2/12 max-md:hidden max-md:w-0/12 '>
           <Tree
             showIcon
             className=' fixed font-semibold pt-8 text-gray-400  '

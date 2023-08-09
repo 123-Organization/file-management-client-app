@@ -111,14 +111,16 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     return (
         <div className='flex w-full'>
             <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
-                <div className="grid  max-w-[700px] grid-cols-7 font-medium">
-                    <img src={logo} onClick={()=>{ navigate('/') }} className="App-logo-icon cursor-pointer " alt="logo" />    
-                    <button onClick={()=>{ navigate('/') }} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+                <div className="grid max-md:grid-cols-4 max-md:grid-rows-2 max-w-[700px] grid-cols-7 font-medium">
+                    <div className='flex flex-col items-center'>
+                        <img  src={logo} onClick={()=>{ navigate('/') }} className="App-logo-icon cursor-pointer flex flex-col " alt="logo" />    
+                    </div>
+                    {/* <button onClick={()=>{ navigate('/') }} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
                         <svg  className="w-5 h-5 mb-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                             <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
                         </svg>
                         <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Home</span>
-                    </button>
+                    </button> */}
                     <button onClick={()=>{ navigate('/thumbnail') }} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
                         <svg className="w-5 h-5 mb-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6M9 8h6m-6 3h6M4.996 5h.01m-.01 3h.01m-.01 3h.01M2 1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
@@ -152,8 +154,8 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                     </button>
                     {
                         referrer.hasSelected &&
-                        <button type="button" onClick={info} className="absolute fw-sky-btn ">Create Prints</button>
-
+                        <button type="button" onClick={info} className="absolute  
+                        max-md:row-1 max-md:col-span-4 max-md:relative   fw-sky-btn  ">Create Prints</button>
                     }
                 </div>
             </div>

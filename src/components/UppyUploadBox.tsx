@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import Uppy from '@uppy/core';
 import AwsS3 from '@uppy/aws-s3';
@@ -12,8 +12,8 @@ import { useDynamicData } from '../context/DynamicDataProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { postUppyImages } from '../api/gallaryApi';
 
-const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
-// const SERVER_BASE_URL = 'http://localhost:3020';
+// const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
+const SERVER_BASE_URL = 'http://localhost:3020';
 
 // const SERVER_BASE_URL = 'http://13.50.227.147:5000';
 const getTimeStamp = () => {
@@ -85,7 +85,16 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
       console.log("successful files:", result.successful);
       console.log("failed files:", result.failed);
     });
-    
+  
+    useEffect(() => {
+      const element = document.querySelector('.uppy-Dashboard-poweredBy');
+      if(element){
+
+        //@ts-ignore
+        element.parentNode.removeChild(element);
+      }
+    });
+
 
   return (
     <div className="flex justify-end items-center pt-6">
