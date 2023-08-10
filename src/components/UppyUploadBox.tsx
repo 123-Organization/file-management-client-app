@@ -5,6 +5,7 @@ import AwsS3 from '@uppy/aws-s3';
 import { Dashboard } from '@uppy/react';
 import GoogleDrive from '@uppy/google-drive';
 import Dropbox from '@uppy/dropbox';
+import Box from '@uppy/box';
 
 import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
@@ -12,8 +13,8 @@ import { useDynamicData } from '../context/DynamicDataProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { postUppyImages } from '../api/gallaryApi';
 
-// const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
-const SERVER_BASE_URL = 'http://localhost:3020';
+const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
+//  const SERVER_BASE_URL = 'http://localhost:3020';
 
 // const SERVER_BASE_URL = 'http://13.50.227.147:5000';
 const getTimeStamp = () => {
@@ -60,6 +61,9 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     .use(Dropbox, {
       companionUrl: `${SERVER_BASE_URL}`,
     })
+    .use(Box, {
+      companionUrl: `${SERVER_BASE_URL}`,
+    })
     .on("complete", (result) => {
       if (result.failed.length === 0) {
         console.log("Upload successful");
@@ -99,7 +103,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
   return (
     <div className="flex justify-end items-center pt-6">
 
-      <Dashboard  uppy={uppy} plugins={['GoogleDrive','Dropbox']} />
+      <Dashboard  uppy={uppy} plugins={['GoogleDrive','Dropbox','Box']} />
     </div>
   )
 }

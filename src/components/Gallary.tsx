@@ -116,7 +116,7 @@ const Gallary: React.FC = (): JSX.Element => {
  */         
        
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 p-8 max-md:pt-20 content-center">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 p-8 max-md:pt-20 content-center">
             {contextHolder}
             {
             images.length
@@ -130,7 +130,7 @@ const Gallary: React.FC = (): JSX.Element => {
                                 <div className='min-h-[240px] flex justify-center items-center'>
                                   <div>
 
-                                  <img className={`m-2 min-h-[200px] cursor-pointer max-w-[200px]   object-contain   `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
+                                  <img className={`m-2 min-h-[200px] cursor-pointer  max-w-[200px]   object-contain    `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
                                   </div>
                                 </div>                      
                                 <div className='flex relative w-full justify-center pb-2'>
