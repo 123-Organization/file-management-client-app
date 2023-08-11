@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
-import { Empty, message } from 'antd';
+import { Empty, message, Spin } from 'antd';
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { deleteImages, getImages } from '../api/gallaryApi';
 import images from "../json/images.json"
@@ -116,39 +116,41 @@ const Gallary: React.FC = (): JSX.Element => {
  */         
        
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 p-8 max-md:pt-20 content-center">
             {contextHolder}
             {
             images.length
              ?
-                <>
-                {images.map(
-                  (image, i) => (            
-                        <div key={i} className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected?'isSelectedImg':''}`} >
-                            <div className='min-h-[240px] flex justify-center items-center'>
-                              <div>
+             isLoadingImg
+                  ? <div className='center-div1 max-md:pt-40 pt-60 md:col-span-4'><Spin  tip={<div >Loading My Libraries...</div>} size="large" > <div className="content" /></Spin></div>
+                  : <>
+                    {images.map(
+                      (image, i) => (            
+                            <div key={i} className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected?'isSelectedImg':''}`} >
+                                <div className='min-h-[240px] flex justify-center items-center'>
+                                  <div>
 
-                              <img className={`m-2 min-h-[200px] cursor-pointer max-w-[200px]   object-contain   `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
-                              </div>
-                            </div>                      
-                            <div className='flex relative w-full justify-center pb-2'>
-                                <div className='text-sm pt-2'>{` ${image.title?image.title: 'Lorem ipsum'}` }</div>
-                                <div>
-                                <svg onClick={() => {
-                                    setOpen(true)
-                                    setImgData(image)
+                                  <img className={`m-2 min-h-[200px] cursor-pointer  max-w-[200px]   object-contain    `} onClick={()=> handleSelect(i)} src={image.public_thumbnail_uri} alt="" />
+                                  </div>
+                                </div>                      
+                                <div className='flex relative w-full justify-center pb-2'>
+                                    <div className='text-sm pt-2'>{` ${image.title?image.title: 'Lorem ipsum'}` }</div>
+                                    <div>
+                                    <svg onClick={() => {
+                                        setOpen(true)
+                                        setImgData(image)
 
-                                    
-                                }}  className="absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-2 mr-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h2v5m-2 0h4M9.408 5.5h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                </svg>
+                                        
+                                    }}  className="absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-2 mr-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h2v5m-2 0h4M9.408 5.5h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                    </svg>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )
-                )}
-                <EditGallaryModal onDeleteHandler={onDeleteHandler} openModel={open} setOpen={setOpen} imgData={imgData} />
-                </>
+                        )
+                    )}
+                    <EditGallaryModal onDeleteHandler={onDeleteHandler} openModel={open} setOpen={setOpen} imgData={imgData} />
+                   </>
             : <Empty />
             }
         </div>

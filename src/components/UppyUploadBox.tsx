@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import Uppy from '@uppy/core';
 import AwsS3 from '@uppy/aws-s3';
 import { Dashboard } from '@uppy/react';
 import GoogleDrive from '@uppy/google-drive';
 import Dropbox from '@uppy/dropbox';
+import Box from '@uppy/box';
 
 import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
@@ -13,6 +14,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { postUppyImages } from '../api/gallaryApi';
 
 const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
+//  const SERVER_BASE_URL = 'http://localhost:3020';
 
 // const SERVER_BASE_URL = 'http://13.50.227.147:5000';
 const getTimeStamp = () => {
@@ -45,7 +47,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     logger: debugLogger,
     autoProceed: false,
     restrictions:{
-      maxFileSize: (1024*1024*80),
+      maxFileSize: (1024*1024*500),
       maxNumberOfFiles: 20,
       allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif']
     } })
@@ -57,6 +59,9 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
       companionUrl: `${SERVER_BASE_URL}`,
     })
     .use(Dropbox, {
+      companionUrl: `${SERVER_BASE_URL}`,
+    })
+    .use(Box, {
       companionUrl: `${SERVER_BASE_URL}`,
     })
     .on("complete", (result) => {
@@ -84,12 +89,21 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
       console.log("successful files:", result.successful);
       console.log("failed files:", result.failed);
     });
-    
+  
+    useEffect(() => {
+      const element = document.querySelector('.uppy-Dashboard-poweredBy');
+      if(element){
+
+        //@ts-ignore
+        element.parentNode.removeChild(element);
+      }
+    });
+
 
   return (
     <div className="flex justify-end items-center pt-6">
 
-      <Dashboard  uppy={uppy} plugins={['GoogleDrive','Dropbox']} />
+      <Dashboard  uppy={uppy} plugins={['GoogleDrive','Dropbox','Box']} />
     </div>
   )
 }

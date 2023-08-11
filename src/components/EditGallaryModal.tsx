@@ -3,6 +3,7 @@ import { Button, Form, Input, message, Modal } from 'antd';
 import { formatFileSize } from '../helpers/fileHelper';
 import { putImages } from '../api/gallaryApi';
 import { useMutation } from '@tanstack/react-query';
+import { useDynamicData } from '../context/DynamicDataProvider';
 
 /**
  * ****************************************************************** Outer Function **********************************************************
@@ -25,6 +26,9 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
+  const dynamicData: any = useDynamicData();
+  const { userInfo } = dynamicData.state;
+
   const {
     mutate: putImagesFn,
    } = useMutation((data: any) => putImages(data), {
@@ -36,7 +40,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
       setTimeout(() => {
         setLoading(false);
         setOpen(false);
-        //window.location.reload();
+        window.location.reload();
       }, 3000);
     },
     onError(error: any) {},
@@ -56,7 +60,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
         const values = await form.validateFields();
         console.log('Success:', values);
         if(values?.title){
-          await putImagesFn({...values,...{guid:imgData.guid}})
+          await putImagesFn({...values,...{guid:imgData.guid,"libraryAccountKey":userInfo.libraryAccountKey}})
         }
        
       } catch (errorInfo) {

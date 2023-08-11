@@ -43,7 +43,12 @@
 .App-link {
   color: #61dafb;
 }
-
+.uppy-Dashboard-AddFiles-info{
+  display:hidden!important 
+}
+.center-div{
+ @apply flex w-screen h-screen items-start justify-start flex-row whitespace-nowrap
+}
 .filterSorting :where(
   .ant-select-selection-item,
   .ant-select-focused
@@ -54,10 +59,7 @@
   @apply text-white right-14 mt-1 mx-4 whitespace-nowrap bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-1 h-12 text-center
 }
 .fw-sky-btn{
-  @apply text-white right-14 mt-1 mx-4 whitespace-nowrap bg-sky-400 dark:bg-sky-500  font-medium rounded-lg text-sm px-5 py-1 h-12 text-center
-}
-.filterSorting .ant-space-item{
-  gap: 20px!important;
+  @apply text-white max-md:mx-10 max-md:right-0 max-md:px-2 max-md:py-2 right-14 mt-3 mx-0  bg-sky-400 dark:bg-sky-500  font-medium rounded-lg text-sm px-5 py-1 h-10 text-center
 }
 
 @keyframes App-logo-spin {

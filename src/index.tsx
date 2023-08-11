@@ -22,7 +22,7 @@ root.render(
 
     <QueryClientProvider client={queryClient}>
       <App />
-      {/* <ReactQueryDevtools initialIsOpen={true} />   */}
+      {/* <ReactQueryDevtools initialIsOpen={true} />    */}
     </QueryClientProvider>
     </DynamicDataProvider>
     </HashRouter>
