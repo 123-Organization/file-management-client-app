@@ -47,7 +47,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     logger: debugLogger,
     autoProceed: false,
     restrictions:{
-      maxFileSize: (1024*1024*500),
+      maxFileSize: (1024*1024*500*20),
       maxNumberOfFiles: 20,
       allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.zip']
     } })
