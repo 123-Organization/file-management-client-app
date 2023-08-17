@@ -49,7 +49,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     restrictions:{
       maxFileSize: (1024*1024*500*20),
       maxNumberOfFiles: 20,
-      allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.zip']
+      allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.zip','.psd']
     } })
     .use(AwsS3, {
       shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
@@ -103,7 +103,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
   return (
     <div className="flex justify-end items-center pt-6">
 
-      <Dashboard  uppy={uppy} plugins={['GoogleDrive','Dropbox','Box']} />
+      <Dashboard  disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} />
     </div>
   )
 }
