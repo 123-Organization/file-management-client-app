@@ -12,6 +12,9 @@ import '@uppy/dashboard/dist/style.min.css';
 import { useDynamicData } from '../context/DynamicDataProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { postUppyImages } from '../api/gallaryApi';
+import MyCustomProvider from './MyCustomProvider.jsx'
+
+import ArtzipIcon from "../assets/provider/icon_artzip.svg"
 
 const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
 //  const SERVER_BASE_URL = 'http://localhost:3020';
@@ -61,6 +64,9 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     .use(Dropbox, {
       companionUrl: `${SERVER_BASE_URL}`,
     })
+    // .use(MyCustomProvider, {
+    //   companionUrl: `${SERVER_BASE_URL}`,
+    // })
     .use(Box, {
       companionUrl: `${SERVER_BASE_URL}`,
     })
@@ -72,6 +78,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
       }
   
       if(result.successful.length){
+        console.log('result.successful',result.successful)
         let fileDetails = result.successful.map((file:any) => {
             let path = file.uploadURL.split('/');
             let fileName = path[path.length-1];
@@ -90,20 +97,34 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
       console.log("failed files:", result.failed);
     });
   
-    useEffect(() => {
+    
+    const removeUppy = () => {
       const element = document.querySelector('.uppy-Dashboard-poweredBy');
       if(element){
 
         //@ts-ignore
         element.parentNode.removeChild(element);
       }
+    }
+    
+    useEffect(() => {
+      removeUppy()
     });
 
 
   return (
     <div className="flex justify-end items-center pt-6">
+      
+      <div className='absolute top-1/2 z-10 right-28 pt-2  pr-4 '>
 
-      <Dashboard  disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} />
+        <div className='uppy-DashboardTab-btn rounded-lg'>
+          <div className='bg-white h-9  pt-1 rounded-lg '>
+            <img className='mx-2' src={ArtzipIcon} width="30px" height="35px" />
+          </div>
+          <p className=' pt-1 pl-2  uppy-Root1 uppy-size--md   uppy-DashboardTab-name1 text-xs  text-[#525252] '>Artzip</p>
+        </div>
+      </div>
+      <Dashboard onChange={removeUppy} onFocus={removeUppy}  disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} />
     </div>
   )
 }
