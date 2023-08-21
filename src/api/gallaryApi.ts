@@ -18,8 +18,8 @@ export const startImageUpload = async (data:object) => {
   return response.data;
 };
 
-export const postUppyImages = async (data:object) => {
-  const response = await authApi.post<any>(`uploadimageurl`,data);
+export const getUserAccount = async (accountKey:string) => {
+  const response = await authApi.get<any>(`get-user-account?account_key=`+accountKey);
   return response.data;
 };
 

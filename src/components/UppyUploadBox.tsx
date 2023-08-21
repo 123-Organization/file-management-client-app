@@ -11,8 +11,7 @@ import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
 import { useDynamicData } from '../context/DynamicDataProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { postUppyImages } from '../api/gallaryApi';
-import MyCustomProvider from './MyCustomProvider.jsx'
+import { getUserAccount } from '../api/gallaryApi';
 
 import ArtzipIcon from "../assets/provider/icon_artzip.svg"
 
@@ -46,6 +45,15 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     onError(error: any) {},
   });
 
+  const {
+    mutate: userDetailsDataFn,
+   } = useMutation((data: any) => getUserAccount(userInfo.libraryAccountKey), {
+    onSuccess(data) {
+     window.location.reload();
+    },
+    onError(error: any) {},
+  });
+
   const uppy = new Uppy({ 
     logger: debugLogger,
     autoProceed: false,
@@ -64,9 +72,6 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     .use(Dropbox, {
       companionUrl: `${SERVER_BASE_URL}`,
     })
-    // .use(MyCustomProvider, {
-    //   companionUrl: `${SERVER_BASE_URL}`,
-    // })
     .use(Box, {
       companionUrl: `${SERVER_BASE_URL}`,
     })
@@ -98,6 +103,11 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     });
   
     
+    const gotoArtZip = () => {
+      userDetailsDataFn()
+      window.location.href = 'https://app.artzip.com/referrals/finerworks?metadata[user]=account_id'
+    }
+
     const removeUppy = () => {
       const element = document.querySelector('.uppy-Dashboard-poweredBy');
       if(element){
@@ -117,7 +127,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
       
       <div className='absolute top-1/2 z-10 right-28 pt-2  pr-4 '>
 
-        <div className='uppy-DashboardTab-btn rounded-lg'>
+        <div className='uppy-DashboardTab-btn rounded-lg' onClick={gotoArtZip}>
           <div className='bg-white h-9  pt-1 rounded-lg '>
             <img className='mx-2' src={ArtzipIcon} width="30px" height="35px" />
           </div>
