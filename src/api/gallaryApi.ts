@@ -23,6 +23,11 @@ export const postUppyImages = async (data:object) => {
   return response.data;
 };
 
+export const getUserAccount = async (data:object) => {
+  const response = await authApi.post<any>(`getmycredentials`,data);
+  return response.data;
+};
+
 
 export const putImages = async (data:object) => {
   const response = await authApi.put<any>(`updateimage`,data);
