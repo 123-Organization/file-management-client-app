@@ -6,7 +6,7 @@ import { Checkbox, MenuProps } from 'antd';
 import { Dropdown, Space, Modal, message } from 'antd';
 import { FileOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useDynamicData } from "../context/DynamicDataProvider";
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import { postPrintImages } from '../api/gallaryApi';
 
@@ -45,7 +45,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     const [openFilter, setOpenFilter] = useState(false);
     const [openUpload, setOpenUpload] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
-    
+    const location = useLocation();
     const navigate = useNavigate();
 
     const dynamicData: any = useDynamicData();
@@ -134,25 +134,32 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                         </Dropdown>
                         </span>
                     </button>
-                    <button  onClick={() => setOpenUpload(true)}  data-tooltip-target="tooltip-document" type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                        <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M.188 5H5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707c-.358.362-.617.81-.753 1.3C.148 5.011.166 5 .188 5ZM14 8a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm2 7h-1v1a1 1 0 0 1-2 0v-1h-1a1 1 0 0 1 0-2h1v-1a1 1 0 0 1 2 0v1h1a1 1 0 0 1 0 2Z" />
-                            <path d="M6 14a7.969 7.969 0 0 1 10-7.737V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H.188A.909.909 0 0 1 0 6.962V18a1.969 1.969 0 0 0 1.933 2h6.793A7.976 7.976 0 0 1 6 14Z" />
-                        </svg>
-                        {/* <span className="sr-only">New document</span> */}
-                        <span className="text-sm text-gray-500 whitespace-nowrap dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">New File</span>
-                    </button>
-                    <div id="tooltip-document" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                        New document
-                        <div className="tooltip-arrow" data-popper-arrow></div>
-                    </div>
-                    <button onClick={() => setOpenFilter(true)} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                    <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 17V1m0 0L1 4m3-3 3 3m4-3h6l-6 6h6m-7 10 3.5-7 3.5 7m-6.125-2H16"/>
-  </svg>
-                        <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap group-hover:text-blue-600 dark:group-hover:text-blue-500">Filter & Sort</span>
-                    </button>
-                    {
+                    { 
+                        location.pathname==='/thumbnail' 
+                        ?
+                            <>
+                                <button  onClick={() => setOpenUpload(true)}  data-tooltip-target="tooltip-document" type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+                                    <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M.188 5H5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707c-.358.362-.617.81-.753 1.3C.148 5.011.166 5 .188 5ZM14 8a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm2 7h-1v1a1 1 0 0 1-2 0v-1h-1a1 1 0 0 1 0-2h1v-1a1 1 0 0 1 2 0v1h1a1 1 0 0 1 0 2Z" />
+                                        <path d="M6 14a7.969 7.969 0 0 1 10-7.737V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H.188A.909.909 0 0 1 0 6.962V18a1.969 1.969 0 0 0 1.933 2h6.793A7.976 7.976 0 0 1 6 14Z" />
+                                    </svg>
+                                    {/* <span className="sr-only">New document</span> */}
+                                    <span className="text-sm text-gray-500 whitespace-nowrap dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">New File</span>
+                                </button>
+                                <div id="tooltip-document" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    New document
+                                    <div className="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                                <button onClick={() => setOpenFilter(true)} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+                                <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 17V1m0 0L1 4m3-3 3 3m4-3h6l-6 6h6m-7 10 3.5-7 3.5 7m-6.125-2H16"/>
+            </svg>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap group-hover:text-blue-600 dark:group-hover:text-blue-500">Filter & Sort</span>
+                                </button>
+                            </>
+                        : <></>
+                    }
+                    { 
                         referrer.hasSelected &&
                         <button type="button" onClick={info} className="absolute  
                         max-md:row-1 max-md:col-span-4 max-md:relative   fw-sky-btn  ">Create Prints</button>

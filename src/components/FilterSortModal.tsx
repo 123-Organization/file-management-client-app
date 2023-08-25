@@ -36,16 +36,16 @@ const FilterSortModal = ({openModel, setOpen} : FilterSortModalProps) => {
           if(isUpdated) {
 
             dynamicData.mutations.setUserInfoData(userInfoObj);
-            setTimeout(() => {
-              setLoading(false);
-              setOpen(false);
-            }, 3000);
           } 
         }
-       
+        
       } catch (errorInfo) {
         console.log('Failed:', errorInfo);
       }
+      setTimeout(() => {
+        setLoading(false);
+        setOpen(false);
+      }, 3000);
     };
   
   const handleCancel = () => {
@@ -117,7 +117,7 @@ const FilterSortModal = ({openModel, setOpen} : FilterSortModalProps) => {
                 <label htmlFor="message" className=" leading-7 text-base text-gray-400 font-semibold title-font">Image per page</label>
                 <Form.Item name="filterPerPage"  >
                   <Select
-                    defaultValue={userInfo.filterPerPage}
+                    defaultValue={userInfo.filterPerPage ?? 12}
                     className='text-gray-400 w-full mt-5'
                     onChange={handleChange}
                     options={[
