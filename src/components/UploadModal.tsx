@@ -243,11 +243,11 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       width={'85%'}
       footer={''}
     >
-      <div>
+      <div className='max-md:h-screen'>
         <div className="p-8 flex justify-center items-center  bg-white">
-          <div className="w-full  relative grid grid-cols-1 md:grid-cols-3 border rounded-lg">
+          <div className="w-full  relative grid grid-cols-1 lg:grid-cols-3 lg:border rounded-lg">
             <div
-              className="first-flex-div rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-sm:border-b sm:border-r border-gray-300 ">
+              className="first-flex-div lg:rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-lg:border-b lg:border-r border-gray-300 ">
               <Title level={4} className="text-gray-300" disabled >My Computer / Device</Title>
               {uploadErrors && <div className='text-red-500 font-medium'>
                 {uploadErrors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}<br /></span>}
@@ -311,6 +311,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       onOk={() => setImageListModal(false)}
                       onCancel={() => setImageListModal(false)}
                       closeIcon={<></>}
+                      className="sm:h-screen"
                       width={'70%'}
                       footer={[
                         // images?.length>=1 &&
@@ -385,13 +386,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
             </div>
             <div
-              className="second-flex-div flex flex-col relative order-first md:order-last h-28 md:h-auto justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat bg-center bg-origin-padding bg-cover">
-              <UppyUploadBox></UppyUploadBox>
+              className="second-flex-div  flex flex-col relative order-first md:order-last h-28 md:h-auto justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat bg-center bg-origin-padding bg-cover">
+              <UppyUploadBox/>
             </div>
 
           </div>
         </div>
-        <Checkbox className='pl-10 pb-10  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am sumbmitting. See our <a className='underline'>terms of service </a></Checkbox>
+        <Checkbox className='pl-10 pb-10 max-lg:pt-72  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am sumbmitting. See our <a className='underline'>terms of service </a></Checkbox>
       </div>
     </Modal>
   )

@@ -49,8 +49,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
                     }
                 </div>
                 <div className='flex w-full justify-end'>
-
-                    <Pagination simple className=' mt-5 mr-3' onChange={onChange} defaultCurrent={userInfo.filterPageNumber} defaultPageSize={50} total={500} />
+                    <Pagination simple className=' mt-5 mr-3' onChange={onChange} defaultCurrent={userInfo.filterPageNumber} defaultPageSize={userInfo.filterPerPage} total={referrer.filterCount} />
                 </div>
             </div>
 

@@ -9,6 +9,7 @@ type DynamicDataProviderProps = {
 interface IFileUpload {
   hasSelected: boolean,
   fileSelected: string[]
+  filterCount:string
 }
 
 interface IFileLocation {
@@ -26,7 +27,8 @@ interface IUserInfo {
 }  
 const referrer: IFileUpload = {
   "hasSelected": false,
-  "fileSelected": []
+  "fileSelected": [],
+  'filterCount': "100"
 };
 
 const fileLocation: IFileLocation = {
@@ -41,7 +43,7 @@ const userInfo: IUserInfo = {
   "librarySiteId": "2",
   "filterSearchFilter": "",
   "filterPageNumber": "1",
-  "filterPerPage": "12"
+  "filterPerPage": "12",
 }
 
 const initialState = {

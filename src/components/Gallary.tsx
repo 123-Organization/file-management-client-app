@@ -22,6 +22,8 @@ const Gallary: React.FC = (): JSX.Element => {
     const [imgData, setImgData] = useState({});
     const [images, setImages] = useState(IMAGES);
     const [messageApi, contextHolder] = message.useMessage();
+    const dynamicData: any = useDynamicData();
+    const { referrer, userInfo } = dynamicData.state;
 
     const {
         mutate: deleteImageFn,
@@ -53,6 +55,11 @@ const Gallary: React.FC = (): JSX.Element => {
         onSuccess(data:any) {
           console.log('getAll images',data.data.images);
           setImages(data.data.images)
+          let filterCount = ""+data.data.count
+          let isUpdated = (
+            filterCount !== referrer.filterCount
+          );
+          isUpdated && dynamicData.mutations.setReferrerData({...referrer,filterCount});
           // QueryClient.setQueryData('allImages', newArticle);
         },
         onError(error: any) {},
@@ -78,8 +85,6 @@ const Gallary: React.FC = (): JSX.Element => {
     };
 
  
-    const dynamicData: any = useDynamicData();
-    const { referrer, userInfo } = dynamicData.state;
 
     const handleSelect = (index: number) => {
         const nextImages = images.map((image, i) =>
