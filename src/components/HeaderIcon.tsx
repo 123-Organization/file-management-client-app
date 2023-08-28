@@ -2,7 +2,7 @@ import React, { CSSProperties, useState } from 'react'
 import logo from '../assets/logo/finerworks_logo_icon.svg';
 import FilterSortModal from './FilterSortModal';
 import UploadModal from './UploadModal';
-import { Checkbox, MenuProps } from 'antd';
+import { Checkbox, MenuProps, Spin } from 'antd';
 import { Dropdown, Space, Modal, message } from 'antd';
 import { FileOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useDynamicData } from "../context/DynamicDataProvider";
@@ -42,6 +42,7 @@ const MODAL_STYLES: CSSProperties = {
  */
 const HeaderIcon: React.FC = (): JSX.Element => {
 
+    const [spinLoader, setSpinLoader] = useState(false);
     const [openFilter, setOpenFilter] = useState(false);
     const [openUpload, setOpenUpload] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
@@ -49,7 +50,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     const navigate = useNavigate();
 
     const dynamicData: any = useDynamicData();
-    const { referrer, fileLocation } = dynamicData.state;
+    const { referrer, fileLocation, userInfo } = dynamicData.state;
 
     const {
         mutate: printImagesDataFn,
@@ -60,7 +61,10 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                 type: 'success',
                 content: 'Print api',
               });
-              window.open(`https://finerworks.com/apps/orderform/post.aspx?guid=${data.data}`, "_blank")  
+              //yyyymmddHHMMSS
+              setSpinLoader(false)
+              navigate('/thumbnail?guid='+data.data+'&timestamp='+(new Date()).toISOString().replace(/[^\d]/g,''))
+            //   window.open(`https://finerworks.com/apps/orderform/post.aspx?guid=${data.data}`, "_blank")  
         },
         onError(error: any) {},
       });
@@ -68,11 +72,19 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     
     const handleMenuClick: MenuProps['onClick'] = (e) => {
 
-        const fileLocationObj= {selected:((e.key==='2')?'inventory':'temporary')} 
+        let libraryName  = ((e.key==='2')?'inventory':'temporary')
+        const fileLocationObj= {selected:libraryName} 
         
         let isUpdated = JSON.stringify(fileLocation) !== JSON.stringify(fileLocationObj);
         console.log('isUpdated',isUpdated)
         isUpdated && dynamicData.mutations.setFileLocationData(fileLocationObj);
+
+        let userInfoObj = {...userInfo,libraryName};
+    
+        let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
+        console.log('isUpdated',isUpdated,userInfo,userInfoObj)
+    
+        isUpdatedUser && dynamicData.mutations.setUserInfoData(userInfoObj);
         
     };
         
@@ -83,6 +95,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     };
     
     const createPrints = () => {
+        setSpinLoader(true)
         let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid);
         printImagesDataFn({guids});
         // window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
@@ -101,7 +114,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
             </p>                                                                                                                                                                                                                                          
             </div>
           ),
-          onOk() { createPrints() },
+          onOk() {  },
           onCancel() {  },
         });
       };
@@ -110,7 +123,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
  */
     return (
         <div className='flex w-full'>
-            <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+            <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white pt-1  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
                 <div className="grid max-md:grid-cols-4 max-md:grid-rows-2 max-w-[700px] grid-cols-7 font-medium">
                     <div className='flex flex-col items-center'>
                         <img  src={logo} onClick={()=>{ navigate('/') }} className="App-logo-icon cursor-pointer flex flex-col " alt="logo" />    
@@ -161,8 +174,13 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                     }
                     { 
                         referrer.hasSelected &&
-                        <button type="button" onClick={info} className="absolute  
-                        max-md:row-1 max-md:col-span-4 max-md:relative   fw-sky-btn  ">Create Prints</button>
+                        <div className='fw-sky-btn absolute max-md:row-1 max-md:col-span-4 max-md:relative'>
+
+                            <Spin spinning={spinLoader}  size="small">
+                            <button type="button" onClick={createPrints} className="  
+                                 ">Create Prints</button>
+                            </Spin>
+                        </div>
                     }
                 </div>
             </div>
