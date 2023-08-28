@@ -40,15 +40,24 @@ const treeData: DataNode[] = [
 const Thumbnail: React.FC = (): JSX.Element => {
 
   const dynamicData: any = useDynamicData();
-  const { referrer, fileLocation } = dynamicData.state;
+  const { referrer, fileLocation, userInfo } = dynamicData.state;
 
   const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
     console.log('selected', selectedKeys, info);
-    const fileLocationObj= {selected:((selectedKeys[0]!=='inventory')?'temporary':'inventory')}
+    let libraryName  = ((selectedKeys[0]!=='inventory')?'temporary':'inventory')
+    const fileLocationObj= {selected:libraryName}
     let isUpdated = JSON.stringify(fileLocation) !== JSON.stringify(fileLocationObj);
     console.log('isUpdated',isUpdated)
 
     isUpdated && dynamicData.mutations.setFileLocationData(fileLocationObj);
+
+    let userInfoObj = {...userInfo,libraryName};
+    
+    let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
+    console.log('isUpdated',isUpdated,userInfo,userInfoObj)
+
+    isUpdatedUser && dynamicData.mutations.setUserInfoData(userInfoObj);
+
   };
 /**
  * ****************************************************************** JSX  ***************************************************************************

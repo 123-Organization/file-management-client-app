@@ -4,8 +4,9 @@ import { useDynamicData } from "../context/DynamicDataProvider";
 import { Empty, message, Spin } from 'antd';
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { deleteImages, getImages } from '../api/gallaryApi';
+import { Typography } from 'antd';
 import images from "../json/images.json"
-
+const {  Text } = Typography;
 /**
  * ****************************************************************** Outer Function **********************************************************
  */
@@ -139,7 +140,14 @@ const Gallary: React.FC = (): JSX.Element => {
                                   </div>
                                 </div>                      
                                 <div className='flex relative w-full justify-center pb-2'>
-                                    <div className='text-sm pt-2'>{` ${image.title?image.title: 'Lorem ipsum'}` }</div>
+                                    <div className='text-sm pt-2'>
+                                      <Text
+                                        style={{ width: 100 } }
+                                        ellipsis={{ tooltip: image.title } }
+                                      >
+                                        {image.title}
+                                      </Text>
+                                    </div>
                                     <div>
                                     <svg onClick={() => {
                                         setOpen(true)
