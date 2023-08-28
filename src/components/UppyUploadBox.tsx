@@ -64,7 +64,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     restrictions:{
       maxFileSize: (1024*1024*500*20),
       maxNumberOfFiles: 20,
-      allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.zip','.psd','.svg']
+      allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.tiff','.zip','.psd','.svg']
     } })
     .use(AwsS3, {
       shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
