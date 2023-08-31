@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { PaginationProps } from 'antd';
 import { Pagination } from 'antd';
 import { useDynamicData } from '../context/DynamicDataProvider';
@@ -21,6 +21,9 @@ const BottomIcon: React.FC = (): JSX.Element => {
       };
     
     console.log('fileLocation',fileLocation)
+    useEffect(() => {
+        console.log('userInfo.filterPageNumber',userInfo.filterPageNumber)
+      },[userInfo.filterPageNumber]);
     return (
         <div className='flex'>
             <div></div>

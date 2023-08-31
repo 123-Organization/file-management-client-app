@@ -56,7 +56,10 @@ const Thumbnail: React.FC = (): JSX.Element => {
     let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
     console.log('isUpdated',isUpdated,userInfo,userInfoObj)
 
-    isUpdatedUser && dynamicData.mutations.setUserInfoData(userInfoObj);
+    if(isUpdatedUser) {
+      userInfoObj.filterPageNumber="1";
+      dynamicData.mutations.setUserInfoData(userInfoObj);
+    } 
 
   };
 /**
