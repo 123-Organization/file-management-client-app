@@ -24,6 +24,10 @@ interface IUserInfo {
   filterSearchFilter:string
   filterPageNumber:string
   filterPerPage:string
+  filterUploadFrom:string
+  filterUploadTo:string
+  filterSortField:string
+  filterSortDirection:string
 }  
 const referrer: IFileUpload = {
   "hasSelected": false,
@@ -44,6 +48,10 @@ const userInfo: IUserInfo = {
   "filterSearchFilter": "",
   "filterPageNumber": "1",
   "filterPerPage": "12",
+  "filterUploadFrom": "",
+  "filterUploadTo": "",
+  "filterSortField": "id",
+  "filterSortDirection": "DESC",
 }
 
 const initialState = {
