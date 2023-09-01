@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Gallary from '../components/Gallary'
 import { DownOutlined } from '@ant-design/icons';
 import { Tree } from 'antd';
@@ -62,6 +62,20 @@ const Thumbnail: React.FC = (): JSX.Element => {
     } 
 
   };
+
+
+  useEffect(()=>{
+    window.addEventListener("message", function(event) {
+      // if (event.origin != '*') {
+      //   // something from an unknown domain, let's ignore it
+      //   return;
+      // }
+    
+      console.log("received: ", event.data );
+    
+      // can message back using event.source.postMessage(...)
+    });
+  },[])
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */

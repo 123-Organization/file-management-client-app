@@ -392,7 +392,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
           </div>
         </div>
-        <Checkbox className='pl-10 pb-10 max-lg:pt-72  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am sumbmitting. See our <a className='underline'>terms of service </a></Checkbox>
+        <Checkbox className='pl-10 pb-10 max-lg:pt-72  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
       </div>
     </Modal>
   )
