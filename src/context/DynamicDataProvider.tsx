@@ -28,6 +28,7 @@ interface IUserInfo {
   filterUploadTo:string
   filterSortField:string
   filterSortDirection:string
+  filterUpdate:string
 }  
 const referrer: IFileUpload = {
   "hasSelected": false,
@@ -52,6 +53,7 @@ const userInfo: IUserInfo = {
   "filterUploadTo": "",
   "filterSortField": "id",
   "filterSortDirection": "DESC",
+  "filterUpdate": "1",
 }
 
 const initialState = {

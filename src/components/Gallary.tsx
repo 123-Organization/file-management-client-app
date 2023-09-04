@@ -28,7 +28,7 @@ const Gallary: React.FC = (): JSX.Element => {
 
     const {
         mutate: deleteImageFn,
-        isLoading,
+        isLoading:isLoadingImgDelete,
         isError,
         error,
         data,
@@ -40,7 +40,9 @@ const Gallary: React.FC = (): JSX.Element => {
             content: 'File has been deleted',
           });
           setOpen(false)
-          getAllImagesFn(getAllImageParams("1"));
+          let filterUpdate=(userInfo.filterUpdate?"":" ");
+          let userInfoObj={...userInfo,filterUpdate};
+          dynamicData.mutations.setUserInfoData(userInfoObj);
         },
         onError(error: any) {},
     });
@@ -162,7 +164,7 @@ const Gallary: React.FC = (): JSX.Element => {
                             </div>
                         )
                     )}
-                    <EditGallaryModal onDeleteHandler={onDeleteHandler} openModel={open} setOpen={setOpen} imgData={imgData} />
+                    <EditGallaryModal onDeleteHandler={onDeleteHandler} isSuccess={!isLoadingImgDelete} openModel={open} setOpen={setOpen} imgData={imgData} />
                    </>
             : <Empty />
             }
