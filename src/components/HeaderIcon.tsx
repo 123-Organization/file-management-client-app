@@ -63,6 +63,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
               });
               //yyyymmddHHMMSS
               setSpinLoader(false)
+              window.parent.postMessage(data.data,'*')
               navigate('/thumbnail?guid='+data.data+'&timestamp='+(new Date()).toISOString().replace(/[^\d]/g,''))
             //   window.open(`https://finerworks.com/apps/orderform/post.aspx?guid=${data.data}`, "_blank")  
         },

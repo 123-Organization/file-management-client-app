@@ -97,7 +97,7 @@ const Gallary: React.FC = (): JSX.Element => {
         const hasSelected = nextImages.some((image) => image.isSelected);
         //@ts-ignore
         const fileSelected = nextImages.filter((image) =>image.isSelected);
-        const referrerObj = {hasSelected,fileSelected}
+        const referrerObj = {...referrer,...{hasSelected,fileSelected}}
         console.log('referrer',referrer)
         console.log('referrerObj',referrerObj)
 
