@@ -6,33 +6,6 @@ import type { DataNode, TreeProps } from 'antd/es/tree';
 import { FileFilled, FileTextOutlined, FileOutlined, FileTextFilled  } from '@ant-design/icons';
 import { useDynamicData } from '../context/DynamicDataProvider';
 
-
-/**
- * ****************************************************************** Outer Function **********************************************************
- */
-
-const treeData: DataNode[] = [
-  {
-    title: 'My File Libraries',
-    key: '0-0-0',
-    icon:<svg className="w-5 h-5 mb-2 text-gray-400 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6M9 8h6m-6 3h6M4.996 5h.01m-.01 3h.01m-.01 3h.01M2 1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
-</svg>,
-      children: [
-      {
-        title: 'Temporary',
-        key: 'temporary',
-        icon:({ selected }) => (selected ? <FileFilled className='text-blue-400' /> : <FileOutlined className='text-base' />),
-      },
-      {
-        title: 'Inventory',
-        key: 'inventory',
-        icon:({ selected }) => (selected ? <FileTextFilled className='text-blue-400' /> : <FileTextOutlined className='text-base pb-2'  />),
-      },
-
-    ],
-  }];
-
 /**
  * ****************************************************************** Function Components *******************************************************
  */
@@ -42,6 +15,36 @@ const Thumbnail: React.FC = (): JSX.Element => {
   const dynamicData: any = useDynamicData();
   const { referrer, fileLocation, userInfo } = dynamicData.state;
 
+  /**
+ * ****************************************************************** Outer Function **********************************************************
+ */
+
+const  childrenTree = []
+
+userInfo.libraryOptions.includes("temporary") && childrenTree.push({
+  title: 'Temporary',
+  key: 'temporary',
+  //@ts-ignore
+  icon:({ selected }) => (selected ? <FileFilled className='text-blue-400' /> : <FileOutlined className='text-base' />),
+});
+
+userInfo.libraryOptions.includes("inventory") && childrenTree.push({
+  title: 'Inventory',
+  key: 'inventory',
+  //@ts-ignore
+  icon:({ selected }) => (selected ? <FileTextFilled className='text-blue-400' /> : <FileTextOutlined className='text-base pb-2'  />),
+});  
+
+const treeData: DataNode[] = [
+  {
+    title: 'My File Libraries',
+    key: '0-0-0',
+    icon:<svg className="w-5 h-5 mb-2 text-gray-400 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6M9 8h6m-6 3h6M4.996 5h.01m-.01 3h.01m-.01 3h.01M2 1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
+        </svg>,
+    children: childrenTree
+  }];
+  
   const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
     console.log('selected', selectedKeys, info);
     let libraryName  = ((selectedKeys[0]!=='inventory')?'temporary':'inventory')
@@ -72,6 +75,24 @@ const Thumbnail: React.FC = (): JSX.Element => {
       // }
     
       console.log("received: ", event.data );
+      if(event.data['settings']){
+        let updateUserInfo = {
+          libraryOptions:event.data['settings']['libraries'],
+          multiselectOptions:!!(event.data['settings']['multiselect']),
+          librarySessionId:event.data['settings']['session_id'],
+          libraryAccountKey:event.data['settings']['account_key'],
+          guidPreSelected:event.data['settings']['guid'],
+        }
+        let userInfoObj = {...userInfo,...updateUserInfo};
+    
+        let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
+        console.log('isUpdated',isUpdatedUser,userInfo,userInfoObj)
+
+        if(isUpdatedUser) {
+          dynamicData.mutations.setUserInfoData(userInfoObj);
+        } 
+
+      }
     
       // can message back using event.source.postMessage(...)
     });
@@ -82,22 +103,25 @@ const Thumbnail: React.FC = (): JSX.Element => {
   return (
     <div className='realtive'>
       <div className='flex '>
-        <div className='w-10/12 max-md:w-full'>
+        <div className={`${userInfo.libraryOptions.length ? 'w-10/12':'w-full'}  max-md:w-full`}>
           <Gallary />
         </div>
-        <div className='md:w-2/12 max-md:hidden max-md:w-0/12 '>
-          <Tree
-            showIcon
-            className=' fixed font-semibold pt-8 text-gray-400  '
-            showLine
-            selectedKeys={[fileLocation.selected]}
-            switcherIcon={<DownOutlined />}
-            defaultExpandedKeys={['0-0-0']}
-            treeData={treeData}
-            onSelect={onSelect}
-            
-          />
-        </div>
+        {
+          !!userInfo.libraryOptions.length &&   
+          <div className='md:w-2/12 max-md:hidden max-md:w-0/12 '>
+            <Tree
+              showIcon
+              className=' fixed font-semibold pt-8 text-gray-400  '
+              showLine
+              selectedKeys={[fileLocation.selected]}
+              switcherIcon={<DownOutlined />}
+              defaultExpandedKeys={['0-0-0']}
+              treeData={treeData}
+              onSelect={onSelect}
+              
+            />
+          </div>
+        }
       </div>
       
     </div>

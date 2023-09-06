@@ -25,10 +25,66 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Finer works - File management app</title>
+    <!-- <script>
+      function GetIFrameUrl()
+      {
+        console.log('GetIFrameUrl')
+          // if (!document.getElementById)
+          // {
+          //     return;
+          // }
+      
+          var txt = document.getElementById("txtUrl");
+          
+          var frm = document.getElementById("frmExternal");
+          alert(frm.src)
+          frm.src = 'https://google.com'
+          return;
+          if (frm == null || txt == null)
+          {
+              // not great user feedback but slightly better than obnoxious script errors
+             alert("There was a problem with this page, please refresh.");
+             return;
+          }
+      
+          txt.value = frm.src;
+      }
+      setTimeout(() => {
+        
+        //GetIFrameUrl()
+      }, 5000);
+
+      var message = {
+                        "settings": {
+                            // Optional. When included it pre-selects the images by first calling the List File Selection
+                            // endpoint: https://api.finerworks.com/Help/Api/GET-v3-list_file_selection_guid
+                            "guid": "example-guid-value",
+                            // This will allow FinerWorks to pass the session_id associated with calls to the FinerWorks API.
+                            "session_id": "example-session-id-value",
+                            // This will allow FinerWorks to pass the account_key associated with calls to the FinerWorks API.
+                            "account_key": "example-account-key-value",
+                            // If included AND set it to 'false', the user can only select a single thumbnail.
+                            "multiselect": "false",
+                            // List any libraries to make available to the user (array of comma-separated values).
+                            // If only listing one, then the option to switch libraries in the UI should be hidden / unavailable.
+                            "libraries": ["temporary", "inventory"],
+                        }
+                    };
+
+      function iframeDidLoad() {
+
+        var frm = document.getElementById("frmExternal");
+        frm.contentWindow.postMessage(message, '*');
+          alert(frm.src)
+    alert('Done');
+}
+      </script> -->
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <div id="containerId"></div>
+
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -39,5 +95,119 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+   
+    <!-- <iframe name='frmExternal' width="600" height="800"
+    onLoad="iframeDidLoad();" 
+    id='frmExternal' src='http://fine.work.file-manage.s3-website-us-east-1.amazonaws.com/#/thumbnail'></frame> -->
+     
   </body>
+   
+<!-- <script>
+
+function filemanager_load(containerId, iframeId, textboxId) {
+  var textBox = document.getElementById(textboxId);
+  // Only proceed if the textbox is empty
+  if (1) {
+      // Check if the iframe already exists
+      var existingIframe = document.getElementById(iframeId);
+      // Create the iframe if it doesn't exist
+      if (!existingIframe) {
+          // Create a close button
+          var closeButton = document.createElement('div');
+          closeButton.className = "filemanager-close-button";
+          closeButton.innerHTML = "&times;";
+          // Create a container to hold the iframe element
+          var iframeContainer = document.createElement('div');
+          iframeContainer.className = "filemanager-iframe-container";
+          // Create the iframe element
+          var iframe = document.createElement('iframe');
+          // Set attributes for the iframe
+          iframe.id = iframeId;
+          iframe.src = 'http://fine.work.file-manage.s3-website-us-east-1.amazonaws.com/#/thumbnail';
+          // ... other attributes
+          // Set the referrerpolicy attribute needed for CORS
+          iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+          // Set the referrerpolicy attribute needed for CORS
+          iframe.setAttribute('crossorigin', 'anonymous');
+          // Append the iframe to its container
+          iframeContainer.appendChild(iframe);
+          // Find the parent element where you want to append the iframe
+          var mainContainer = document.getElementById(containerId);
+          // Append the iframe's container and the close button to the mainContainer
+          mainContainer.appendChild(iframeContainer);
+          mainContainer.appendChild(closeButton);
+          // Add event listener for the load event
+          iframe.addEventListener('load', function () {
+              console.log('iframe loaded');
+              filemanager_checkQueryString(iframe);
+          });
+          // Add click event listener to the close button
+          closeButton.addEventListener('click', function () {
+              // Hide the mainContainer
+              mainContainer.style.display = 'none';
+          });
+          // Create the message object to be sent
+          var message = {
+              "settings": {
+                  // Optional. When included it pre-selects the images by first calling the List File Selection
+                  // endpoint: https://api.finerworks.com/Help/Api/GET-v3-list_file_selection_guid
+                  "guid": "example-guid-value",
+                  // This will allow FinerWorks to pass the session_id associated with calls to the FinerWorks API.
+                  "session_id": "example-session-id-value",
+                  // This will allow FinerWorks to pass the account_key associated with calls to the FinerWorks API.
+                  "account_key": "example-account-key-value",
+                  // If included AND set it to 'false', the user can only select a single thumbnail.
+                  "multiselect": "false",
+                  // List any libraries to make available to the user (array of comma-separated values).
+                  // If only listing one, then the option to switch libraries in the UI should be hidden / unavailable.
+                  "libraries": ["temporary", "inventory"],
+              }
+          };
+          // Use postMessage to send the message to the iframe
+          iframe.contentWindow.postMessage(message, '*');
+      }
+  }
+}
+        
+var recordedGuidValue = null;
+
+function filemanager_checkQueryString(iframe) {
+  console.log('iframe location 2: ' + iframe.contentWindow.location);
+  if (iframe.contentWindow && iframe.contentWindow.location) {
+      var iframeURL = iframe.contentWindow.location.href;
+      var queryStringIndex = iframeURL.indexOf('?');
+      if (queryStringIndex !== -1) {
+          var queryString = iframeURL.slice(queryStringIndex + 1);
+          var queryParams = new URLSearchParams(queryString);
+          var guidValue = queryParams.get('guid');
+          var timestampValue = queryParams.get('timestamp');
+          if (guidValue || timestampValue) {
+              // Compare with previous values or store them for future comparison
+              // For demonstration purposes, let's assume filemanager_prevGuidValue and filemanager_prevTimestampValue are variables that hold the previous values
+              if (guidValue !== filemanager_prevGuidValue || timestampValue !== filemanager_prevTimestampValue) {
+                  console.log('Either "guid" or "timestamp" parameter has changed.');
+                  // Do something with the changed values
+                  if (guidValue !== filemanager_prevGuidValue) {
+                      webmethod_getFileSelectionGUIDs();
+                  }
+              } else {
+                  console.log('No change in "guid" or "timestamp" parameter.');
+              }
+              // Update the previous values for future comparison
+              filemanager_prevGuidValue = guidValue;
+              filemanager_prevTimestampValue = timestampValue;
+              // Assign the guidValue to the global variable
+              recordedGuidValue = guidValue;
+          } else {
+              console.log('Iframe does not have valid "guid" or "timestamp" parameters in the query string.');
+          }
+      } else {
+          console.log('Iframe does not have a query string.');
+      }
+  }
+}
+
+filemanager_load('containerId', 'iframeId', 'textboxId');
+
+</script>   -->
 </html>

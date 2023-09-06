@@ -13,19 +13,7 @@ import { postPrintImages } from '../api/gallaryApi';
 /**
  * ****************************************************************** Outer Function ****************************************************
  */
-const items: MenuProps['items'] = [
-    {
-      label: 'Temporary',
-      key: '1',
-      icon: <FileOutlined className='gallary-text-lg' />,
-      
-    },
-    {
-      label: 'Inventory',
-      key: '2',
-      icon: <FileTextOutlined className='gallary-text-lg'  />,
-    }
-];
+
 
     
 const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -92,7 +80,23 @@ const HeaderIcon: React.FC = (): JSX.Element => {
         
     };
         
- 
+    const items: MenuProps['items'] = [
+       
+    ];
+
+    userInfo.libraryOptions.includes("temporary") && items.push({
+        label: 'Temporary',
+        key: '1',
+        icon: <FileOutlined className='gallary-text-lg' />,
+        
+      });
+
+      userInfo.libraryOptions.includes("inventory") && items.push({
+        label: 'Inventory',
+        key: '2',
+        icon: <FileTextOutlined className='gallary-text-lg'  />,
+    })
+
     const menuProps = {
         items,
         onClick: handleMenuClick,

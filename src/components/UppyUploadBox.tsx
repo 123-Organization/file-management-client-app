@@ -59,7 +59,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
   });
 
   const uppy = new Uppy({ 
-    logger: debugLogger,
+    // logger: debugLogger,
     autoProceed: false,
     restrictions:{
       maxFileSize: (1024*1024*500*20),

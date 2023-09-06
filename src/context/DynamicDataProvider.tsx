@@ -29,6 +29,9 @@ interface IUserInfo {
   filterSortField:string
   filterSortDirection:string
   filterUpdate:string
+  guidPreSelected:string
+  libraryOptions: string[]
+  multiselectOptions: boolean
 }  
 const referrer: IFileUpload = {
   "hasSelected": false,
@@ -54,6 +57,9 @@ const userInfo: IUserInfo = {
   "filterSortField": "id",
   "filterSortDirection": "DESC",
   "filterUpdate": "1",
+  "guidPreSelected": "",
+  "libraryOptions": ["temporary", "inventory"],
+  "multiselectOptions": true
 }
 
 const initialState = {
