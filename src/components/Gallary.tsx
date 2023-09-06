@@ -92,11 +92,12 @@ const Gallary: React.FC = (): JSX.Element => {
     const handleSelect = (index: number) => {
         const nextImages = images.map((image, i) =>
           i === index ? { ...image, isSelected: !image.isSelected } : image
-        );
+          );
+        const fileSelected = nextImages.filter((image) =>image.isSelected);
+        if(fileSelected.length > 1 && !userInfo.multiselectOptions) return;
         setImages(nextImages);
         const hasSelected = nextImages.some((image) => image.isSelected);
         //@ts-ignore
-        const fileSelected = nextImages.filter((image) =>image.isSelected);
         const referrerObj = {...referrer,...{hasSelected,fileSelected}}
         console.log('referrer',referrer)
         console.log('referrerObj',referrerObj)
