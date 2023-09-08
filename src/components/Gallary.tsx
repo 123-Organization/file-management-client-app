@@ -12,7 +12,12 @@ const {  Text } = Typography;
  */
 
 const IMAGES = images.gallaryImages;
-
+interface ImageType {
+  public_thumbnail_uri?: string;
+  public_preview_uri?: string;
+  isSelected?: false;
+  title?:string;
+}
 /**
  * ****************************************************************** Function Components *******************************************************
  */
@@ -21,7 +26,7 @@ const Gallary: React.FC = (): JSX.Element => {
 
     const [open, setOpen] = useState(false);
     const [imgData, setImgData] = useState({});
-    const [images, setImages] = useState(IMAGES);
+    const [images, setImages] = useState<Array<ImageType>>([]);
     const [messageApi, contextHolder] = message.useMessage();
     const dynamicData: any = useDynamicData();
     const { referrer, userInfo } = dynamicData.state;
@@ -79,10 +84,10 @@ const Gallary: React.FC = (): JSX.Element => {
         if (window.confirm('Are you sure')) {
           let data = {
                 guids,
-                "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e3721",
-                "libraryAccountKey": "kqdzaai2xyzppcxuhgsjorv21",
-                "librarySiteId": "2"
-            }; 
+                "librarySessionId":userInfo.librarySessionId,
+                "libraryAccountKey": userInfo.libraryAccountKey,
+                "librarySiteId": userInfo.librarySiteId
+          }; 
           deleteImageFn(data);
         }
     };
@@ -95,6 +100,7 @@ const Gallary: React.FC = (): JSX.Element => {
           );
         const fileSelected = nextImages.filter((image) =>image.isSelected);
         if(fileSelected.length > 1 && !userInfo.multiselectOptions) return;
+        //@ts-ignore
         setImages(nextImages);
         const hasSelected = nextImages.some((image) => image.isSelected);
         //@ts-ignore
@@ -117,8 +123,40 @@ const Gallary: React.FC = (): JSX.Element => {
       }
     
       useEffect(() => {
-        getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+        if(userInfo.librarySessionId)
+          getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
       },[userInfo]);
+
+      useEffect(()=>{
+        window.addEventListener("message", function(event) {
+          // if (event.origin != '*') {
+          //   // something from an unknown domain, let's ignore it
+          //   return;
+          // }
+        
+          console.log("received: ", event.data );
+          if(event.data['settings']){
+            let updateUserInfo = {
+              libraryOptions:event.data['settings']['libraries'],
+              multiselectOptions:!!(event.data['settings']['multiselect']),
+              librarySessionId:event.data['settings']['session_id'],
+              libraryAccountKey:event.data['settings']['account_key'],
+              guidPreSelected:event.data['settings']['guid'],
+            }
+            let userInfoObj = {...userInfo,...updateUserInfo};
+        
+            let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
+            console.log('isUpdated',isUpdatedUser,userInfo,userInfoObj)
+    
+            if(isUpdatedUser) {
+              dynamicData.mutations.setUserInfoData(userInfoObj);
+            } 
+    
+          }
+        
+          // can message back using event.source.postMessage(...)
+        });
+      },[])
 
 /**
  * ****************************************************************** JSX  ***************************************************************************
