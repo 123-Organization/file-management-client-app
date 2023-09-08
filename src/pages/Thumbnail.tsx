@@ -67,36 +67,7 @@ const treeData: DataNode[] = [
   };
 
 
-  useEffect(()=>{
-    window.addEventListener("message", function(event) {
-      // if (event.origin != '*') {
-      //   // something from an unknown domain, let's ignore it
-      //   return;
-      // }
-    
-      console.log("received: ", event.data );
-      if(event.data['settings']){
-        let updateUserInfo = {
-          libraryOptions:event.data['settings']['libraries'],
-          multiselectOptions:!!(event.data['settings']['multiselect']),
-          librarySessionId:event.data['settings']['session_id'],
-          libraryAccountKey:event.data['settings']['account_key'],
-          guidPreSelected:event.data['settings']['guid'],
-        }
-        let userInfoObj = {...userInfo,...updateUserInfo};
-    
-        let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
-        console.log('isUpdated',isUpdatedUser,userInfo,userInfoObj)
-
-        if(isUpdatedUser) {
-          dynamicData.mutations.setUserInfoData(userInfoObj);
-        } 
-
-      }
-    
-      // can message back using event.source.postMessage(...)
-    });
-  },[])
+ 
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */

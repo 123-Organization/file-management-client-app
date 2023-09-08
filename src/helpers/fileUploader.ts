@@ -2,7 +2,7 @@ import axios from "axios"
 
 // initializing axios
 const api = axios.create({
-  baseURL: 'http://app-filemanager.finerworks.com:5000/api/',
+  baseURL: 'https://app-filemanager.finerworks.com/api/',
   withCredentials: false,
 })
 
