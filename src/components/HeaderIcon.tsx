@@ -103,6 +103,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     };
     
     const createPrints = () => {
+        if (spinLoader) return false;
         setSpinLoader(true)
         let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid);
         printImagesDataFn({guids});
@@ -182,10 +183,10 @@ const HeaderIcon: React.FC = (): JSX.Element => {
                     }
                     { 
                         referrer.hasSelected &&
-                        <div className='fw-sky-btn absolute max-md:row-1 max-md:col-span-4 max-md:relative'>
+                        <div onClick={createPrints} className='fw-sky-btn absolute max-md:row-1 max-md:col-span-4 max-md:relative'>
 
                             <Spin spinning={spinLoader}  size="small">
-                            <button type="button" onClick={createPrints} className="  
+                            <button type="button"  className="  
                                  ">Create Prints</button>
                             </Spin>
                         </div>
