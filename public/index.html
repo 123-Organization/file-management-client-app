@@ -25,7 +25,7 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Finer works - File management app</title>
-    <!-- <script>
+    <script>
       function GetIFrameUrl()
       {
         console.log('GetIFrameUrl')
@@ -58,13 +58,13 @@
                         "settings": {
                             // Optional. When included it pre-selects the images by first calling the List File Selection
                             // endpoint: https://api.finerworks.com/Help/Api/GET-v3-list_file_selection_guid
-                            "guid": "example-guid-value",
+                            "guid": "9099-81de5dba-0300-4988-a1cb-df97dfa4e3721",
                             // This will allow FinerWorks to pass the session_id associated with calls to the FinerWorks API.
-                            "session_id": "example-session-id-value",
+                            "session_id": "81de5dba-0300-4988-a1cb-df97dfa4e372",
                             // This will allow FinerWorks to pass the account_key associated with calls to the FinerWorks API.
-                            "account_key": "example-account-key-value",
+                            "account_key": "4zrnustkmdgkajs3f0ln4rq0",
                             // If included AND set it to 'false', the user can only select a single thumbnail.
-                            "multiselect": "false",
+                            "multiselect": false,
                             // List any libraries to make available to the user (array of comma-separated values).
                             // If only listing one, then the option to switch libraries in the UI should be hidden / unavailable.
                             "libraries": ["temporary", "inventory"],
@@ -75,14 +75,16 @@
 
         var frm = document.getElementById("frmExternal");
         frm.contentWindow.postMessage(message, '*');
-          alert(frm.src)
-    alert('Done');
+  //        alert(frm.src)
+  //  alert('Done');
 }
-      </script> -->
+      </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root" 
+    onclick1="GetIFrameUrl()"
+    ></div>
     <div id="containerId"></div>
 
     <!--
@@ -96,9 +98,9 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
    
-    <!-- <iframe name='frmExternal' width="600" height="800"
-    onLoad="iframeDidLoad();" 
-    id='frmExternal' src='http://fine.work.file-manage.s3-website-us-east-1.amazonaws.com/#/thumbnail'></frame> -->
+      <!-- <iframe name='frmExternal' width="1400" height="800"
+      onLoad="iframeDidLoad();" 
+      id='frmExternal' src='http://fine.work.file-manage.s3-website-us-east-1.amazonaws.com/#/thumbnail'></frame> -->
      
   </body>
    
