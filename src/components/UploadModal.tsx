@@ -334,7 +334,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                         <button className='fw-sky-btn' onClick={onImageRemoveAll}>Remove all images</button>
                       </>
                       } */}
-                      <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
+                      <div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-8'>
                       {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >

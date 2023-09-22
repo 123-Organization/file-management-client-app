@@ -132,7 +132,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
  */
     return (
         <div className='flex w-full'>
-            <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white pt-1  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+            <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white pt-3 pb-3  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
                 <div className="grid max-md:grid-cols-4 max-md:grid-rows-2 max-w-[700px] grid-cols-7 font-medium">
                     <div className='flex flex-col items-center'>
                         <img  src={logo} onClick={()=>{ navigate('/') }} className="App-logo-icon cursor-pointer flex flex-col " alt="logo" />    

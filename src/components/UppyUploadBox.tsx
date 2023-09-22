@@ -184,7 +184,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
 
 
   return (
-    <div className="lg:flex justify-end items-center pt-6">
+    <div className="xxl:flex justify-end items-center pt-6">
       <div id='artzipIcon' className='artzipIcon lg:absolute top-[305px] z-10 right-40   pr-4 '>
         <div className='uppy-DashboardTab-btn rounded-lg' onClick={gotoArtZip}>
           <div className='bg-white h-9  pt-1 rounded-lg '>
