@@ -77,7 +77,7 @@ const treeData: DataNode[] = [
   };
 
 
-  useEffect(()=>{
+  //useEffect(()=>{
     window.addEventListener("message", function(event) {
       // if (event.origin != '*') {
       //   // something from an unknown domain, let's ignore it
@@ -115,7 +115,7 @@ const treeData: DataNode[] = [
     
       // can message back using event.source.postMessage(...)
     });
-  })
+  //})
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */
