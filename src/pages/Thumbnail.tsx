@@ -77,7 +77,7 @@ const treeData: DataNode[] = [
   };
 
 
-  //useEffect(()=>{
+  useEffect(()=>{
     window.addEventListener("message", function(event) {
       // if (event.origin != '*') {
       //   // something from an unknown domain, let's ignore it
@@ -87,7 +87,10 @@ const treeData: DataNode[] = [
       console.log("received: ", event.data );
       if(typeof event.data === 'string'){
         settings = JSON.parse(event.data);
+      } else if(typeof event.data === 'object'){
+        settings = event.data;
       }
+
       if(settings){
         let updateUserInfo = {
           libraryOptions:settings['libraries'],
@@ -112,7 +115,7 @@ const treeData: DataNode[] = [
     
       // can message back using event.source.postMessage(...)
     });
-  // })
+  })
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */
