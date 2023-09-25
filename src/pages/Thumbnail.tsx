@@ -8,6 +8,7 @@ import { useDynamicData } from '../context/DynamicDataProvider';
 
 
 interface ISettings {
+  settings ?: object
   libraries: string[]
   account_key: string
   guid: string
@@ -86,12 +87,13 @@ const treeData: DataNode[] = [
       let settings:ISettings | null = null;
       console.log("received: ", event.data );
       if(typeof event.data === 'string'){
-        settings = JSON.parse(event.data);
+        settings = JSON.parse(event.data)['settings'];
+        // settings = settings['settings'];
       } else if(typeof event.data === 'object'){
-        settings = event.data;
+        settings = event.data['settings'];
       }
 
-      if(settings){
+      if(settings && settings['libraries']){
         let updateUserInfo = {
           libraryOptions:settings['libraries'],
           multiselectOptions:!!(settings['multiselect']),
@@ -115,7 +117,7 @@ const treeData: DataNode[] = [
     
       // can message back using event.source.postMessage(...)
     });
-  //},[])
+  // },[])
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */
