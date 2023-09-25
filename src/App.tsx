@@ -55,7 +55,7 @@ const App: React.FC = () => {
               <div className="pb-10">FinerWorks ©2023</div>
               <BottomIcon />
             </>
-          : 'FinerWorks ©20234'  
+          : 'FinerWorks ©2023'  
         }
           
         </Footer>
