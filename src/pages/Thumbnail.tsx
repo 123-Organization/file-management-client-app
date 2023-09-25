@@ -6,6 +6,16 @@ import type { DataNode, TreeProps } from 'antd/es/tree';
 import { FileFilled, FileTextOutlined, FileOutlined, FileTextFilled  } from '@ant-design/icons';
 import { useDynamicData } from '../context/DynamicDataProvider';
 
+
+interface ISettings {
+  libraries: string[]
+  account_key: string
+  guid: string
+  multiselect: boolean
+  session_id: string
+}
+
+
 /**
  * ****************************************************************** Function Components *******************************************************
  */
@@ -73,16 +83,20 @@ const treeData: DataNode[] = [
       //   // something from an unknown domain, let's ignore it
       //   return;
       // }
-    
+      let settings:ISettings | null = null;
       console.log("received: ", event.data );
-      if(event.data['settings']){
+      if(typeof event.data === 'string'){
+        settings = JSON.parse(event.data);
+      }
+      if(settings){
         let updateUserInfo = {
-          libraryOptions:event.data['settings']['libraries'],
-          multiselectOptions:!!(event.data['settings']['multiselect']),
-          librarySessionId:event.data['settings']['session_id'],
-          libraryAccountKey:event.data['settings']['account_key'],
-          guidPreSelected:event.data['settings']['guid'],
+          libraryOptions:settings['libraries'],
+          multiselectOptions:!!(settings['multiselect']),
+          librarySessionId:settings['session_id'],
+          libraryAccountKey:settings['account_key'],
+          guidPreSelected:settings['guid'],
         }
+        console.log('updateUserInfo...',updateUserInfo);
         let userInfoObj = {...userInfo,...updateUserInfo};
     
         let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
