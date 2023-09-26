@@ -126,7 +126,7 @@ const Gallary: React.FC = (): JSX.Element => {
       const diffentUser = (userInfo.librarySessionId!=='81de5dba-0300-4988-a1cb-df97dfa4e3721' && locationIsDifferent)
       const defalutUser = (userInfo.librarySessionId==='81de5dba-0300-4988-a1cb-df97dfa4e3721' && !locationIsDifferent)
       useEffect(() => {
-          if(defalutUser && diffentUser)
+          if(defalutUser || diffentUser)
             getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
       },[userInfo]);
 
