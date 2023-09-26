@@ -123,7 +123,8 @@ const Gallary: React.FC = (): JSX.Element => {
       }
     
       useEffect(() => {
-        if(userInfo.librarySessionId)
+        const locationIsSame = (window.location === window.parent.location);
+        if(userInfo.librarySessionId && locationIsSame)
           getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
       },[userInfo]);
 
