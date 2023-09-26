@@ -11,9 +11,19 @@ import { postUploadFiles } from './store/actionCreators/uploadFiles';
 import { routes } from './config/routes';
 import HeaderIcon from './components/HeaderIcon';
 import BottomIcon from './components/BottomIcon';
+import { useDynamicData } from './context/DynamicDataProvider';
 
 
 const { Header, Footer, Sider, Content } = Layout;
+
+interface ISettings {
+  settings ?: object
+  libraries: string[]
+  account_key: string
+  guid: string
+  multiselect: boolean
+  session_id: string
+}
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -22,6 +32,8 @@ const App: React.FC = () => {
   console.log(location.pathname);
   const { images, loading, error } = useTypedSelector((state) => state.images);
   const navigate = useNavigate();
+  const dynamicData: any = useDynamicData();
+  const { referrer, fileLocation, userInfo } = dynamicData.state;
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,6 +44,45 @@ const App: React.FC = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+
+  window.addEventListener("message", function(event) {
+    // if (event.origin != '*') {
+    //   // something from an unknown domain, let's ignore it
+    //   return;
+    // }
+    let settings:ISettings | null = null;
+    console.log("received: ", event.data );
+    if(typeof event.data === 'string'){
+      settings = JSON.parse(event.data)['settings'];
+      // settings = settings['settings'];
+    } else if(typeof event.data === 'object'){
+      settings = event.data['settings'];
+    }
+
+    if(settings && settings['libraries']){
+      let updateUserInfo = {
+        libraryOptions:settings['libraries'],
+        multiselectOptions:!!(settings['multiselect']),
+        librarySessionId:settings['session_id'],
+        libraryAccountKey:settings['account_key'],
+        guidPreSelected:settings['guid'],
+      }
+      console.log('updateUserInfo...',updateUserInfo);
+      let userInfoObj = {...userInfo,...updateUserInfo};
+  
+      let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
+      console.log('isUpdated',isUpdatedUser,userInfo,userInfoObj)
+
+      if(isUpdatedUser) {
+        setTimeout(() => {
+          dynamicData.mutations.setUserInfoData(userInfoObj);
+        }, 2000);
+      } 
+
+    }
+  
+    // can message back using event.source.postMessage(...)
+  });
 
   return (
     <Layout className="layout">

@@ -6,17 +6,6 @@ import type { DataNode, TreeProps } from 'antd/es/tree';
 import { FileFilled, FileTextOutlined, FileOutlined, FileTextFilled  } from '@ant-design/icons';
 import { useDynamicData } from '../context/DynamicDataProvider';
 
-
-interface ISettings {
-  settings ?: object
-  libraries: string[]
-  account_key: string
-  guid: string
-  multiselect: boolean
-  session_id: string
-}
-
-
 /**
  * ****************************************************************** Function Components *******************************************************
  */
@@ -79,44 +68,7 @@ const treeData: DataNode[] = [
 
 
   //useEffect(()=>{
-    window.addEventListener("message", function(event) {
-      // if (event.origin != '*') {
-      //   // something from an unknown domain, let's ignore it
-      //   return;
-      // }
-      let settings:ISettings | null = null;
-      console.log("received: ", event.data );
-      if(typeof event.data === 'string'){
-        settings = JSON.parse(event.data)['settings'];
-        // settings = settings['settings'];
-      } else if(typeof event.data === 'object'){
-        settings = event.data['settings'];
-      }
 
-      if(settings && settings['libraries']){
-        let updateUserInfo = {
-          libraryOptions:settings['libraries'],
-          multiselectOptions:!!(settings['multiselect']),
-          librarySessionId:settings['session_id'],
-          libraryAccountKey:settings['account_key'],
-          guidPreSelected:settings['guid'],
-        }
-        console.log('updateUserInfo...',updateUserInfo);
-        let userInfoObj = {...userInfo,...updateUserInfo};
-    
-        let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
-        console.log('isUpdated',isUpdatedUser,userInfo,userInfoObj)
-
-        if(isUpdatedUser) {
-          setTimeout(() => {
-            dynamicData.mutations.setUserInfoData(userInfoObj);
-          }, 2000);
-        } 
-
-      }
-    
-      // can message back using event.source.postMessage(...)
-    });
   // },[])
 /**
  * ****************************************************************** JSX  ***************************************************************************
