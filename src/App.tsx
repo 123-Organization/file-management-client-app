@@ -1,20 +1,14 @@
-import React, { useState } from 'react';
-import logo from './assets/logo/finerworks_logo.svg';
+import React from 'react';
 import './App.css';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Layout, theme } from 'antd';
 import Router from "./routes";
-import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
-import { useDispatch } from 'react-redux';
-import { useTypedSelector } from './hooks/useTypeSelector';
-import { postUploadFiles } from './store/actionCreators/uploadFiles';
-import { routes } from './config/routes';
 import HeaderIcon from './components/HeaderIcon';
 import BottomIcon from './components/BottomIcon';
 import { useDynamicData } from './context/DynamicDataProvider';
 
-
-const { Header, Footer, Sider, Content } = Layout;
+const { Header, Footer, Content } = Layout;
 
 interface ISettings {
   settings ?: object
@@ -26,20 +20,10 @@ interface ISettings {
 }
 
 const App: React.FC = () => {
-  const dispatch = useDispatch();
-  const [postId, setPostID] = useState("");
   const location = useLocation();
   console.log(location.pathname);
-  const { images, loading, error } = useTypedSelector((state) => state.images);
-  const navigate = useNavigate();
   const dynamicData: any = useDynamicData();
-  const { referrer, fileLocation, userInfo } = dynamicData.state;
-
-  const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    await dispatch(postUploadFiles(postId) as any);
-  }
+  const { userInfo } = dynamicData.state;
 
   const {
     token: { colorBgContainer },
@@ -90,11 +74,6 @@ const App: React.FC = () => {
         <HeaderIcon />
       </Header>
       <Content style={{ padding: '50px' }}>
-        {/* <Breadcrumb style={{ margin: '16px 0' }}>
-          <Breadcrumb.Item>Home</Breadcrumb.Item>
-          <Breadcrumb.Item>List</Breadcrumb.Item>
-          <Breadcrumb.Item>App</Breadcrumb.Item>
-        </Breadcrumb> */}
         <div className="site-layout-content" style={{ background: colorBgContainer, minHeight: '600px' }}>
           <Router />
         </div>

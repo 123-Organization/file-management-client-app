@@ -2,16 +2,15 @@ import React, { useEffect, useState } from 'react'
 import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
 import { Empty, message, Spin } from 'antd';
-import { QueryClient, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { deleteImages, getImages } from '../api/gallaryApi';
 import { Typography } from 'antd';
-import images from "../json/images.json"
+
 const {  Text } = Typography;
 /**
  * ****************************************************************** Outer Function **********************************************************
  */
 
-const IMAGES = images.gallaryImages;
 interface ImageType {
   public_thumbnail_uri?: string;
   public_preview_uri?: string;
@@ -34,10 +33,6 @@ const Gallary: React.FC = (): JSX.Element => {
     const {
         mutate: deleteImageFn,
         isLoading:isLoadingImgDelete,
-        isError,
-        error,
-        data,
-        isSuccess,
       } = useMutation((data: any) => deleteImages(data), {
         onSuccess(data) {
           messageApi.open({
@@ -55,10 +50,6 @@ const Gallary: React.FC = (): JSX.Element => {
     const {
         mutate : getAllImagesFn,
         isLoading:isLoadingImg,
-        isError:isErrorImg,
-        error:errorImg,
-        data:dataImg,
-        isSuccess:isSuccessImg,
       } = useMutation((data: any) => getImages(data), {
         onSuccess(data:any) {
           console.log('getAll images',data.data.images);
@@ -122,12 +113,13 @@ const Gallary: React.FC = (): JSX.Element => {
            return {...userInfo,filterPageNumber};
       }
     
-      const locationIsDifferent = (window.location !== window.parent.location);
-      const diffentUser = (userInfo.librarySessionId!=='81de5dba-0300-4988-a1cb-df97dfa4e3721' && locationIsDifferent)
-      const defalutUser = (userInfo.librarySessionId==='81de5dba-0300-4988-a1cb-df97dfa4e3721' && !locationIsDifferent)
       useEffect(() => {
+        const locationIsDifferent = (window.location !== window.parent.location);
+        const diffentUser = (userInfo.librarySessionId!=='81de5dba-0300-4988-a1cb-df97dfa4e3721' && locationIsDifferent)
+        const defalutUser = (userInfo.librarySessionId==='81de5dba-0300-4988-a1cb-df97dfa4e3721' && !locationIsDifferent)
           if(defalutUser || diffentUser)
             getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+        // eslint-disable-next-line react-hooks/exhaustive-deps    
       },[userInfo]);
 
 
