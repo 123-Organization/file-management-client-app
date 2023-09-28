@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Gallary from '../components/Gallary'
 import { DownOutlined } from '@ant-design/icons';
 import { Tree } from 'antd';
@@ -13,7 +13,7 @@ import { useDynamicData } from '../context/DynamicDataProvider';
 const Thumbnail: React.FC = (): JSX.Element => {
 
   const dynamicData: any = useDynamicData();
-  const { referrer, fileLocation, userInfo } = dynamicData.state;
+  const { fileLocation, userInfo } = dynamicData.state;
 
   /**
  * ****************************************************************** Outer Function **********************************************************

@@ -240,151 +240,12 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       open={openModel}
       onOk={() => setOpen(false)}
       onCancel={() => setOpen(false)}
-      width={'85%'}
+      width={'65%'}
       footer={''}
     >
       <div className='max-md:h-screen'>
-        <div className="p-8 flex justify-center items-center  bg-white">
-          <div className="w-full  relative grid grid-cols-1 lg:grid-cols-3 lg:border rounded-lg">
-            <div
-              className="first-flex-div lg:rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-lg:border-b lg:border-r border-gray-300 ">
-              <Title level={4} className="text-gray-300" disabled >My Computer / Device</Title>
-              {uploadErrors && <div className='text-red-500 font-medium'>
-                {uploadErrors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}<br /></span>}
-                {uploadErrors.acceptType && <span>Your selected file type is not allow<br /></span>}
-                {uploadErrors.maxFileSize && <span>Selected file size exceed maxFileSize ({humanFileSize(maxFileSize)})<br /></span>}
-                {uploadErrors.resolution && <span>Selected file is not match your desired resolution<br /></span>}
-              </div>
-              }
-              {/* <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
-              shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
-              rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
-            focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
-
-               */}
-              {/* <input id="uploadImage" className="text-sm cursor-pointer w-36 hidden" type="file" /> */}
-              {imagesProgress && <ImageUploading
-                multiple
-                value={images}
-                onChange={onChange}
-                onError={onError}
-                maxNumber={maxNumber}
-                dataURLKey="data_url"
-                maxFileSize={maxFileSize}
-                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','psd']}
-              >
-                {({
-                  imageList,
-                  onImageUpload,
-                  onImageRemoveAll,
-                  onImageUpdate,
-                  onImageRemove,
-                  isDragging,
-                  dragProps,
-                  errors
-                }) => (
-                  // write your building UI
-                  <div className="upload__image-wrapper text-center w-full">
-                    
-                    <label
-                      style={isDragging ? { color: 'red' } : undefined}
-                      onClick={onImageUpload}
-                      {...dragProps}
-                      className="cursor-pointer hover:opacity-80 inline-flex items-center 
-                shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
-                rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
-              focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
-
-                        <button
-                        
-                        >
-                          Select Images
-                        </button>
-                      </label>
-                      &nbsp;
-
-
-                    <Modal
-                      title={<h1 className=' text-gray-500'>Uploaded Image List</h1>}
-                      centered
-                      open={imageListModal}
-                      onOk={() => setImageListModal(false)}
-                      onCancel={() => setImageListModal(false)}
-                      closeIcon={<></>}
-                      className="sm:h-screen"
-                      width={'70%'}
-                      footer={[
-                        // images?.length>=1 &&
-                        <Button key="submit" className='py-2 bg-orange-500' size={'large'} type="primary" loading={loading} onClick={() => {
-                          onImageRemoveAllHandler();
-                          handleOk();
-                          onImageRemoveAll();
-                          window.location.reload();
-                        }}>
-                          Cancel All
-                        </Button>,
-                        !!images.length && <div className='absolute left-0 text-gray-400 ml-5 font-bold '>{images.length} Files Uploading ...</div>
-
-                      ]}
-                    >
-                      {/* {
-                      !!images?.length && 
-                      <>
-                        <br /><br />
-                        <button className='fw-sky-btn' onClick={onImageRemoveAll}>Remove all images</button>
-                      </>
-                      } */}
-                      <div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-8'>
-                      {!!imageList.length && contextHolder}
-                        {imagesProgress && imageList.map((image, index) => (
-                          <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
-                            <img className='h-[57%] cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
-                            <div className='flex relative w-full flex-col'>
-                                <div className='text-sm pt-10 mb-2'>Lorem ipsum </div>
-                                <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                                  <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${imagesProgress[index]?imagesProgress[index]:'20'}%`, minWidth:'20%' }}> {imagesProgress[index]?imagesProgress[index] :'0'}%</div>
-                                </div>
-                                <div>
-
-                                <StopOutlined 
-                                  className="image-item__btn-wrapper absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500"
-                                onClick={async() => {
-                                    await onImageRemoveHandler(index);
-                                    onImageRemove(index);
-                                    
-                                }}   />
-                                {/* <svg onClick={() => {
-                                    onImageRemove(index)
-                                    
-                                }}  className="image-item__btn-wrapper absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h2v5m-2 0h4M9.408 5.5h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                </svg> */}
-                                </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-
-                      <div>
-                        {errors && <div className='text-red-500 font-medium'>
-                          {errors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}</span>}
-                          {errors.acceptType && <span>Your selected file type is not allow</span>}
-                          {errors.maxFileSize && <span>Selected file size exceed maxFileSize ({humanFileSize(maxFileSize)})</span>}
-                          {errors.resolution && <span>Selected file is not match your desired resolution</span>}
-                        </div>
-                        }
-                      </div>
-                    </Modal>
-
-
-                  </div>
-                )}
-              </ImageUploading>
-            }
-              {/* </label> */}
-
-            </div>
+         <div className="p-8 flex justify-center items-center  bg-white">
+           <div className="w-full  relative grid grid-cols-1   rounded-lg">
             <div
               className="second-flex-div  flex flex-col relative order-first md:order-last h-28 md:h-auto justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat bg-center bg-origin-padding bg-cover">
               <UppyUploadBox/>
@@ -392,7 +253,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
           </div>
         </div>
-        <Checkbox className='pl-10 pb-10 max-lg:pt-72  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
+        <Checkbox className='pl-24 pb-10 max-lg:pt-72  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
       </div>
     </Modal>
   )
