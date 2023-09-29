@@ -117,11 +117,14 @@
 }
 
 @media (max-width: 1280px) {
-
+  .uppy-Container {
+    max-width: 400px;
+    height: 100%;
+  }
 }
 
 @media (max-width: 1536px) {
-
+  
 }
 
 /*=======================================Min Media Query========================================================= */

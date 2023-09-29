@@ -243,17 +243,21 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       width={'65%'}
       footer={''}
     >
-      <div className='max-md:h-screen'>
+      <div className='max-lg:h-screen'>
          <div className="p-8 flex justify-center items-center  bg-white">
            <div className="w-full  relative grid grid-cols-1   rounded-lg">
             <div
-              className="second-flex-div  flex flex-col relative order-first md:order-last h-28 md:h-auto justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat bg-center bg-origin-padding bg-cover">
+              className="
+                second-flex-div  flex flex-col relative order-first md:order-last h-28 md:h-auto 
+                justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat 
+                bg-center bg-origin-padding bg-cover
+              ">
               <UppyUploadBox/>
             </div>
 
           </div>
         </div>
-        <Checkbox className='pl-24 pb-10 max-lg:pt-72  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
+        <Checkbox className='xl:pl-24 pb-10 xl:pt-72  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
       </div>
     </Modal>
   )

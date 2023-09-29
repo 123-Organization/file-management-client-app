@@ -129,7 +129,7 @@ const Gallary: React.FC = (): JSX.Element => {
  */         
        
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 p-8 max-md:pt-20 content-center">
+        <div className="grid max-sm:grid-cols-1 max-xl:grid-cols-2 grid-cols-4 gap-8 p-8 max-md:pt-20 content-center">
             {contextHolder}
             {
             images.length
