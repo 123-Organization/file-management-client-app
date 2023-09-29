@@ -91,10 +91,11 @@ const FilterSortModal = ({openModel, setOpen} : FilterSortModalProps) => {
         </Button>,
 
       ]}
+      style={{minWidth:'350px'}}
     >
 
       <div className='filterSorting'>
-        <section className="text-gray-600 body-font">
+        <section className="text-gray-600 body-fon ">
           <Form
                 form={form} 
                 name="dynamic_rule"
@@ -102,6 +103,7 @@ const FilterSortModal = ({openModel, setOpen} : FilterSortModalProps) => {
                 wrapperCol={{ span: 14 }}
                 layout="horizontal"
                 style={{ maxWidth: 600 }}
+                className="flex1"
               >
 
             <div className="relative mb-4 mt-12 ml-4">
@@ -116,8 +118,8 @@ const FilterSortModal = ({openModel, setOpen} : FilterSortModalProps) => {
                     <Input placeholder='filename, title or description'   />
                   </Form.Item>
             </div>
-          <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center1">
-            <div className="lg:w-1/2 md:w-1/2 bg-white flex flex-col md:ml-auto w-full md:py-833  mt-8 md:mt-0">
+          <div className="container mx-auto flex px-5 py-0 xl:flex-row max-xl:justify-start flex-col items-center1">
+            <div className=" bg-white flex flex-col md:ml-auto w-full md:py-833  mt-8 md:mt-0">
 
               <div className="border rounded-md p-4 pb-2 relative mb-4 mt-0 w-full">
                 <label htmlFor="name" className="w-full leading-7 text-base text-gray-400 font-semibold title-font">Date Range files added</label>
