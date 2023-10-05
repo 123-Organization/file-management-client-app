@@ -129,6 +129,41 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
       }
     }
 
+    const addArtzip = () => {
+      const element1 = document.querySelector('.uppy-Dashboard-AddFiles-list');
+      if(element1){
+   
+        const fragment = document.createDocumentFragment();
+        const div = document.createElement("div")
+        div.setAttribute("class","uppy-DashboardTab")
+        div.setAttribute("role","presentation")
+        const button = document.createElement("button")
+        button.setAttribute("class","uppy-u-reset uppy-c-btn uppy-DashboardTab-btn")
+        button.setAttribute("role","tab")
+        const div1 = document.createElement("div")
+        div1.setAttribute("class","uppy-DashboardTab-inner")
+        //button.appendChild(div1)
+        const div2 = document.createElement("div")
+        div2.setAttribute("class","uppy-DashboardTab-name")
+        const img = document.createElement("image")
+        img.setAttribute("src",ArtzipIcon)
+        img.setAttribute("width","30px")
+        img.setAttribute("height","35px")
+        //button.appendChild(div2)
+        const li = fragment
+        //@ts-ignore
+          .appendChild(div)
+          .appendChild(button)
+          .appendChild(div1)
+          .appendChild(img)
+          // .append(div2)
+        button.appendChild(div2)  
+        div2.textContent = "Artzip";
+                //@ts-ignore
+                element1?.appendChild(fragment);
+              }
+            }
+
     const removeUppy = () => {
       const element = document.querySelector('.uppy-Dashboard-poweredBy');
       if(element){
@@ -179,19 +214,22 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     //}
     useEffect(() => {
       removeUppy()
+      addArtzip()
       
     });
 
 
+
+
   return (
     <div className="xxl:flex justify-end items-center pt-6">
-      <div id='artzipIcon' className='artzipIcon xl:absolute top-[293px] z-10 right-40   pr-4 '>
-        <div className='uppy-DashboardTab-btn rounded-lg' onClick={gotoArtZip}>
-          <div className='bg-white h-9  pt-1 rounded-lg '>
-            <img className='mx-2' src={ArtzipIcon} width="30px" height="35px" />
-          </div>
-          <p className=' pt-1 pl-2  uppy-Root1 uppy-size--md   uppy-DashboardTab-name1 text-xs  text-[#525252] '>Artzip</p>
+      <div className="uppy-DashboardTab hidden" id="artzipIcon" role="presentation" data-uppy-acquirer-id="Artzip">
+        <button type="button" className="uppy-u-reset uppy-c-btn uppy-DashboardTab-btn" role="tab" data-uppy-super-focusable="true">
+        <div className="uppy-DashboardTab-inner">
+          <img className="mx-2" src="${ArtzipIcon}"  width="30px" height="35px" />
         </div>
+        <div className="uppy-DashboardTab-name">Artzip</div>
+        </button>
       </div>
       <Dashboard onChange={() => {
           removeUppy();

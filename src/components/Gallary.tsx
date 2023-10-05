@@ -72,7 +72,7 @@ const Gallary: React.FC = (): JSX.Element => {
             console.log('guids',guids);
             // return false;
         }
-        if (window.confirm('Are you sure')) {
+        if (window.confirm('Are you sure to delete this image ?')) {
           let data = {
                 guids,
                 "librarySessionId":userInfo.librarySessionId,
@@ -140,7 +140,7 @@ const Gallary: React.FC = (): JSX.Element => {
                     {images.map(
                       (image, i) => (            
                             <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected?'isSelectedImg':''}`} >
-                                <div onClick={()=> handleSelect(i)}  className='min-h-[240px] flex justify-center items-center'>
+                                <div onClick={()=> handleSelect(i)}  className='min-h-[300px] flex justify-center items-center'>
                                   <div>
 
                                   <img className={`m-2 min-h-[200px] cursor-pointer  max-w-[200px]   object-contain    `} src={image.public_thumbnail_uri} alt="" />
