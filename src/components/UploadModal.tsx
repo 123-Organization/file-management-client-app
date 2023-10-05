@@ -242,6 +242,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       onCancel={() => setOpen(false)}
       width={'65%'}
       footer={''}
+      className='min-w-[350px]'
     >
       <div className='max-lg:h-screen'>
          <div className="p-8 flex justify-center items-center  bg-white">
@@ -257,7 +258,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
 
           </div>
         </div>
-        <Checkbox className='xl:pl-24 pb-10 xl:pt-72  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
+        <Checkbox className='xl:pl-24 pb-10 xl:pt-72 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
       </div>
     </Modal>
   )
