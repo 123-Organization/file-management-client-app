@@ -13,7 +13,7 @@ import { useDynamicData } from '../context/DynamicDataProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getUserAccount, postUppyImages } from '../api/gallaryApi';
 
-import ArtzipIcon from "../assets/provider/icon_artzip.svg"
+import ArtzipIcon from "../assets/provider/icon_artzip_32.svg"
 import Url from '@uppy/url';
 
 const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
@@ -145,24 +145,25 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
         //button.appendChild(div1)
         const div2 = document.createElement("div")
         div2.setAttribute("class","uppy-DashboardTab-name")
-        const img = document.createElement("image")
+        const img = document.createElement("img")
         img.setAttribute("src",ArtzipIcon)
         img.setAttribute("width","30px")
         img.setAttribute("height","35px")
-        //button.appendChild(div2)
+
         const li = fragment
         //@ts-ignore
           .appendChild(div)
           .appendChild(button)
           .appendChild(div1)
           .appendChild(img)
+        // div1.innerHTML = ArtzipIcon; 
           // .append(div2)
         button.appendChild(div2)  
         div2.textContent = "Artzip";
                 //@ts-ignore
                 element1?.appendChild(fragment);
-              }
-            }
+      }
+    }
 
     const removeUppy = () => {
       const element = document.querySelector('.uppy-Dashboard-poweredBy');
