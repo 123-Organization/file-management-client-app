@@ -159,7 +159,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         }, 1000);
         setTimeout(() => {
           window.location.reload();
-        },5000);
+        },10000);
       }
     } else {
       setTimeout(() => {
@@ -240,7 +240,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       open={openModel}
       onOk={() => setOpen(false)}
       onCancel={() => setOpen(false)}
-      width={'85%'}
+      width={'99%'}
       footer={''}
       className='min-w-[350px]'
     >
@@ -334,7 +334,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                         <button className='fw-sky-btn' onClick={onImageRemoveAll}>Remove all images</button>
                       </>
                       } */}
-                      <div className='grid grid-cols-1 lg:grid-cols-4 gap-8 p-8'>
+                      <div className='grid grid-cols-1 lg:grid-cols-3  gap-8 p-8'>
                       {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
@@ -383,8 +383,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
               </ImageUploading>
             }
         </div> 
-        </div> 
-         <div className="p-8 flex justify-center items-center  bg-white">
+         <div className="p-8 flex justify-center items-center col-span-2  bg-white">
            <div className="w-full  relative grid grid-cols-1   rounded-lg">
             <div
               className="
@@ -394,8 +393,8 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
               ">
               <UppyUploadBox/>
             </div>
-
           </div>
+        </div> 
         </div>
         <Checkbox className='xl:pl-24 pb-10 xl:pt-72 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
       </div>
