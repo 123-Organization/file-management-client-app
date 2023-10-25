@@ -17,7 +17,7 @@ import ArtzipIcon from "../assets/provider/icon_artzip_32.svg"
 import Url from '@uppy/url';
 
 const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
-//  const SERVER_BASE_URL = 'http://localhost:3020';
+//  const SERVER_BASE_URL = 'http://localhost:5000';
 
 // const SERVER_BASE_URL = 'http://13.50.227.147:5000';
 const getTimeStamp = () => {
@@ -128,15 +128,25 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
         element.classList.add('hidden');
       }
     }
+    
 
-    const addArtzip = () => {
+    
+      const addArtzip = () => {
       const element1 = document.querySelector('.uppy-Dashboard-AddFiles-list');
       if(element1){
    
         const fragment = document.createDocumentFragment();
+        
+        const params:any = { "metadata[user_id]": 123, "metadata[product]": "Poster" };
+        const queryString = new URLSearchParams(params).toString();
+        const baseurl = 'https://app.artzip.com/referrals/finerworks?' + queryString;
+
         const div = document.createElement("div")
         div.setAttribute("class","uppy-DashboardTab")
         div.setAttribute("role","presentation")
+        div.setAttribute("onclick","javascript:window.parent.location.href='"+baseurl+"'")
+        
+        
         const button = document.createElement("button")
         button.setAttribute("class","uppy-u-reset uppy-c-btn uppy-DashboardTab-btn")
         button.setAttribute("role","tab")
@@ -242,7 +252,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
         removeArtzip();
 
       }}
-      disableLocalFiles={false}  
+      disableLocalFiles={true}  
       disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} />
     </div>
   )
