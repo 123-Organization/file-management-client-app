@@ -244,9 +244,9 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       footer={''}
       className='min-w-[350px]'
     >
-      <div className='max-lg:h-screen'>
-      <div className="p-8 max-lg:flex justify-center items-center  bg-white">
-          <div className="w-full  relative grid grid-cols-1 lg:grid-cols-3 lg:border rounded-lg">
+      <div className='max-lg:flex1 '>
+      <div className="p-8 max-lg:flex max-lg:flex-col justify-center items-center  bg-white">
+          <div className="w-full  relative lg:grid grid-cols-1 lg:grid-cols-3 lg:border rounded-lg">
             <div
               className="first-flex-div lg:rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-lg:border-b lg:border-r border-gray-300 ">
               <Title level={4} className="text-gray-300" disabled >My Computer / Device</Title>
