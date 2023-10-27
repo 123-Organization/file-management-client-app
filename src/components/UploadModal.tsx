@@ -1,9 +1,10 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Typography, Checkbox, Modal, Button, message, notification } from 'antd';
+import { Typography, Checkbox, Modal, Button, message, notification, Spin } from 'antd';
 
 
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
 
+import tiffDefault from "../assets/images/tiff_default.png"
 
 import {
   StopOutlined
@@ -33,8 +34,10 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const queryClient = useQueryClient()
 
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
-  const [imageListModal, setImageListModal] = React.useState(false);
-  const [imageListEvent, setImageListEvent] = React.useState(false);
+  const [imageListModal, setImageListModal] = React.useState<boolean>(false);
+  const [imageListEvent, setImageListEvent] = React.useState<boolean>(false);
+  const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
+
 
   const dynamicData: any = useDynamicData();
   const { referrer, userInfo } = dynamicData.state;
@@ -245,8 +248,15 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       className='min-w-[350px]'
     >
       <div className='max-lg:flex1 '>
-      <div className="p-8 max-lg:flex max-lg:flex-col justify-center items-center  bg-white">
-          <div className="w-full  relative lg:grid grid-cols-1 lg:grid-cols-3 lg:border rounded-lg">
+      <div className="p-8 max-lg:flex max-lg:flex-col  items-center  bg-white">
+        { 
+          !componentDisabled
+          ? <>
+            <div className='flex whitespace-pre max-lg:absolute max-lg:left-8 justify-items-start lg:p-10 '>
+              <Spin tip="Please check below terms to proceed..." ><></></Spin>
+            </div>
+          </>
+          :<div className="w-full disabled  relative lg:grid grid-cols-1 lg:grid-cols-3 lg:border rounded-lg">
             <div
               className="first-flex-div lg:rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-lg:border-b lg:border-r border-gray-300 ">
               <Title level={4} className="text-gray-300" disabled >My Computer / Device</Title>
@@ -338,7 +348,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
-                            <img className='h-[57%] cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
+                            <img className='h-[57%] cursor-pointer w-full rounded-lg' src={(image['data_url'] &&  !image['data_url'].includes("tif"))?image['data_url']:tiffDefault} alt="" width="100" />
                             <div className='flex relative w-full flex-col'>
                                 <div className='text-sm pt-10 mb-2'>Lorem ipsum </div>
                                 <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
@@ -376,8 +386,6 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                         }
                       </div>
                     </Modal>
-
-
                   </div>
                 )}
               </ImageUploading>
@@ -396,7 +404,11 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
           </div>
         </div> 
         </div>
-        <Checkbox className='xl:pl-24 pb-10 xl:pt-72 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
+        }
+        <Checkbox   
+          checked={componentDisabled}
+          onChange={(e) => setComponentDisabled(e.target.checked)} 
+        className='xl:pl-4 pb-10 xl:pt-4 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
       </div>
       </div>
     </Modal>

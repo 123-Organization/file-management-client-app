@@ -87,10 +87,10 @@ const Gallary: React.FC = (): JSX.Element => {
 
     const handleSelect = (index: number) => {
         const nextImages = images.map((image, i) =>
-          i === index ? { ...image, isSelected: !image.isSelected } : image
-          );
+          (i === index || (!userInfo.multiselectOptions && image.isSelected)) ? { ...image, isSelected: !image.isSelected } : image
+        );
         const fileSelected = nextImages.filter((image) =>image.isSelected);
-        if(fileSelected.length > 1 && !userInfo.multiselectOptions) return;
+       
         //@ts-ignore
         setImages(nextImages);
         const hasSelected = nextImages.some((image) => image.isSelected);
