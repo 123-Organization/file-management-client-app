@@ -120,7 +120,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
         <section className="text-gray-600 body-font">
           {contextHolder}
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
-            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
+            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0 border rounded-lg shadow-lg   border-gray-100">
               {
               !loading &&
               <img className="object-cover object-center rounded" alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
