@@ -13,6 +13,7 @@ const {  Text } = Typography;
 
 interface ImageType {
   public_thumbnail_uri?: string;
+  guid?: string;
   public_preview_uri?: string;
   isSelected?: false;
   title?:string;
@@ -85,12 +86,29 @@ const Gallary: React.FC = (): JSX.Element => {
 
  
 
+    const referrerImages = referrer.fileSelected.map((img:any) => img.guid);
     const handleSelect = (index: number) => {
         const nextImages = images.map((image, i) =>
           (i === index || (!userInfo.multiselectOptions && image.isSelected)) ? { ...image, isSelected: !image.isSelected } : image
         );
-        const fileSelected = nextImages.filter((image) =>image.isSelected);
-       
+
+        
+        const fileUnSelected = nextImages.filter((image) => !image.isSelected ).map((img:any) => img.guid);
+
+        
+        const fileSelected = userInfo.multiselectOptions 
+                            ? nextImages
+                              .filter((image) =>image.isSelected && !referrerImages.includes(image.guid))
+                              .concat(referrer.fileSelected)
+                              .filter((image) =>(
+                                (
+                                  !fileUnSelected.includes(image.guid)
+                                )
+                              ))
+                            : nextImages.filter((image) =>image.isSelected )
+                          ;
+
+
         //@ts-ignore
         setImages(nextImages);
         const hasSelected = nextImages.some((image) => image.isSelected);
@@ -101,7 +119,8 @@ const Gallary: React.FC = (): JSX.Element => {
 
         let isUpdated = (
             referrerObj.hasSelected !== referrer.hasSelected ||
-            referrerObj.fileSelected !== referrer.fileSelected
+            referrerObj.fileSelected !== referrer.fileSelected ||
+            referrerObj.fileSelected.length !== referrer.fileSelected.length
           );
         console.log('isUpdated',isUpdated)
   
@@ -139,7 +158,7 @@ const Gallary: React.FC = (): JSX.Element => {
                   : <>
                     {images.map(
                       (image, i) => (            
-                            <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected?'isSelectedImg':''}`} >
+                            <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected || referrerImages.includes(image.guid) ?'isSelectedImg':''}`} >
                                 <div onClick={()=> handleSelect(i)}  className='min-h-[300px] flex justify-center items-center'>
                                   <div>
 
