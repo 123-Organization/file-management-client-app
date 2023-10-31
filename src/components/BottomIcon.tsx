@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { message, PaginationProps, Spin } from 'antd';
 import { Pagination } from 'antd';
 import { useDynamicData } from '../context/DynamicDataProvider';
@@ -11,6 +11,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const dynamicData: any = useDynamicData();
     const { userInfo, referrer, fileLocation } = dynamicData.state;
     const [messageApi, contextHolder] = message.useMessage();
+    const [pageNumber, setPageNumber] = useState(userInfo.filterPageNumber);
     const {
         mutate: deleteImageFn,
         isLoading:isLoadingImgDelete,
@@ -28,7 +29,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
         onError(error: any) {},
     });
     
-    const onChange: PaginationProps['onChange'] = (filterPageNumber) => {
+    const onChange: PaginationProps['onChange']|any = (filterPageNumber:number) => {
         console.log('Page: ', filterPageNumber);
     
         let userInfoObj = {...userInfo,filterPageNumber};
@@ -56,6 +57,8 @@ const BottomIcon: React.FC = (): JSX.Element => {
     console.log('fileLocation',fileLocation)
     useEffect(() => {
         console.log('userInfo.filterPageNumber',userInfo.filterPageNumber)
+        // onChange(userInfo.filterPageNumber);
+        // setPageNumber(userInfo.filterPageNumber)
       },[userInfo.filterPageNumber]);
     return (
         isLoadingImgDelete 
@@ -89,7 +92,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
                     }
                 </div>
                 <div className='flex w-full justify-end'>
-                    <Pagination simple className=' mt-5 mr-3' onChange={onChange} defaultCurrent={userInfo.filterPageNumber} defaultPageSize={userInfo.filterPerPage} total={referrer.filterCount} />
+                    <Pagination simple className=' mt-5 mr-3' onChange={onChange} current={userInfo.filterPageNumber} defaultPageSize={userInfo.filterPerPage} total={referrer.filterCount} />
                 </div>
             </div>
 

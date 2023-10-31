@@ -151,11 +151,11 @@ const Gallary: React.FC = (): JSX.Element => {
         <div className="grid max-sm:grid-cols-1 max-xl:grid-cols-2 grid-cols-4 gap-8 p-8 max-md:pt-20 content-center">
             {contextHolder}
             {
-            images.length
-             ?
-             isLoadingImg
-                  ? <div className='center-div1 max-md:pt-40 pt-60 md:col-span-4'><Spin  tip={<div >Loading My Libraries...</div>} size="large" > <div className="content" /></Spin></div>
-                  : <>
+              isLoadingImg
+                   ? <div className='center-div1 max-md:pt-40 pt-60 md:col-span-4'><Spin  tip={<div >Loading My Libraries...</div>} size="large" > <div className="content" /></Spin></div>
+            :images.length
+                ?
+                   <>
                     {images.map(
                       (image, i) => (            
                             <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected || referrerImages.includes(image.guid) ?'isSelectedImg':''}`} >
@@ -190,10 +190,10 @@ const Gallary: React.FC = (): JSX.Element => {
                     )}
                     <EditGallaryModal onDeleteHandler={onDeleteHandler} isSuccess={!isLoadingImgDelete} openModel={open} setOpen={setOpen} imgData={imgData} />
                    </>
-            : <Empty />
+              : <Empty />
             }
         </div>
     )
 }
 
-export default Gallary
+export default Gallary  
