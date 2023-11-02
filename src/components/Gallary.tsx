@@ -129,7 +129,15 @@ const Gallary: React.FC = (): JSX.Element => {
       };
 
       const getAllImageParams = (filterPageNumber:string="1") => {
-           return {...userInfo,filterPageNumber};
+          let libraryName="";
+          if(userInfo.libraryOptions.length===1){
+            libraryName=userInfo.libraryOptions[0];
+          } else if(userInfo.libraryOptions.length===2){
+            libraryName=userInfo.libraryName;
+          }
+          const fileLocationObj= {selected:libraryName}
+          dynamicData.mutations.setFileLocationData(fileLocationObj);
+          return {...userInfo,...{filterPageNumber,libraryName}};
       }
     
       useEffect(() => {

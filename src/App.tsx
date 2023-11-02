@@ -17,6 +17,11 @@ interface ISettings {
   guid: string
   multiselect: boolean
   session_id: string
+  domain: string
+  terms_of_service_url: string
+  button_text: string
+  account_id: string
+
 }
 
 const App: React.FC = () => {
@@ -50,6 +55,10 @@ const App: React.FC = () => {
         librarySessionId:settings['session_id'],
         libraryAccountKey:settings['account_key'],
         guidPreSelected:settings['guid'],
+        domain: settings['domain']?settings['domain']:"finerworks.com",
+        terms_of_service_url: settings['terms_of_service_url']?settings['terms_of_service_url']:"/terms.aspx",
+        button_text: settings['button_text']?settings['button_text']:"Create Print",
+        account_id: settings['account_id']?settings['account_id']:0,
       }
       console.log('updateUserInfo...',updateUserInfo);
       let userInfoObj = {...userInfo,...updateUserInfo};
@@ -78,20 +87,7 @@ const App: React.FC = () => {
           <Router />
         </div>
       </Content>
-      <Footer style={{ textAlign: 'center', backgroundColor: '#fff', }}>
-        {
-          location.pathname==='/thumbnail' ? 
-            <>
-              <div className="pb-10">FinerWorks ©2023</div>
-              <BottomIcon />
-            </>
-          : 'FinerWorks ©2023'  
-        }
-          
-        </Footer>
-        
     </Layout>
-
   );
 }
 

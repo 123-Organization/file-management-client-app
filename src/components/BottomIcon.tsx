@@ -11,7 +11,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const dynamicData: any = useDynamicData();
     const { userInfo, referrer, fileLocation } = dynamicData.state;
     const [messageApi, contextHolder] = message.useMessage();
-    const [pageNumber, setPageNumber] = useState(userInfo.filterPageNumber);
+    
     const {
         mutate: deleteImageFn,
         isLoading:isLoadingImgDelete,
@@ -92,7 +92,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
                     }
                 </div>
                 <div className='flex w-full justify-end'>
-                    <Pagination simple className=' mt-5 mr-3' onChange={onChange} current={userInfo.filterPageNumber} defaultPageSize={userInfo.filterPerPage} total={referrer.filterCount} />
+                    <Pagination simple className=' mt-5 mr-3 ' onChange={onChange} current={userInfo.filterPageNumber} defaultPageSize={userInfo.filterPerPage} total={referrer.filterCount} />
                 </div>
             </div>
 
