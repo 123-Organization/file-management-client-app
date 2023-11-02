@@ -225,7 +225,8 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     //}
     useEffect(() => {
       removeUppy()
-      addArtzip()
+      if(userInfo.account_id > 0)
+       addArtzip()
       
     });
 

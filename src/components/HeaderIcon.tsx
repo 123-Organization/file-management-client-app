@@ -1,5 +1,6 @@
 import React, { CSSProperties, useState } from 'react'
-import logo from '../assets/logo/finerworks_logo_icon.svg';
+import fwlogo from '../assets/logo/finerworks_logo_icon.svg';
+import ezlogo from '../assets/logo/ezcanvas_logo_icon.svg';
 import FilterSortModal from './FilterSortModal';
 import UploadModal from './UploadModal';
 import { Checkbox, MenuProps, Spin } from 'antd';
@@ -110,7 +111,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
         // window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
 
     }
-    
+    const logo = userInfo.domain === "finerworks.com" ? fwlogo : ezlogo;
     const info = () => {
         Modal.info({
           title: 'Print Acknowledgement',

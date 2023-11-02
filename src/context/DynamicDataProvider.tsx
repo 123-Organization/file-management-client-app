@@ -32,6 +32,10 @@ interface IUserInfo {
   guidPreSelected:string
   libraryOptions: string[]
   multiselectOptions: boolean
+  domain: string
+  terms_of_service_url: string
+  button_text: string
+  account_id: number
 }  
 const referrer: IFileUpload = {
   "hasSelected": false,
@@ -58,8 +62,12 @@ const userInfo: IUserInfo = {
   "filterSortDirection": "DESC",
   "filterUpdate": "1",
   "guidPreSelected": "",
-  "libraryOptions": ["temporary", "inventory"],
-  "multiselectOptions": true
+  "libraryOptions": ["temporary","inventory"],
+  "multiselectOptions": true,
+  "domain": "finerworks1.com",
+  "terms_of_service_url": "/terms.aspx",
+  "button_text": "Create Print",
+  "account_id": 12,
 }
 
 const initialState = {
