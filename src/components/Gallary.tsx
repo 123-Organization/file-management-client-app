@@ -3,7 +3,7 @@ import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
 import { Empty, message, Spin } from 'antd';
 import { useMutation } from '@tanstack/react-query';
-import { deleteImages, getImages } from '../api/gallaryApi';
+import { deleteImages, getGUID, getImages } from '../api/gallaryApi';
 import { Typography } from 'antd';
 
 const {  Text } = Typography;
@@ -30,6 +30,8 @@ const Gallary: React.FC = (): JSX.Element => {
     const [messageApi, contextHolder] = message.useMessage();
     const dynamicData: any = useDynamicData();
     const { referrer, userInfo } = dynamicData.state;
+    let referrerImages = referrer.fileSelected.map((img:any) => img.guid);
+    console.log('referrerImages',referrerImages)
 
     const {
         mutate: deleteImageFn,
@@ -65,6 +67,33 @@ const Gallary: React.FC = (): JSX.Element => {
         onError(error: any) {},
     });
 
+    const {
+      mutate : getImagesGUIDFn,
+      isLoading:isLoadingImgGuid,
+    } = useMutation((data: any) => getGUID(data), {
+      onSuccess(data:any) {
+        console.log('getGUID images',data.data);
+        let fileSelected = data.data.guids.filter((guid:any) =>!referrerImages.includes(guid))
+                                  .map((guid:any) => {return {guid}})
+                                  .concat(referrer.fileSelected)
+        console.log('Guid fileSelected',fileSelected)
+        if(fileSelected.length){
+          if(userInfo.multiselectOptions){
+            const referrerObj = {...referrer,fileSelected}
+            console.log('GUId1referrerObj',referrerObj)
+            dynamicData.mutations.setReferrerData(referrerObj);
+          } else {
+            const referrerObj = {...referrer,...{fileSelected:(fileSelected[0]?fileSelected[0]:[])}}
+            console.log('GUId2referrerObj',referrerObj)
+            dynamicData.mutations.setReferrerData(referrerObj);
+          }
+          referrerImages = fileSelected.map((img:any) => img.guid);
+        }
+        // QueryClient.setQueryData('allImages', newArticle);
+      },
+      onError(error: any) {},
+  });
+
     const onDeleteHandler = (guids: string,multiple:boolean=true) => {
         console.log('guids',guids)
         if(multiple){
@@ -86,10 +115,10 @@ const Gallary: React.FC = (): JSX.Element => {
 
  
 
-    const referrerImages = referrer.fileSelected.map((img:any) => img.guid);
+    
     const handleSelect = (index: number) => {
         const nextImages = images.map((image, i) =>
-          (i === index || (!userInfo.multiselectOptions && image.isSelected)) ? { ...image, isSelected: !image.isSelected } : image
+          (i === index || (!userInfo.multiselectOptions && image.isSelected) || referrerImages.includes(image.guid)) ? { ...image, isSelected: !image.isSelected } : image
         );
 
         
@@ -140,14 +169,25 @@ const Gallary: React.FC = (): JSX.Element => {
           return {...userInfo,...{filterPageNumber,libraryName}};
       }
     
+      const getImagesData = async () => {
+        if(userInfo.guidPreSelected)
+          await getImagesGUIDFn({"guid":userInfo.guidPreSelected})
+        await getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+      }
+
       useEffect(() => {
         const locationIsDifferent = (window.location !== window.parent.location);
         const diffentUser = (userInfo.librarySessionId!=='81de5dba-0300-4988-a1cb-df97dfa4e3721' && locationIsDifferent)
         const defalutUser = (userInfo.librarySessionId==='81de5dba-0300-4988-a1cb-df97dfa4e3721' && !locationIsDifferent)
-          if(defalutUser || diffentUser)
-            getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+          if(defalutUser || diffentUser){
+            getImagesData()
+          }
         // eslint-disable-next-line react-hooks/exhaustive-deps    
       },[userInfo]);
+
+      useEffect(() => {
+        
+      },[]);
 
 
 

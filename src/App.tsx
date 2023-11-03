@@ -87,6 +87,9 @@ const App: React.FC = () => {
           <Router />
         </div>
       </Content>
+      <Footer style={{ textAlign: 'center', backgroundColor: '#fff', }}>
+        <BottomIcon />
+     </Footer>
     </Layout>
   );
 }

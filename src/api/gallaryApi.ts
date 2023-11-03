@@ -12,6 +12,10 @@ export const getImages = async (data:object) => {
   return response.data;
 };
 
+export const getGUID = async (data:object) => {
+  const response = await authApi.post<any>(`get-list-file-selection`,data);
+  return response.data;
+};
 
 export const startImageUpload = async (data:object) => {
   const response = await authApi.get<any>(`start-upload`,data);
