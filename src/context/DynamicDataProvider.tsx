@@ -61,13 +61,13 @@ const userInfo: IUserInfo = {
   "filterSortField": "id",
   "filterSortDirection": "DESC",
   "filterUpdate": "1",
-  "guidPreSelected": "702006fe-3123-46ba-8f81-cb26bac6057e1",
+  "guidPreSelected": "30f60c3c-ae69-48cb-9cd7-5127069d1667",
   "libraryOptions": ["temporary","inventory"],
   "multiselectOptions": true,
-  "domain": "finerworks1.com",
+  "domain": "finerworks.com",
   "terms_of_service_url": "/terms.aspx",
   "button_text": "Create Print",
-  "account_id": 12,
+  "account_id": 0,
 }
 
 const initialState = {
