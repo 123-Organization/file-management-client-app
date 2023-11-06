@@ -1,9 +1,10 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Typography, Checkbox, Modal, Button, message, notification } from 'antd';
+import { Typography, Checkbox, Modal, Button, message, notification, Spin } from 'antd';
 
 
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
 
+import tiffDefault from "../assets/images/tiff_default.png"
 
 import {
   StopOutlined
@@ -33,8 +34,10 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const queryClient = useQueryClient()
 
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
-  const [imageListModal, setImageListModal] = React.useState(false);
-  const [imageListEvent, setImageListEvent] = React.useState(false);
+  const [imageListModal, setImageListModal] = React.useState<boolean>(false);
+  const [imageListEvent, setImageListEvent] = React.useState<boolean>(false);
+  const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
+
 
   const dynamicData: any = useDynamicData();
   const { referrer, userInfo } = dynamicData.state;
@@ -159,7 +162,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         }, 1000);
         setTimeout(() => {
           window.location.reload();
-        },5000);
+        },10000);
       }
     } else {
       setTimeout(() => {
@@ -240,14 +243,22 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       open={openModel}
       onOk={() => setOpen(false)}
       onCancel={() => setOpen(false)}
-      width={'85%'}
+      width={'99%'}
       footer={''}
+      className='min-w-[350px]'
     >
-      <div>
-        <div className="p-8 flex justify-center items-center  bg-white">
-          <div className="w-full  relative grid grid-cols-1 md:grid-cols-3 border rounded-lg">
+      <div className='max-lg:flex1 '>
+      <div className="p-8 max-lg:flex max-lg:flex-col  items-center  bg-white">
+        { 
+          !componentDisabled
+          ? <>
+            <div className='flex whitespace-pre max-lg:absolute max-lg:left-8 justify-items-start lg:p-10 '>
+              <Spin tip="Please check below terms to proceed..." ><></></Spin>
+            </div>
+          </>
+          :<div className="w-full disabled  relative lg:grid grid-cols-1 lg:grid-cols-3 lg:border rounded-lg">
             <div
-              className="first-flex-div rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-sm:border-b sm:border-r border-gray-300 ">
+              className="first-flex-div lg:rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-lg:border-b lg:border-r border-gray-300 ">
               <Title level={4} className="text-gray-300" disabled >My Computer / Device</Title>
               {uploadErrors && <div className='text-red-500 font-medium'>
                 {uploadErrors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}<br /></span>}
@@ -260,7 +271,6 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
               shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
               rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
             focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
-
                */}
               {/* <input id="uploadImage" className="text-sm cursor-pointer w-36 hidden" type="file" /> */}
               {imagesProgress && <ImageUploading
@@ -271,7 +281,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                 maxNumber={maxNumber}
                 dataURLKey="data_url"
                 maxFileSize={maxFileSize}
-                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif','zip','psd']}
+                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','psd']}
               >
                 {({
                   imageList,
@@ -285,7 +295,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                 }) => (
                   // write your building UI
                   <div className="upload__image-wrapper text-center w-full">
-                    
+
                     <label
                       style={isDragging ? { color: 'red' } : undefined}
                       onClick={onImageUpload}
@@ -296,7 +306,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
               focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
 
                         <button
-                        
+
                         >
                           Select Images
                         </button>
@@ -311,6 +321,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       onOk={() => setImageListModal(false)}
                       onCancel={() => setImageListModal(false)}
                       closeIcon={<></>}
+                      className="sm:h-screen"
                       width={'70%'}
                       footer={[
                         // images?.length>=1 &&
@@ -333,11 +344,11 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                         <button className='fw-sky-btn' onClick={onImageRemoveAll}>Remove all images</button>
                       </>
                       } */}
-                      <div className='grid grid-cols-1 md:grid-cols-4 gap-8 p-8'>
+                      <div className='grid grid-cols-1 lg:grid-cols-3  gap-8 p-8'>
                       {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
                           <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
-                            <img className='h-[57%] cursor-pointer w-full rounded-lg' src={image['data_url']} alt="" width="100" />
+                            <img className='h-[57%] cursor-pointer w-full rounded-lg' src={(image['data_url'] &&  !image['data_url'].includes("tif"))?image['data_url']:tiffDefault} alt="" width="100" />
                             <div className='flex relative w-full flex-col'>
                                 <div className='text-sm pt-10 mb-2'>Lorem ipsum </div>
                                 <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
@@ -350,7 +361,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                                 onClick={async() => {
                                     await onImageRemoveHandler(index);
                                     onImageRemove(index);
-                                    
+
                                 }}   />
                                 {/* <svg onClick={() => {
                                     onImageRemove(index)
@@ -375,23 +386,30 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                         }
                       </div>
                     </Modal>
-
-
                   </div>
                 )}
               </ImageUploading>
             }
-              {/* </label> */}
-
-            </div>
+        </div> 
+         <div className="p-8 flex justify-center items-center col-span-2  bg-white">
+           <div className="w-full  relative grid grid-cols-1   rounded-lg">
             <div
-              className="second-flex-div flex flex-col relative order-first md:order-last h-28 md:h-auto justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat bg-center bg-origin-padding bg-cover">
-              <UppyUploadBox></UppyUploadBox>
+              className="
+                second-flex-div  flex flex-col relative order-first md:order-last h-28 md:h-auto 
+                justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat 
+                bg-center bg-origin-padding bg-cover
+              ">
+              <UppyUploadBox/>
             </div>
-
           </div>
+        </div> 
         </div>
-        <Checkbox className='pl-10 pb-10  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am sumbmitting. See our <a className='underline'>terms of service </a></Checkbox>
+        }
+        <Checkbox   
+          checked={componentDisabled}
+          onChange={(e) => setComponentDisabled(e.target.checked)} 
+        className='xl:pl-4 pb-10 xl:pt-4 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
+      </div>
       </div>
     </Modal>
   )

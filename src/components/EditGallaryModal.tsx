@@ -1,5 +1,5 @@
 import React, { useState, Dispatch, SetStateAction, FC  } from 'react'
-import { Button, Form, Input, message, Modal } from 'antd';
+import { Button, Form, Input, message, Modal, Spin } from 'antd';
 import { formatFileSize } from '../helpers/fileHelper';
 import { putImages } from '../api/gallaryApi';
 import { useMutation } from '@tanstack/react-query';
@@ -14,6 +14,7 @@ interface EditGallaryModalProps {
   setOpen: Dispatch<SetStateAction<boolean>> ;
   imgData: any;
   onDeleteHandler: Function
+  isSuccess: boolean;
 }
 
 const { TextArea } = Input;
@@ -21,7 +22,7 @@ const { TextArea } = Input;
  * ****************************************************************** Function Components *******************************************************
  */
 
-const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgData, onDeleteHandler} ) : JSX.Element => {
+const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgData, onDeleteHandler, isSuccess} ) : JSX.Element => {
   
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -40,7 +41,9 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
       setTimeout(() => {
         setLoading(false);
         setOpen(false);
-        window.location.reload();
+        let filterUpdate=(userInfo.filterUpdate?"":" ");
+        let userInfoObj={...userInfo,filterUpdate};
+        dynamicData.mutations.setUserInfoData(userInfoObj);
       }, 3000);
     },
     onError(error: any) {},
@@ -80,33 +83,44 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
  */    
   return (
     <>
-    <Modal
+    {
+     <Modal
       title={<h1 className=' text-gray-500'>Edit File Details</h1>}
       centered
       open={openModel}
       onOk={() => setOpen(false)}
       onCancel={() => setOpen(false)}
       width={'78%'}
-      footer={[
-        <button onClick={()=>onDeleteHandler(imgData.guid,false)} data-tooltip-target="tooltip-document" type="button" className="absolute left-2 inline-flex ml-10 flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-          <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z" />
-          </svg>
-          {/* <span className="sr-only">New document</span> */}
-          <span className="text-sm text-gray-500 whitespace-nowrap dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Delete Selected</span>
-        </button>,
-        <Button key="submit" className='py-2' size={'large'} type="primary" loading={loading} onClick={handleOk}>
-          Update
-        </Button>,
+      footer={
+        isSuccess
+        ? [
+          <button onClick={()=>onDeleteHandler(imgData.guid,false)} data-tooltip-target="tooltip-document" type="button" className="absolute left-2 inline-flex ml-10 flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+            <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z" />
+            </svg>
+            {/* <span className="sr-only">New document</span> */}
+            <span className="text-sm text-gray-500 whitespace-nowrap dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Delete Selected</span>
+          </button>,
+          <Button key="submit" className='py-2' size={'large'} type="primary" loading={loading} onClick={handleOk}>
+            Update
+          </Button>,
 
-      ]}
+          ]
+
+        : [
+            <div className='pt-5 pb-2'>
+              <Spin tip="Deleting file..." ><></></Spin>
+            </div>
+
+          ]
+    }
     >
 
       <div>
         <section className="text-gray-600 body-font">
           {contextHolder}
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
-            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
+            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0 border rounded-lg shadow-lg   border-gray-100">
               {
               !loading &&
               <img className="object-cover object-center rounded" alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
@@ -134,10 +148,13 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
                   <Form.Item 
                        name="title"
                        initialValue={imgData.title}
-                       rules={[{ required: true, message: 'Title is required!' }]}
+                       
+                       rules={[
+                            { required: true, message: 'Title is required!' },
+                      ]}
                        noStyle={true}
                   >
-                    <Input />
+                    <Input maxLength={50}  />
                   </Form.Item>
                 </div>
                 <div className="relative mb-4">
@@ -161,6 +178,8 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
         </section>
       </div>
     </Modal>
+
+    }
     </>
   )
 }
