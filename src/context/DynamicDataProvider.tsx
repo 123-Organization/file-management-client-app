@@ -61,7 +61,7 @@ const userInfo: IUserInfo = {
   "filterSortField": "id",
   "filterSortDirection": "DESC",
   "filterUpdate": "1",
-  "guidPreSelected": "",
+  "guidPreSelected": "702006fe-3123-46ba-8f81-cb26bac6057e1",
   "libraryOptions": ["temporary","inventory"],
   "multiselectOptions": true,
   "domain": "finerworks1.com",
