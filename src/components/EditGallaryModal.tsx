@@ -63,7 +63,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
         const values = await form.validateFields();
         console.log('Success:', values);
         if(values?.title){
-          await putImagesFn({...values,...{guid:imgData.guid,"libraryAccountKey":userInfo.libraryAccountKey}})
+          await putImagesFn({...values,...{guid:imgData.guid,"libraryAccountKey":userInfo.libraryAccountKey,"librarySiteId":userInfo.librarySiteId}})
         }
        
       } catch (errorInfo) {
