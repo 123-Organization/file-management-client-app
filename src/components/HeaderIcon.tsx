@@ -3,7 +3,7 @@ import fwlogo from '../assets/logo/finerworks_logo_icon.svg';
 import ezlogo from '../assets/logo/ezcanvas_logo_icon.svg';
 import FilterSortModal from './FilterSortModal';
 import UploadModal from './UploadModal';
-import { Checkbox, MenuProps, Spin } from 'antd';
+import { Checkbox, MenuProps, Spin, Skeleton, Avatar } from 'antd';
 import { Dropdown, Space, Modal, message } from 'antd';
 import { FileOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useDynamicData } from "../context/DynamicDataProvider";
@@ -16,7 +16,8 @@ import { postPrintImages } from '../api/gallaryApi';
  */
 
 
-    
+type SizeType = 'default' | 'small' | 'large';    
+type AvatarShapeType = 'circle' | 'square';
 const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     message.info('Click on left button.');
     console.log('click left button', e);
@@ -34,6 +35,9 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     const [spinLoader, setSpinLoader] = useState(false);
     const [openFilter, setOpenFilter] = useState(false);
     const [openUpload, setOpenUpload] = useState(false);
+    const [active, setActive] = useState(true);
+    const [size, setSize] = useState<SizeType>('large');
+    const [avatarShape, setAvatarShape] = useState<AvatarShapeType>('square');
     const [messageApi, contextHolder] = message.useMessage();
     const location = useLocation();
     const navigate = useNavigate();
@@ -111,7 +115,8 @@ const HeaderIcon: React.FC = (): JSX.Element => {
         // window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
 
     }
-    const logo = userInfo.domain === "finerworks.com" ? fwlogo : ezlogo;
+    const locationIsDifferent = (window.location !== window.parent.location);
+    const logo = !locationIsDifferent ? fwlogo : (userInfo.domain === "finerworks.com" ? fwlogo : ezlogo);
     const info = () => {
         Modal.info({
           title: 'Print Acknowledgement',
@@ -136,7 +141,12 @@ const HeaderIcon: React.FC = (): JSX.Element => {
             <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white pt-3 pb-3  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
                 <div className="grid max-md:grid-cols-4 max-md:grid-rows-2 max-w-[700px] grid-cols-7 font-medium">
                     <div className='flex flex-col items-center'>
-                        <img  src={logo} onClick={()=>{ window.location.reload() }} className="App-logo-icon cursor-pointer flex flex-col " alt="logo" />    
+                        {
+                            !logo 
+                            ?    <Skeleton.Avatar className='pt-2' active={active} size={size} shape={avatarShape} />
+                            // <div className='p-5'><Spin tip={<div className='whitespace-nowrap -pt-10'></div>}><div className="content " /></Spin></div>
+                            : <img  src={logo} onClick={()=>{ window.location.reload() }} className="App-logo-icon cursor-pointer flex flex-col " alt="logo" />    
+                        }    
                     </div>
                     {/* <button onClick={()=>{ navigate('/') }} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
                         <svg  className="w-5 h-5 mb-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -188,7 +198,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
 
                             <Spin spinning={spinLoader}  size="small">
                             <button type="button"  className="  
-                                 ">Create Prints</button>
+                                 ">{userInfo.button_text}</button>
                             </Spin>
                         </div>
                     }

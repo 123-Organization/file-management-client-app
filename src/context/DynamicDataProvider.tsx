@@ -61,10 +61,11 @@ const userInfo: IUserInfo = {
   "filterSortField": "id",
   "filterSortDirection": "DESC",
   "filterUpdate": "1",
-  "guidPreSelected": "702006fe-3123-46ba-8f81-cb26bac6057e1",
+  // "guidPreSelected": "ebc02edb-4ec0-44d7-87e1-fb8395182c36",
+  "guidPreSelected": "",
   "libraryOptions": ["temporary","inventory"],
   "multiselectOptions": true,
-  "domain": "finerworks1.com",
+  "domain": "finerworks.com",
   "terms_of_service_url": "/terms.aspx",
   "button_text": "Create Print",
   "account_id": 12,
@@ -90,6 +91,7 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
   // define mutations
   const mutations = {
     setReferrerData: (referrer: IFileUpload): void => {
+      console.log('setReferrerData',referrer)
       setState((state: any) => ({ ...state, referrer }));
     },
     setFileLocationData: (fileLocation: IFileLocation): void => {

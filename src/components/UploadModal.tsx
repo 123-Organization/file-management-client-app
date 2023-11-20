@@ -408,7 +408,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         <Checkbox   
           checked={componentDisabled}
           onChange={(e) => setComponentDisabled(e.target.checked)} 
-        className='xl:pl-4 pb-10 xl:pt-4 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a className='underline'>terms of service </a></Checkbox>
+        className='xl:pl-4 pb-10 xl:pt-4 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a href={'http://'+userInfo.domain+userInfo.terms_of_service_url} target="_blank" className='underline'>terms of service </a></Checkbox>
       </div>
       </div>
     </Modal>

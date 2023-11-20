@@ -26,12 +26,11 @@ const Gallary: React.FC = (): JSX.Element => {
 
     const [open, setOpen] = useState(false);
     const [imgData, setImgData] = useState({});
+    const [referrerImages, setReferrerImages] = useState<Array<String|undefined>>([]);
     const [images, setImages] = useState<Array<ImageType>>([]);
     const [messageApi, contextHolder] = message.useMessage();
     const dynamicData: any = useDynamicData();
     const { referrer, userInfo } = dynamicData.state;
-    let referrerImages = referrer.fileSelected.map((img:any) => img.guid);
-    console.log('referrerImages',referrerImages)
 
     const {
         mutate: deleteImageFn,
@@ -56,12 +55,25 @@ const Gallary: React.FC = (): JSX.Element => {
       } = useMutation((data: any) => getImages(data), {
         onSuccess(data:any) {
           console.log('getAll images',data.data.images);
-          setImages(data.data.images)
+          console.log('referrerImages',referrerImages);
+          const imgs = data.data.images.map((image:any) =>
+            (referrerImages?.length && referrerImages.includes(image.guid))
+            ? { ...image, isSelected: true } : image
+          );
+          setImages(imgs)
+          console.log('getAll imgs',imgs);
+          
+          
           let filterCount = ""+data.data.count
           let isUpdated = (
             filterCount !== referrer.filterCount
           );
-          isUpdated && dynamicData.mutations.setReferrerData({...referrer,filterCount});
+          
+          let fileSelected = referrerImages.map((guid:any) => {return {guid}});
+          let referrerObj = {...referrer,...{fileSelected,filterCount}};
+          
+          console.log('get all images referrer',referrerObj)
+          isUpdated && dynamicData.mutations.setReferrerData(referrerObj);
           // QueryClient.setQueryData('allImages', newArticle);
         },
         onError(error: any) {},
@@ -78,16 +90,25 @@ const Gallary: React.FC = (): JSX.Element => {
                                   .concat(referrer.fileSelected)
         console.log('Guid fileSelected',fileSelected)
         if(fileSelected.length){
-          if(userInfo.multiselectOptions){
-            const referrerObj = {...referrer,fileSelected}
-            console.log('GUId1referrerObj',referrerObj)
+          setTimeout(() => {
+            
+            let referrerObj=null;
+            const hasSelected = true;
+            
+            if(userInfo.multiselectOptions){
+              referrerObj = {...referrer,...{fileSelected,hasSelected}}
+              console.log('referrerObj',referrer)
+              console.log('GUId1referrerObj',referrerObj)
+            } else {
+              referrerObj = {...referrer,...{hasSelected,fileSelected:(fileSelected[0]?[fileSelected[0]]:[])}}
+              console.log('referrerObj',referrer)
+              console.log('GUId2referrerObj',referrerObj)
+            }
+          
+            
             dynamicData.mutations.setReferrerData(referrerObj);
-          } else {
-            const referrerObj = {...referrer,...{fileSelected:(fileSelected[0]?fileSelected[0]:[])}}
-            console.log('GUId2referrerObj',referrerObj)
-            dynamicData.mutations.setReferrerData(referrerObj);
-          }
-          referrerImages = fileSelected.map((img:any) => img.guid);
+            setReferrerImages(referrerObj.fileSelected.map((img:any) => img.guid));
+          }, 3000);
         }
         // QueryClient.setQueryData('allImages', newArticle);
       },
@@ -117,17 +138,32 @@ const Gallary: React.FC = (): JSX.Element => {
 
     
     const handleSelect = (index: number) => {
+      console.log('referrerImages',referrerImages)
         const nextImages = images.map((image, i) =>
-          (i === index || (!userInfo.multiselectOptions && image.isSelected) || referrerImages.includes(image.guid)) ? { ...image, isSelected: !image.isSelected } : image
+          ( i === index 
+            || (!userInfo.multiselectOptions && image.isSelected) 
+          ) ? { 
+            ...image, 
+            
+            isSelected:
+            (
+              (i === index && referrerImages?.length && referrerImages.includes(image.guid))
+              ? false
+              : !image.isSelected
+            ) 
+          } : image
         );
 
-        
+        console.log('nextImages',nextImages)
         const fileUnSelected = nextImages.filter((image) => !image.isSelected ).map((img:any) => img.guid);
+        console.log('fileUnSelected',fileUnSelected)
 
-        
         const fileSelected = userInfo.multiselectOptions 
                             ? nextImages
-                              .filter((image) =>image.isSelected && !referrerImages.includes(image.guid))
+                              //No repeation on referrerImages
+                              .filter((image) => (
+                                  image.isSelected && !referrerImages.includes(image?.guid) 
+                                ))
                               .concat(referrer.fileSelected)
                               .filter((image) =>(
                                 (
@@ -137,7 +173,7 @@ const Gallary: React.FC = (): JSX.Element => {
                             : nextImages.filter((image) =>image.isSelected )
                           ;
 
-
+        // setReferrerImages(fileSelected.map((img:any) => img.guid));
         //@ts-ignore
         setImages(nextImages);
         const hasSelected = nextImages.some((image) => image.isSelected);
@@ -154,6 +190,27 @@ const Gallary: React.FC = (): JSX.Element => {
         console.log('isUpdated',isUpdated)
   
         isUpdated && dynamicData.mutations.setReferrerData(referrerObj);
+
+        // if(fileUnSelected.length && fileUnSelected.includes())
+        //   setReferrerImages(fileSelected.map((img:any) => img.guid));
+
+        let referrerImagesChange:string[] = []; 
+
+        if(referrerImages.length){
+          const imgSelected = nextImages.filter((image) => image.isSelected).map((img)=>img.guid);
+          imgSelected.forEach(
+            guids => {
+              if(referrerImages.includes(guids) && guids){
+                referrerImagesChange.push(guids)
+              }
+            }
+          );
+          
+          if(referrerImagesChange.length){
+            setReferrerImages(referrerImagesChange);
+          }
+
+        }  
 
       };
 
@@ -186,8 +243,11 @@ const Gallary: React.FC = (): JSX.Element => {
       },[userInfo]);
 
       useEffect(() => {
-        
-      },[]);
+        // if(referrer.fileSelected.length && userInfo.guidPreSelected){
+          setReferrerImages(referrer.fileSelected.map((img:any) => img.guid));
+          console.log('referrerImages useEffect',referrerImages)
+        // }
+      },[referrer.fileSelected]);
 
 
 
@@ -206,7 +266,7 @@ const Gallary: React.FC = (): JSX.Element => {
                    <>
                     {images.map(
                       (image, i) => (            
-                            <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected || referrerImages.includes(image.guid) ?'isSelectedImg':''}`} >
+                            <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected || (referrerImages?.length && referrerImages.includes(image.guid)) ?'isSelectedImg':''}`} >
                                 <div onClick={()=> handleSelect(i)}  className='min-h-[300px] flex justify-center items-center'>
                                   <div>
 

@@ -8,10 +8,16 @@ import artzipImg from '../assets/provider/icon_artzip.svg';
 import {
   CloseCircleOutlined
 } from '@ant-design/icons';
+import { useDynamicData } from '../context/DynamicDataProvider';
 
 const { Title, Text } = Typography;
 
 const Upload: React.FC = (): JSX.Element => {
+
+  const dynamicData: any = useDynamicData();
+  const { userInfo } = dynamicData.state;
+
+
   return (
     <div>
       <div className="p-8 flex justify-center items-center  bg-white">
@@ -67,7 +73,7 @@ const Upload: React.FC = (): JSX.Element => {
 
         </div>
       </div>
-      <Checkbox className='pl-10 pb-10  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am sumbmitting. See our <a className='underline'>terms of service </a></Checkbox>
+      <Checkbox className='pl-10 pb-10  text-gray-400 ' style={{ fontSize: '16px' }}>I1s acknowledgement I am permitted to print the images I am sumbmitting. See our <a className='underline' href={userInfo.domain+userInfo.terms_of_service_url} target="_blank">terms of service </a></Checkbox>
     </div>
   )
 }
