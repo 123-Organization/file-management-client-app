@@ -6,17 +6,19 @@ import { Dashboard } from '@uppy/react';
 import GoogleDrive from '@uppy/google-drive';
 import Dropbox from '@uppy/dropbox';
 import Box from '@uppy/box';
+import { message, Spin } from 'antd';
 
 import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
 import { useDynamicData } from '../context/DynamicDataProvider';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getUserAccount, postUppyImages } from '../api/gallaryApi';
+import config  from "../config/configs";
 
 import ArtzipIcon from "../assets/provider/icon_artzip_32.svg"
 import Url from '@uppy/url';
 
-const SERVER_BASE_URL = 'https://companion-app-filemanagement.finerworks.com';
+const SERVER_BASE_URL = config.COMPANION_BASE_URL;
 //  const SERVER_BASE_URL = 'http://localhost:5000';
 
 // const SERVER_BASE_URL = 'http://13.50.227.147:5000';
@@ -35,15 +37,29 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     
   const dynamicData: any = useDynamicData();
   const { userInfo } = dynamicData.state;
+  const [messageApi, contextHolder] = message.useMessage();
   
 
   const {
     mutate: fileUploadPostDataFn,
+    isLoading:isLoadingImgUpload,
    } = useMutation((data: any) => postUppyImages(data), {
     onSuccess(data) {
-     window.location.reload();
+      messageApi.open({
+        type: 'success',
+        content: 'File has been uploaded',
+      });
+      window.location.reload();
     },
-    onError(error: any) {},
+    onError(error: any) {
+
+      console.error('error file upload',error)
+          messageApi.open({
+            type: 'error',
+            content: 'File having issue while upload',
+          });
+
+    },
   });
 
   const {
@@ -235,26 +251,33 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
 
   return (
     <div className="xxl:flex justify-end items-center pt-6">
-      <div className="uppy-DashboardTab hidden" id="artzipIcon" role="presentation" data-uppy-acquirer-id="Artzip">
-        <button type="button" className="uppy-u-reset uppy-c-btn uppy-DashboardTab-btn" role="tab" data-uppy-super-focusable="true">
-        <div className="uppy-DashboardTab-inner">
-          <img className="mx-2" src="${ArtzipIcon}"  width="30px" height="35px" />
-        </div>
-        <div className="uppy-DashboardTab-name">Artzip</div>
-        </button>
-      </div>
-      <Dashboard onChange={() => {
-          removeUppy();
-          removeArtzip();
+      {
+        !isLoadingImgUpload 
+        ?<>
+            <> { contextHolder}</>
+            <div className="uppy-DashboardTab hidden" id="artzipIcon" role="presentation" data-uppy-acquirer-id="Artzip">
+              <button type="button" className="uppy-u-reset uppy-c-btn uppy-DashboardTab-btn" role="tab" data-uppy-super-focusable="true">
+              <div className="uppy-DashboardTab-inner">
+                <img className="mx-2" src="${ArtzipIcon}"  width="30px" height="35px" />
+              </div>
+              <div className="uppy-DashboardTab-name">Artzip</div>
+              </button>
+            </div>
+            <Dashboard onChange={() => {
+                removeUppy();
+                removeArtzip();
 
-      }} onFocus={() => {
-        
-        removeUppy();
-        removeArtzip();
+            }} onFocus={() => {
+              
+              removeUppy();
+              removeArtzip();
 
-      }}
-      disableLocalFiles={true}  
-      disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} />
+            }}
+            disableLocalFiles={true}  
+            disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} />
+        </>
+        : <div><Spin tip={<div className='whitespace-nowrap -ml-3'>Uploading images...</div>}><div className="content " /></Spin></div>
+    }
     </div>
   )
 }
