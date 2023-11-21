@@ -1,5 +1,5 @@
 const prod = {
-  SERVER_BASE_URL : "https://app-filemanager.finerworks.com/api/",
+  SERVER_BASE_URL : "https://prod1-api.finerworks.com/",
   COMPANION_BASE_URL : "https://companion-app-filemanagement.finerworks.com",
 }
 
@@ -9,7 +9,7 @@ const dev = {
 }
 
 const prodDomain = ['prod1-filemanger-app.finerworks.com']
-const isProd = prodDomain.includes(window.location.host) || prodDomain.includes(window.parent.location.host) ;
+const isProd = prodDomain.includes(document.domain) || prodDomain.includes(parent.document.domain) ;
 
 const config = isProd ? prod : dev;
 
