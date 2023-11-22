@@ -11,6 +11,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const dynamicData: any = useDynamicData();
     const { userInfo, referrer, fileLocation } = dynamicData.state;
     const [messageApi, contextHolder] = message.useMessage();
+    const [current, setCurrent] = useState(1);
     
     const {
         mutate: deleteImageFn,
@@ -38,6 +39,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
         console.log('isUpdated',isUpdated,userInfo,userInfoObj)
     
         isUpdated && dynamicData.mutations.setUserInfoData(userInfoObj);
+        setCurrent(filterPageNumber)
       };
 
     const onDeleteHandler = () => {
@@ -59,6 +61,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
         console.log('userInfo.filterPageNumber',userInfo.filterPageNumber)
         // onChange(userInfo.filterPageNumber);
         // setPageNumber(userInfo.filterPageNumber)
+        setCurrent(+userInfo.filterPageNumber)
       },[userInfo.filterPageNumber]);
     return (
         isLoadingImgDelete 
@@ -92,7 +95,14 @@ const BottomIcon: React.FC = (): JSX.Element => {
                     }
                 </div>
                 <div className='flex w-full justify-end'>
-                    <Pagination simple className=' mt-5 mr-3 ' onChange={onChange} current={userInfo.filterPageNumber} defaultPageSize={userInfo.filterPerPage} total={referrer.filterCount} />
+                    <Pagination 
+                        simple className=' mt-5 mr-3 ' 
+                        // defaultCurrent={current}  
+                        onChange={onChange} 
+                        current={current} 
+                        defaultPageSize={userInfo.filterPerPage} 
+                        total={referrer.filterCount} 
+                    />
                 </div>
             </div>
 

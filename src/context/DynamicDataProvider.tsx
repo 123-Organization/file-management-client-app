@@ -65,7 +65,7 @@ const userInfo: IUserInfo = {
   "guidPreSelected": "",
   "libraryOptions": ["temporary","inventory"],
   "multiselectOptions": true,
-  "domain": "finerworks.com",
+  "domain": "",
   "terms_of_service_url": "/terms.aspx",
   "button_text": "Create Print",
   "account_id": 12,
