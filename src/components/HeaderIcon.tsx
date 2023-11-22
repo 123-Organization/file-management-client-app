@@ -115,8 +115,13 @@ const HeaderIcon: React.FC = (): JSX.Element => {
         // window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
 
     }
-    const locationIsDifferent = (window.location !== window.parent.location);
-    const logo = !locationIsDifferent ? fwlogo : (userInfo.domain === "finerworks.com" ? fwlogo : ezlogo);
+    const locationIsDiff = (document.domain !== parent.document.domain);
+    console.log('locationIsDiff',locationIsDiff)
+    const logo = (
+            !userInfo.domain && 
+            locationIsDiff
+        ) 
+        ? "" : ((userInfo.domain === "finerworks.com" || !userInfo.domain) ? fwlogo : ezlogo);
     const info = () => {
         Modal.info({
           title: 'Print Acknowledgement',
