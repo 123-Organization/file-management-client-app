@@ -115,7 +115,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
         // window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
 
     }
-    const locationIsDiff = (document.domain !== parent.document.domain);
+    const locationIsDiff = (window.location.href !== window.parent.location.href);
     console.log('locationIsDiff',locationIsDiff)
     const logo = (
             !userInfo.domain && 
@@ -142,7 +142,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     useEffect(() => {
         console.log('userInfo.domain',userInfo.domain)
     },[userInfo.domain]);
-          
+
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */
