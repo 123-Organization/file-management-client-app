@@ -67,9 +67,9 @@ const App: React.FC = () => {
       console.log('isUpdated',isUpdatedUser,userInfo,userInfoObj)
 
       if(isUpdatedUser) {
-       // setTimeout(() => {
+       setTimeout(() => {
           dynamicData.mutations.setUserInfoData(userInfoObj);
-        //}, 2000);
+        }, 1000);
       } 
 
     }
