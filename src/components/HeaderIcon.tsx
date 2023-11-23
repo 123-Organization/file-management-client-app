@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from 'react'
+import React, { CSSProperties, useEffect, useState } from 'react'
 import fwlogo from '../assets/logo/finerworks_logo_icon.svg';
 import ezlogo from '../assets/logo/ezcanvas_logo_icon.svg';
 import FilterSortModal from './FilterSortModal';
@@ -138,6 +138,11 @@ const HeaderIcon: React.FC = (): JSX.Element => {
           onCancel() {  },
         });
       };
+
+    useEffect(() => {
+        console.log('userInfo.domain',userInfo.domain)
+    },[userInfo.domain]);
+          
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */
