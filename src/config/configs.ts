@@ -11,7 +11,7 @@ const dev = {
 }
 
 const prodDomain = ['prod1-filemanger-app.finerworks.com']
-const isProd = prodDomain.includes(document.domain) || prodDomain.includes(parent?.document?.domain) ;
+const isProd = prodDomain.includes(document.domain);
 
 const config = isProd ? prod : dev;
 
