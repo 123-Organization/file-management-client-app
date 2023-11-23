@@ -115,7 +115,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
         // window.open(`https://finerworks.com/apps/orderform/post.aspx?guids=${guids}`, "_blank")
 
     }
-    const locationIsDiff = (window.location.href !== window.parent.location.href);
+    const locationIsDiff = true;//(window.location.href !== window.parent.location.href);
     console.log('locationIsDiff',locationIsDiff)
     const logo = (
             !userInfo.domain && 
