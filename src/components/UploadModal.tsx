@@ -156,11 +156,8 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
           content: 'File has been uploaded',
         });
         setTimeout(() => {
-          //@ts-ignore
-          console.log(`uploader.completeResponse `,uploaders);
           setUploadImageModal([],false)
-        }, 1000);
-        setTimeout(() => {
+          console.log(`uploader.completeResponse `,uploaders);
           window.location.reload();
         },10000);
       }
@@ -347,13 +344,13 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       <div className='grid grid-cols-1 lg:grid-cols-3  gap-8 p-8'>
                       {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
-                          <div key={index} className={` rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
-                            <img className='h-[57%] cursor-pointer w-full rounded-lg' src={(image['data_url'] &&  !image['data_url'].includes("tif"))?image['data_url']:tiffDefault} alt="" width="100" />
+                          <div key={index} className={` relative rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
+                            <div className="w-full absolute bottom-1 bg-gray-200 rounded-full dark:bg-gray-700">
+                              <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${imagesProgress[index]?imagesProgress[index]:'20'}%`, minWidth:'20%' }}> {imagesProgress[index]?imagesProgress[index] :'0'}%</div>
+                            </div>
+                            <img className='h-[70%] cursor-pointer w-full rounded-lg' src={(image['data_url'] &&  image['data_url'].includes("image/tif")) ? tiffDefault : image['data_url']} alt="" width="100" />
                             <div className='flex relative w-full flex-col'>
-                                <div className='text-sm pt-10 mb-2'>Lorem ipsum </div>
-                                <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                                  <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${imagesProgress[index]?imagesProgress[index]:'20'}%`, minWidth:'20%' }}> {imagesProgress[index]?imagesProgress[index] :'0'}%</div>
-                                </div>
+                                <div className='text-sm pt-10 mb-2'>{ image['file'] ? image['file']['name'] : '' } </div>
                                 <div>
 
                                 <StopOutlined 
