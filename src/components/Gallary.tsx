@@ -5,6 +5,7 @@ import { Empty, message, Spin } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { deleteImages, getGUID, getImages } from '../api/gallaryApi';
 import { Typography } from 'antd';
+import { removeDuplicates } from '../helpers/fileHelper';
 
 const {  Text } = Typography;
 /**
@@ -151,7 +152,13 @@ const Gallary: React.FC = (): JSX.Element => {
               ? false
               : !image.isSelected
             ) 
-          } : image
+          } : {
+            ...image, 
+            isSelected:
+              referrerImages?.length && referrerImages.includes(image.guid)
+              ? true
+              : image.isSelected
+          }
         );
 
         console.log('nextImages',nextImages)
@@ -207,7 +214,14 @@ const Gallary: React.FC = (): JSX.Element => {
           );
           
           if(referrerImagesChange.length){
-            setReferrerImages(referrerImagesChange);
+            
+            let finalArray:any[] = [...referrerImages,...referrerImagesChange] || [];
+            if(finalArray && finalArray.length){
+
+              let unique = [...removeDuplicates(finalArray)];
+              setReferrerImages(unique);
+            }
+
           }
 
         }  

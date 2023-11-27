@@ -19,3 +19,13 @@ export function formatFileSize(bytes:number,decimalPoint?:number) {
       i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
+
+export function removeDuplicates(arr:string[]) {
+  let unique:string[] = [];
+  arr.forEach(element => {
+      if (!unique.includes(element)) {
+          unique.push(element);
+      }
+  });
+  return unique;
+}
