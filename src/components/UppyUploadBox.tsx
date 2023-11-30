@@ -113,7 +113,8 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
             return {
               fileName,
               'fileSize' : file.size,
-              'fileURL' : file.uploadURL
+              'fileURL' : file.uploadURL,
+              'fileLibrary' : userInfo.libraryName
             }
         });
   

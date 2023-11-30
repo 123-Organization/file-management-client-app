@@ -109,7 +109,8 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         fileType: file.type,
         file,
         userInfo,
-        basecampProjectID:(Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000))
+        basecampProjectID:(Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000)),
+        fileLibrary:userInfo.libraryName
       }
 
       const uploader = new Uploader(videoUploaderOptions)
