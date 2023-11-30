@@ -21,6 +21,7 @@ export class Uploader {
   completeResponse: any
   activeConnections: any
   basecampProjectID:number
+  fileLibrary:string
   parts: any[]
   uploadedParts: any[]
   fileId: null | string
@@ -41,6 +42,7 @@ export class Uploader {
     this.aborted = false
     this.uploadedSize = 0
     this.basecampProjectID = options.basecampProjectID
+    this.fileLibrary = options.fileLibrary
     this.progressCache = {}
     this.completeResponse = {}
     this.activeConnections = {}
@@ -71,7 +73,8 @@ export class Uploader {
       const videoInitializationUploadInput = {
         fileName:this.fileName,
         fileType:this.fileType,
-        basecampProjectID:this.basecampProjectID
+        basecampProjectID:this.basecampProjectID,
+        fileLibrary:this.fileLibrary
       }
       const initializeReponse = await api.request({
         url: "/start-upload",
