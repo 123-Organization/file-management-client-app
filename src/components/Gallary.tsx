@@ -1,15 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { CSSProperties, useEffect, useState } from 'react'
 import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
-import { Empty, message, Spin } from 'antd';
+import { Empty, message, Skeleton, Space, Spin } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { deleteImages, getGUID, getImages } from '../api/gallaryApi';
 import { Typography } from 'antd';
+import { removeDuplicates } from '../helpers/fileHelper';
 
-const {  Text } = Typography;
+
 /**
  * ****************************************************************** Outer Function **********************************************************
  */
+
+const {  Text } = Typography;
+const IMAGE_STYLES: CSSProperties = {
+  width: 200, 
+  height: 200 
+}
 
 interface ImageType {
   public_thumbnail_uri?: string;
@@ -108,7 +115,7 @@ const Gallary: React.FC = (): JSX.Element => {
             
             dynamicData.mutations.setReferrerData(referrerObj);
             setReferrerImages(referrerObj.fileSelected.map((img:any) => img.guid));
-          }, 3000);
+          }, 1000);
         }
         // QueryClient.setQueryData('allImages', newArticle);
       },
@@ -151,7 +158,13 @@ const Gallary: React.FC = (): JSX.Element => {
               ? false
               : !image.isSelected
             ) 
-          } : image
+          } : {
+            ...image, 
+            isSelected:
+              referrerImages?.length && referrerImages.includes(image.guid)
+              ? true
+              : image.isSelected
+          }
         );
 
         console.log('nextImages',nextImages)
@@ -207,7 +220,14 @@ const Gallary: React.FC = (): JSX.Element => {
           );
           
           if(referrerImagesChange.length){
-            setReferrerImages(referrerImagesChange);
+            
+            let finalArray:any[] = [...referrerImages,...referrerImagesChange] || [];
+            if(finalArray && finalArray.length){
+
+              let unique = [...removeDuplicates(finalArray)];
+              setReferrerImages(unique);
+            }
+
           }
 
         }  
@@ -227,8 +247,9 @@ const Gallary: React.FC = (): JSX.Element => {
       }
     
       const getImagesData = async () => {
-        if(userInfo.guidPreSelected)
+        if(userInfo.guidPreSelected && !referrerImages.length)
           await getImagesGUIDFn({"guid":userInfo.guidPreSelected})
+
         await getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
       }
 
@@ -261,8 +282,28 @@ const Gallary: React.FC = (): JSX.Element => {
             {contextHolder}
             {
               isLoadingImg
-                   ? <div className='center-div1 max-md:pt-40 pt-60 md:col-span-4'><Spin  tip={<div >Loading My Libraries...</div>} size="large" > <div className="content" /></Spin></div>
-            :images.length
+              ? 
+                <div className='center-div1  md:col-span-4'>
+                  <Space size={'large'} className="text-center" wrap>
+                    <Skeleton.Image style={IMAGE_STYLES}  active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                  </Space>
+                  <Space className='pt-4 text-center'  size={'large'} wrap>
+                    <Skeleton.Image style={IMAGE_STYLES}  active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                  </Space>
+                  <Space className='pt-4 text-center' size={'large'} wrap>
+                    <Skeleton.Image style={IMAGE_STYLES}  active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                    <Skeleton.Image style={IMAGE_STYLES} active />
+                  </Space>
+                </div>
+              :images.length
                 ?
                    <>
                     {images.map(

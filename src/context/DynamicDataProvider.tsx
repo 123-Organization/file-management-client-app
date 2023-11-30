@@ -63,6 +63,7 @@ const userInfo: IUserInfo = {
   "filterUpdate": "1",
   // "guidPreSelected": "ebc02edb-4ec0-44d7-87e1-fb8395182c36",
   "guidPreSelected": "",
+  // "guidPreSelected": "12d2523f-9e9c-49ee-944e-598b3bce0815",
   "libraryOptions": ["temporary","inventory"],
   "multiselectOptions": true,
   "domain": "",
