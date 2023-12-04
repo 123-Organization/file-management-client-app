@@ -85,6 +85,7 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     .use(AwsS3, {
       shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
       companionUrl: `${SERVER_BASE_URL}`,
+      allowedMetaFields: []
     })
     .use(GoogleDrive, {
       companionUrl: `${SERVER_BASE_URL}`,
@@ -97,6 +98,12 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
     })
     .use(Url, {
       companionUrl: `${SERVER_BASE_URL}`,
+    })
+    .on('file-added', (file) =>{
+      console.log(file);
+      uppy.setFileMeta(file.id, {
+        fileLibrary : userInfo.libraryName
+      })
     })
     .on("complete", (result) => {
       if (result.failed.length === 0) {

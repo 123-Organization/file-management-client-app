@@ -1,8 +1,11 @@
 import axios from "axios"
+import config  from "../config/configs";
+
+const SERVER_BASE_URL = config.SERVER_BASE_URL;
 
 // initializing axios
 const api = axios.create({
-  baseURL: 'https://app-filemanager.finerworks.com/api/',
+  baseURL: SERVER_BASE_URL,
   withCredentials: false,
 })
 
@@ -101,6 +104,7 @@ export class Uploader {
           fileName,
           partNumber: i,
           Tagging: `basecamp_project_id=${this.basecampProjectID}`,
+          fileLibrary:this.fileLibrary
         }
 
         const urlsResponse = await api.request({
@@ -192,7 +196,8 @@ export class Uploader {
         parts: this.uploadedParts,
         fileName: this.fileName,
         userInfo: this.userInfo,
-        fileSize:this.file.size
+        fileSize:this.file.size,
+        fileLibrary:this.fileLibrary
       }}
       
       if (this.aborted) {
