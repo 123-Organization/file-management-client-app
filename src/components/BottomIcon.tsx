@@ -12,6 +12,8 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const { userInfo, referrer, fileLocation } = dynamicData.state;
     const [messageApi, contextHolder] = message.useMessage();
     const [current, setCurrent] = useState(1);
+    const [pageSize, setPageSize] = useState(12);
+
     
     const {
         mutate: deleteImageFn,
@@ -63,6 +65,14 @@ const BottomIcon: React.FC = (): JSX.Element => {
         // setPageNumber(userInfo.filterPageNumber)
         setCurrent(+userInfo.filterPageNumber)
       },[userInfo.filterPageNumber]);
+
+      useEffect(() => {
+        console.log('userInfo.filterPerPage',userInfo.filterPerPage)
+        // onChange(userInfo.filterPageNumber);
+        // setPageNumber(userInfo.filterPageNumber)
+        setPageSize(+userInfo.filterPerPage)
+      },[userInfo.filterPerPage]);
+        
     return (
         isLoadingImgDelete 
         ? <div className='pt-5 pb-2'>
@@ -98,9 +108,9 @@ const BottomIcon: React.FC = (): JSX.Element => {
                     <Pagination 
                         simple className=' mt-5 mr-3 ' 
                         // defaultCurrent={current}  
-                        onChange={onChange} 
+                        onChange={onChange}
                         current={current} 
-                        defaultPageSize={userInfo.filterPerPage} 
+                        pageSize={pageSize} 
                         total={referrer.filterCount} 
                     />
                 </div>
