@@ -158,8 +158,12 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
         });
         setTimeout(() => {
           setUploadImageModal([],false)
+          setOpen(false)
           console.log(`uploader.completeResponse `,uploaders);
-          window.location.reload();
+          // window.location.reload();
+          let filterUpdate=(userInfo.filterUpdate?"":" ");
+          let userInfoObj={...userInfo,filterUpdate};
+          dynamicData.mutations.setUserInfoData(userInfoObj);
         },10000);
       }
     } else {
@@ -397,7 +401,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                 justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat 
                 bg-center bg-origin-padding bg-cover
               ">
-              <UppyUploadBox/>
+              <UppyUploadBox  setOpen={setOpen} />
             </div>
           </div>
         </div> 

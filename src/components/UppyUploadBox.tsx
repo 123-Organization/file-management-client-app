@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { Dispatch, SetStateAction, useEffect } from 'react'
 
 import Uppy from '@uppy/core';
 import AwsS3 from '@uppy/aws-s3';
@@ -31,9 +31,12 @@ const debugLogger = {
   error: (...args:any) => console.error(`[Uppy] [${getTimeStamp()}]`, ...args),
 };
 
+interface UppyUploadProps {
+  setOpen: Dispatch<SetStateAction<boolean>>;
+}
 
   
-const UppyUploadBox: React.FC = () : JSX.Element => {
+const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     
   const dynamicData: any = useDynamicData();
   const { userInfo } = dynamicData.state;
@@ -49,7 +52,11 @@ const UppyUploadBox: React.FC = () : JSX.Element => {
         type: 'success',
         content: 'File has been uploaded',
       });
-      window.location.reload();
+      // window.location.reload();
+      setOpen(false);
+      let filterUpdate=(userInfo.filterUpdate?"":" ");
+      let userInfoObj={...userInfo,filterUpdate};
+      dynamicData.mutations.setUserInfoData(userInfoObj);
     },
     onError(error: any) {
 
