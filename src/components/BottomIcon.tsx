@@ -46,7 +46,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
 
     const onDeleteHandler = () => {
         let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid).join();
-        if (window.confirm('Are you sure to delete the selected multiple images ?')) {
+        if (window.confirm('Click OK to confirm you want to deleted the selected image(s).')) {
             let data = {
                   guids,
                   "librarySessionId":userInfo.librarySessionId,
@@ -56,6 +56,12 @@ const BottomIcon: React.FC = (): JSX.Element => {
             deleteImageFn(data);
           }
 
+    }  
+
+    const onDownloadHandler = () => {
+        let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid).join();
+        let locationPath = 'https://'+userInfo.domain +'/myaccount/mydownloads.aspx?guids='+guids;
+        window.location.href = locationPath;
     }  
     
     console.log('fileLocation',fileLocation)
@@ -87,7 +93,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
                         <>
                             {
                             fileLocation.selected==='inventory' && 
-                                <button type="button" className="max-md:ml-4 inline-flex flex-col items-center ml-20 justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+                                <button  onClick={onDownloadHandler}  type="button" className="max-md:ml-4 inline-flex flex-col items-center ml-20 justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
                                     <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 19">
                                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 15h.01M4 12H2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-3M9.5 1v10.93m4-3.93-4 4-4-4" />
                                     </svg>
