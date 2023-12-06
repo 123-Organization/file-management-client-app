@@ -144,6 +144,13 @@ const HeaderIcon: React.FC = (): JSX.Element => {
         console.log('userInfo.domain',userInfo.domain)
     },[userInfo.domain]);
 
+ 
+
+    useEffect(() => {
+        console.log('referrer.filterCount',referrer.filterCount)
+        referrer.filterCount==0  && setOpenUpload(true)
+    },[referrer.filterCount]);
+
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */
