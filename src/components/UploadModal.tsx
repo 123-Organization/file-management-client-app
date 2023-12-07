@@ -36,6 +36,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
   const [imageListModal, setImageListModal] = React.useState<boolean>(false);
   const [imageListEvent, setImageListEvent] = React.useState<boolean>(false);
+  const [imageListEventLoad, setImageListEventLoad] = React.useState<boolean>(false);
   const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
 
 
@@ -156,9 +157,11 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
           type: 'success',
           content: 'File has been uploaded',
         });
+        setImageListEventLoad(true)
         setTimeout(() => {
           setUploadImageModal([],false)
           setOpen(false)
+          setImageListEventLoad(false) 
           console.log(`uploader.completeResponse `,uploaders);
           // window.location.reload();
           let filterUpdate=(userInfo.filterUpdate?"":" ");
@@ -327,7 +330,11 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       width={'70%'}
                       footer={[
                         // images?.length>=1 &&
-                        <Button key="submit" className='py-2 bg-orange-500' size={'large'} type="primary" loading={loading} onClick={() => {
+                        imageListEventLoad 
+                        ? <Button className='border-none mr-20'>
+                            <Spin className='' tip="Uploading..." ><></></Spin>
+                          </Button>
+                        : <Button key="submit" className='py-2 bg-orange-500' size={'large'} type="primary" loading={loading} onClick={() => {
                           onImageRemoveAllHandler();
                           handleOk();
                           onImageRemoveAll();
