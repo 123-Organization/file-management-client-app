@@ -61,7 +61,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const onDownloadHandler = () => {
         let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid).join();
         let locationPath = 'https://'+userInfo.domain +'/myaccount/mydownloads.aspx?guids='+guids;
-        window.location.href = locationPath;
+        window.parent.location.href = locationPath;
     }  
     
     console.log('fileLocation',fileLocation)
