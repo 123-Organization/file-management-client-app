@@ -17,6 +17,10 @@ const root = ReactDOM.createRoot(
 
 window.addEventListener("message", function(event) {
   console.log("received index.js : ", event.data );
+  var receivedData = JSON.parse(event.data);
+  setTimeout(() => {
+    window.postMessage(receivedData,"*")
+   }, 1000);
 });
 
 
