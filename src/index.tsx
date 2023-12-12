@@ -14,6 +14,12 @@ const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+window.addEventListener("message", function(event) {
+  console.log("received index.js : ", event.data );
+});
+
+
 root.render(
   <React.StrictMode>
     <Provider store={store}>
