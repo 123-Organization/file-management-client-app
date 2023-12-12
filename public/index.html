@@ -27,16 +27,19 @@
     <title>Finer works - File management app</title>
     <script>
       // Add an event listener to listen for messages
-          window.addEventListener('message', function (event) {
-              console.log('Received message from origin :', event.origin);
-          // Check the origin to ensure it's trusted
-          //if (event.origin === 'https://finerworks.com') {
-          //  Parse the received JSON string
-          var receivedData = JSON.parse(event.data);
-          //Use the data as needed
-          console.log('received', receivedData);
+          // window.addEventListener('message', function (event) {
+          //     console.log('Received message from origin :', event.origin);
+          // // Check the origin to ensure it's trusted
+          // //if (event.origin === 'https://finerworks.com') {
+          // //  Parse the received JSON string
+          // var receivedData = JSON.parse(event.data);
+          // //Use the data as needed
+          // console.log('received', receivedData);
+          // setTimeout(() => {
+          //  window.postMessage(receivedData,"*")
+          // }, 1000);
           // }
-      });
+      // });
   </script>
     <script>
       function GetIFrameUrl()
