@@ -55,7 +55,10 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
   };
   const date = new Date(imgData.date_added)
   const datetime = date.toLocaleString('en-US',options) 
-
+  form.setFieldsValue({
+    title: imgData.title,
+    description: imgData.description
+  })
   const filesize = formatFileSize(imgData.file_size)
   const handleOk = async() => {
       setLoading(true);
@@ -120,7 +123,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
         <section className="text-gray-600 body-font">
           {contextHolder}
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
-            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0 border rounded-lg shadow-lg   border-gray-100">
+            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 mr-6 md:mb-0 border rounded-lg shadow-lg   border-gray-100">
               {
               !loading &&
               <img className="object-cover object-center rounded" alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
@@ -147,14 +150,14 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
                   {/* <input type="text" id="name" value={'Lorem ipsum'} name="name" className="w-full text-gray-400 bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" /> */}
                   <Form.Item 
                        name="title"
-                       initialValue={imgData.title}
+                       
                        
                        rules={[
                             { required: true, message: 'Title is required!' },
                       ]}
                        noStyle={true}
                   >
-                    <Input maxLength={50}  />
+                    <Input  maxLength={50}  />
                   </Form.Item>
                 </div>
                 <div className="relative mb-4">
@@ -162,7 +165,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
                   {/* <textarea id="description" maxLength={1000} value={'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum eos nisi numquam ipsum fugit necessitatibus amet quisquam, quos dicta obcaecati architecto consequuntur iusto odit atque eligendi esse! Numquam, perferendis omnis?'} name="description" className="w-full text-gray-400 bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 h-64 text-base outline-none  py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"></textarea> */}
                   <Form.Item 
                       name="description"
-                      initialValue={imgData.description}
+                      
                       className="w-full"
                       noStyle={true}
                       >
