@@ -14,6 +14,29 @@ const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+let firstLoad = true;
+
+function handleMessage(event:any){
+  console.log("received 1index.js : ", event.data,firstLoad );
+  if (firstLoad) {
+    setTimeout(() => {
+      console.log("post message rec ", event.data );
+      window.postMessage(event.data,"*")
+     }, 1000);
+  }
+  firstLoad=false;
+}
+
+if(firstLoad){
+  //add it
+  window.addEventListener('message',handleMessage);
+  //remove it
+  setTimeout(() => {
+    window.removeEventListener('message',handleMessage);
+  }, 500);
+}
+
 root.render(
   <React.StrictMode>
     <Provider store={store}>

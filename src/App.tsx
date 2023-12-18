@@ -21,6 +21,7 @@ interface ISettings {
   terms_of_service_url: string
   button_text: string
   account_id: string
+  libraryName?: string
 
 }
 
@@ -59,7 +60,14 @@ const App: React.FC = () => {
         terms_of_service_url: settings['terms_of_service_url']?settings['terms_of_service_url']:"/terms.aspx",
         button_text: settings['button_text']?settings['button_text']:"Create Print",
         account_id: settings['account_id']?settings['account_id']:0,
+        libraryName: settings['libraries'].length===1
+          ? settings['libraries'][0] 
+          : ( settings['libraries'].length===2 
+             ? userInfo.libraryName
+             :""
+             ),
       }
+      localStorage.setItem('libraryAccountKey', updateUserInfo.libraryAccountKey);
       console.log('updateUserInfo...',updateUserInfo);
       let userInfoObj = {...userInfo,...updateUserInfo};
   

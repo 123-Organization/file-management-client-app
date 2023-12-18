@@ -9,6 +9,11 @@ const api = axios.create({
   withCredentials: false,
 })
 
+api.interceptors.request.use((config) => {
+  config.params = config.params || {};
+  config.params['libraryAccountKey'] = localStorage.getItem('libraryAccountKey');
+  return config;
+});
 
 // original source: https://github.com/pilovm/multithreaded-uploader/blob/master/frontend/uploader.js
 export class Uploader {
