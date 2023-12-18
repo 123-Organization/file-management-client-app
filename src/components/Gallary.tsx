@@ -241,6 +241,7 @@ const Gallary: React.FC = (): JSX.Element => {
           } else if(userInfo.libraryOptions.length===2){
             libraryName=userInfo.libraryName;
           }
+          localStorage.setItem('libraryAccountKey', userInfo.libraryAccountKey);
           const fileLocationObj= {selected:libraryName}
           dynamicData.mutations.setFileLocationData(fileLocationObj);
           return {...userInfo,...{filterPageNumber,libraryName}};

@@ -19,6 +19,12 @@ export const refreshAccessTokenFn = async () => {
   return response.data;
 };
 
+authApi.interceptors.request.use((config) => {
+  config.params = config.params || {};
+  config.params['libraryAccountKey'] = localStorage.getItem('libraryAccountKey');
+  return config;
+});
+
 authApi.interceptors.response.use(
   (response) => {
     return response;
