@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react'
-
+import React, { Dispatch, SetStateAction, useEffect, useLayoutEffect, useState } from 'react'
 import Uppy from '@uppy/core';
 import AwsS3 from '@uppy/aws-s3';
 import { Dashboard } from '@uppy/react';
@@ -35,13 +34,13 @@ interface UppyUploadProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-  
+let elementDevice = document.querySelector('.uppy-DashboardManual');   
 const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     
   const dynamicData: any = useDynamicData();
   const { userInfo } = dynamicData.state;
   const [messageApi, contextHolder] = message.useMessage();
-  
+  const [openUpload, setOpenUpload] = useState(false);
 
   const {
     mutate: fileUploadPostDataFn,
@@ -161,11 +160,14 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     }
     
 
-    
-      const addArtzip = () => {
+    // let elementDevice:any = document.getElementsByClassName('uppy-DashboardManual')[0];  
+    const addArtzip = () => {
+      
       const element1 = document.querySelector('.uppy-Dashboard-AddFiles-list');
       if(element1){
-   
+        
+        // if(!elementDevice) 
+        //   elementDevice = document.getElementsByClassName('uppy-DashboardManual')[0];   
         const fragment = document.createDocumentFragment();
         
         const params:any = { "metadata[name]": userInfo.libraryName, "metadata[session_id]": userInfo.librarySessionId, "metadata[account_key]": userInfo.libraryAccountKey,"metadata[site_id]": userInfo.librarySiteId };
@@ -200,9 +202,12 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
         // div1.innerHTML = ArtzipIcon; 
           // .append(div2)
         button.appendChild(div2)  
+       
         div2.textContent = "Artzip";
+        // let elementDevice:any = document.getElementsByClassName('uppy-DashboardManual')[0];        
                 //@ts-ignore
-                element1?.appendChild(fragment);
+                element1?.appendChild(fragment)
+
       }
     }
 
@@ -213,6 +218,26 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
         //@ts-ignore
         element.parentNode.removeChild(element);
       }
+    }
+
+    const addManualUpload = () => {
+      
+      if(!elementDevice) elementDevice = document.querySelector('.uppy-DashboardManual');
+
+      console.log('elementDevice get',elementDevice)
+
+      const element1 = document.querySelector('.uppy-Dashboard-AddFiles-list');
+      if(element1 && elementDevice) {
+
+        window.setTimeout(() => {
+          console.log('elementDevice',elementDevice)
+          
+          elementDevice && element1?.prepend(elementDevice)        
+                 
+       }, 10);
+      }
+      
+
     }
     //if(artZipDownload===true){
       // const url =   .getPlugin('Url')
@@ -258,9 +283,11 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
       removeUppy()
       if(userInfo.account_id > 0)
        addArtzip()
-      
     });
 
+    useLayoutEffect(() => {
+      addManualUpload()
+    });
 
 
 
@@ -270,14 +297,7 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
         !isLoadingImgUpload 
         ?<>
             <> { contextHolder}</>
-            <div className="uppy-DashboardTab hidden" id="artzipIcon" role="presentation" data-uppy-acquirer-id="Artzip">
-              <button type="button" className="uppy-u-reset uppy-c-btn uppy-DashboardTab-btn" role="tab" data-uppy-super-focusable="true">
-              <div className="uppy-DashboardTab-inner">
-                <img className="mx-2" src="${ArtzipIcon}"  width="30px" height="35px" />
-              </div>
-              <div className="uppy-DashboardTab-name">Artzip</div>
-              </button>
-            </div>
+            
             <Dashboard onChange={() => {
                 removeUppy();
                 removeArtzip();
