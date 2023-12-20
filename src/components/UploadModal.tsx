@@ -12,18 +12,18 @@ import {
 import { useDynamicData } from '../context/DynamicDataProvider';
 import { flushSync } from 'react-dom';
 import { Uploader } from '../helpers/fileUploader';
-import { makeUniqueFileName } from '../helpers/fileHelper';
-import { useQueryClient } from '@tanstack/react-query';
+import { makeUniqueFileName, osName } from '../helpers/fileHelper';
 import UppyUploadBox from './UppyUploadBox';
 
 const { Title, Text } = Typography;
+let OsName = osName();
 
 interface UploadModalProps {
-  openModel: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  openModel?: boolean;
+  setOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
-const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
+const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) => {
 
   const maxNumber = 8;
   const maxFileSize = 1024 * 1024 * 500 * 20; //40 MB
@@ -31,7 +31,6 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
   const [images, setImages] = React.useState([]);
   const [uploaders, setUploaders] = React.useState<object[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
-  const queryClient = useQueryClient()
 
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
   const [imageListModal, setImageListModal] = React.useState<boolean>(false);
@@ -253,7 +252,7 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
       className='min-w-[350px]'
     >
       <div className='max-lg:flex1 '>
-      <div className="p-8 max-lg:flex max-lg:flex-col  items-center  bg-white">
+      <div className="p-8 max-lg:flex max-lg:flex-col uppy-Manual items-center  bg-white">
         { 
           !componentDisabled
           ? <>
@@ -261,16 +260,15 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
               <Spin tip="Please check below terms to proceed..." ><></></Spin>
             </div>
           </>
-          :<div className="w-full disabled  relative lg:grid grid-cols-1 lg:grid-cols-3 lg:border rounded-lg">
+          :<div className="w-full disabled  relative lg:grid grid-cols-1 lg:grid-cols-31 lg:border rounded-lg">
             <div
-              className="first-flex-div lg:rounded-l-lg p-4 sm:py-64 flex flex-col justify-center items-center border-0 max-lg:border-b lg:border-r border-gray-300 ">
-              <Title level={4} className="text-gray-300" disabled >My Computer / Device</Title>
+              className="first-flex-div lg:rounded-l-lg p-4 flex flex-col justify-center items-center border-0  border-gray-300 ">
               {uploadErrors && <div className='text-red-500 font-medium'>
-                {uploadErrors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}<br /></span>}
-                {uploadErrors.acceptType && <span>Your selected file type is not allow<br /></span>}
-                {uploadErrors.maxFileSize && <span>Selected file size exceed maxFileSize ({humanFileSize(maxFileSize)})<br /></span>}
-                {uploadErrors.resolution && <span>Selected file is not match your desired resolution<br /></span>}
-              </div>
+                  {uploadErrors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}<br /></span>}
+                  {uploadErrors.acceptType && <span>Your selected file type is not allow<br /></span>}
+                  {uploadErrors.maxFileSize && <span>Selected file size exceed maxFileSize ({humanFileSize(maxFileSize)})<br /></span>}
+                  {uploadErrors.resolution && <span>Selected file is not match your desired resolution<br /></span>}
+                </div>
               }
               {/* <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
               shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
@@ -305,16 +303,8 @@ const UploadModal = ({ openModel, setOpen }: UploadModalProps) => {
                       style={isDragging ? { color: 'red' } : undefined}
                       onClick={onImageUpload}
                       {...dragProps}
-                      className="cursor-pointer hover:opacity-80 inline-flex items-center 
-                shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
-                rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
-              focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
-
-                        <button
-
-                        >
-                          Select Images
-                        </button>
+                      className="" htmlFor="uploadImage">
+                        <UppyUpload/>
                       </label>
                       &nbsp;
 
@@ -454,6 +444,26 @@ function humanFileSize(bytes: number, si = false, dp = 1) {
 
 
   return bytes.toFixed(dp) + ' ' + units[u];
+}
+
+const UppyUpload = () => {
+  let deviceName = "Computer";
+  if(OsName==='windows'){
+    deviceName = "PC";
+  }else if(OsName==='apple'){
+    deviceName = "MAC";
+  }
+  
+  return <div className="uppy-DashboardTab uppy-DashboardManual " id="artzipIcon" role="presentation" data-uppy-acquirer-id="Artzip">
+    <button type="button" className="uppy-u-reset uppy-c-btn uppy-DashboardTab-btn" role="tab" data-uppy-super-focusable="true">
+    <div className="uppy-DashboardTab-inner">
+      <svg className="uppy-DashboardTab-iconMyDevice" aria-hidden="true" focusable="false" width="32" height="32" viewBox="0 0 32 32"><path d="M8.45 22.087l-1.305-6.674h17.678l-1.572 6.674H8.45zm4.975-12.412l1.083 1.765a.823.823 0 00.715.386h7.951V13.5H8.587V9.675h4.838zM26.043 13.5h-1.195v-2.598c0-.463-.336-.75-.798-.75h-8.356l-1.082-1.766A.823.823 0 0013.897 8H7.728c-.462 0-.815.256-.815.718V13.5h-.956a.97.97 0 00-.746.37.972.972 0 00-.19.81l1.724 8.565c.095.44.484.755.933.755H24c.44 0 .824-.3.929-.727l2.043-8.568a.972.972 0 00-.176-.825.967.967 0 00-.753-.38z" fill="currentcolor" fill-rule="evenodd"></path></svg>
+    </div>
+    <div className="uppy-DashboardTab-name pr-6">My {
+      deviceName
+    } / Device</div>
+    </button>
+  </div>
 }
 
 export default UploadModal
