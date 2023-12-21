@@ -108,7 +108,8 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     .on('file-added', (file) =>{
       console.log(file);
       uppy.setFileMeta(file.id, {
-        fileLibrary : userInfo.libraryName
+        fileLibrary : userInfo.libraryName,
+        libraryAccountKey : userInfo.libraryAccountKey
       })
     })
     .on("complete", (result) => {
