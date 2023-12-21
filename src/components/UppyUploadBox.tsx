@@ -283,13 +283,11 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
       removeUppy()
       if(userInfo.account_id > 0)
        addArtzip()
-    });
 
-    useLayoutEffect(() => {
       addManualUpload()
     });
 
-
+    
 
   return (
     <div className="xxl:flex justify-end items-center pt-6">
