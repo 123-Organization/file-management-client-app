@@ -18,9 +18,7 @@ import ArtzipIcon from "../assets/provider/icon_artzip_32.svg"
 import Url from '@uppy/url';
 
 const SERVER_BASE_URL = config.COMPANION_BASE_URL;
-//  const SERVER_BASE_URL = 'http://localhost:5000';
 
-// const SERVER_BASE_URL = 'http://13.50.227.147:5000';
 const getTimeStamp = () => {
   return Date.now()
 }
@@ -86,8 +84,20 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     restrictions:{
       maxFileSize: (1024*1024*500*20),
       maxNumberOfFiles: 20,
-      allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.tiff','.zip','.psd','.svg']
-    } })
+      allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.tiff','.zip','.psd','.svg'],
+      
+    },
+    onBeforeFileAdded: (currentFile, files) => {
+      console.log('currentFile',currentFile)
+      if (currentFile.name.length > config.MAX_CHARACTER_FILENAME ) {
+        // log to console
+        uppy.log(`Skipping file because it has longer name`);
+        // show error message to the user
+        uppy.info(`Skipping file because it has longer name`, 'error', 500);
+        return false;
+      } 
+    }
+  })
     .use(AwsS3, {
       shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
       companionUrl: `${SERVER_BASE_URL}`,
@@ -107,6 +117,10 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     })
     .on('file-added', (file) =>{
       console.log(file);
+      // if(file.name.length > 10 ){
+      //   uppy.info(`Skipping file because it has no type`, 'error', 500);
+      //   return false;
+      // }
       uppy.setFileMeta(file.id, {
         fileLibrary : userInfo.libraryName,
         libraryAccountKey : userInfo.libraryAccountKey
