@@ -15,6 +15,8 @@ import { Uploader } from '../helpers/fileUploader';
 import { makeUniqueFileName, osName } from '../helpers/fileHelper';
 import UppyUploadBox from './UppyUploadBox';
 
+import config  from "../config/configs";
+
 const { Title, Text } = Typography;
 let OsName = osName();
 
@@ -79,7 +81,25 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   }
 
   const onChange = async(imageList: any, addUpdateIndex: any) => {
-    
+
+    imageList = imageList.filter((img:any, i:number) => {
+      
+      if(img.file.name.length > 35) {
+        console.log('file error',img)
+        setTimeout(() => {
+          
+          messageApi.open({
+            type: 'error',
+            content: 'File having issue while upload due to long file name',
+          });
+
+        }, 1000);
+        return false;
+      }
+      return true;
+
+    })
+    if(!imageList.length) return false;
     if(!imagesProgress.length){
       
       setImagesProgress([...new Array(maxNumber)].fill(0,0,(imageList.length)));
@@ -98,6 +118,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
 
   const uploadImage = async(file: any, addUpdateIndex: any) => {
 
+   
     if(imageListModal) { console.log('change event aborted') }
     if (file) {
       console.log(file);
