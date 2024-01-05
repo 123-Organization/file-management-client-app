@@ -293,7 +293,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                   {uploadErrors.resolution && <span>Selected file is not match your desired resolution<br /></span>}
                 </div>
               }
-              {flagLongFileName && <Alert message={contentFlagLongFileName} type="error" showIcon closable />} 
+              {flagLongFileName && <Alert message={contentFlagLongFileName} type="warning" showIcon closable />} 
               {/* <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
               shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
               rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
@@ -367,7 +367,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                         <button className='fw-sky-btn' onClick={onImageRemoveAll}>Remove all images</button>
                       </>
                       } */}
-                      {flagLongFileName && <Alert message={contentFlagLongFileName} type="error" showIcon closable />}
+                      {flagLongFileName && <Alert message={contentFlagLongFileName} type="warning" showIcon closable />}
                       <div className='grid grid-cols-1 lg:grid-cols-3  gap-8 p-8'>
                       {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
