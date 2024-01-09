@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Typography, Checkbox, Modal, Button, message, notification, Spin } from 'antd';
+import { Typography, Checkbox, Modal, Button, message, Alert, Spin } from 'antd';
 
 
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
@@ -15,6 +15,8 @@ import { Uploader } from '../helpers/fileUploader';
 import { makeUniqueFileName, osName } from '../helpers/fileHelper';
 import UppyUploadBox from './UppyUploadBox';
 
+import config  from "../config/configs";
+const contentFlagLongFileName:string = 'File name is too long. Please shorten the filename and try again.'
 const { Title, Text } = Typography;
 let OsName = osName();
 
@@ -43,6 +45,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   const { referrer, userInfo } = dynamicData.state;
 
   const [loading, setLoading] = useState(false);
+  const [flagLongFileName, setFlagLongFileName] = useState<boolean>(false);
   const [uploadErrors, setUploadErrors] = useState<any>(null);
   const handleOk = () => {
     setLoading(true);
@@ -80,6 +83,23 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
 
   const onChange = async(imageList: any, addUpdateIndex: any) => {
     
+    imageList = imageList.filter((img:any, i:number) => {
+      
+      if(img.file.name.length > config.MAX_CHARACTER_FILENAME) {
+        console.log('file error',img)
+        
+        if(!flagLongFileName) setFlagLongFileName(true);
+        return false;
+      }
+      return true;
+    })
+
+    if(flagLongFileName) {
+      setTimeout(() => {
+        setFlagLongFileName(false);
+      }, 10000);
+    }
+    if(!imageList.length) return false;
     if(!imagesProgress.length){
       
       setImagesProgress([...new Array(maxNumber)].fill(0,0,(imageList.length)));
@@ -94,10 +114,12 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     await Promise.allSettled(uploadPromises)
       .then((results) => results.forEach((result) => console.log(result.status)))
 
+     
   }
 
   const uploadImage = async(file: any, addUpdateIndex: any) => {
 
+   
     if(imageListModal) { console.log('change event aborted') }
     if (file) {
       console.log(file);
@@ -143,6 +165,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
 
     }
   }   
+
 
   useEffect(() => {
     console.log(`UseEffect Called:  ${images} ${imagesProgress}`,images);
@@ -270,6 +293,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                   {uploadErrors.resolution && <span>Selected file is not match your desired resolution<br /></span>}
                 </div>
               }
+              {flagLongFileName && <Alert message={contentFlagLongFileName} type="warning" showIcon closable />} 
               {/* <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
               shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
               rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
@@ -304,7 +328,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                       onClick={onImageUpload}
                       {...dragProps}
                       className="" htmlFor="uploadImage">
-                        <UppyUpload/>
+                        <UppyUpload />
                       </label>
                       &nbsp;
 
@@ -343,6 +367,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                         <button className='fw-sky-btn' onClick={onImageRemoveAll}>Remove all images</button>
                       </>
                       } */}
+                      {flagLongFileName && <Alert message={contentFlagLongFileName} type="warning" showIcon closable />}
                       <div className='grid grid-cols-1 lg:grid-cols-3  gap-8 p-8'>
                       {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => (
