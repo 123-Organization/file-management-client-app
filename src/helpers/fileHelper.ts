@@ -8,7 +8,12 @@ export function makeUniqueFileName(base:string) {
   while (random.length < 5) {
       random = "0" + random;
   }
-  return base[0].replace(/[^a-zA-Z ]/g, "") + now + random + basefileExt;
+  let fileName:string="";
+  while (fileName.length < ext.length) {
+    fileName = "" + ext[fileName.length];
+  }
+  
+  return base[0].replace(/[^a-zA-Z ]/g, "") + now + random +'__'+fileName+ basefileExt;
 }
 
 export function formatFileSize(bytes:number,decimalPoint?:number) {
