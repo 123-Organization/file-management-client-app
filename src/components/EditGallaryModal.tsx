@@ -133,7 +133,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
               <h2 className="text-gray-400 text-base leading-7 mb-1 font-semibold title-font">
                 {imgData.file_name} <br />
                 Added {datetime} CT.<br />
-                {imgData.pix_h} * {imgData.pix_w}px<br />
+                {imgData.pix_w} * {imgData.pix_h}px<br />
                 {filesize} <br />
               </h2>
               <Form
