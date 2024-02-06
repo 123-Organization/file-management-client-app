@@ -61,14 +61,13 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
   })
   const filesize = formatFileSize(imgData.file_size)
   const handleOk = async() => {
-      setLoading(true);
-      try {
+    try {
         const values = await form.validateFields();
         console.log('Success:', values);
         if(values?.title){
           await putImagesFn({...values,...{guid:imgData.guid,"libraryAccountKey":userInfo.libraryAccountKey,"librarySiteId":userInfo.librarySiteId}})
         }
-       
+        setLoading(true);
       } catch (errorInfo) {
         console.log('Failed:', errorInfo);
       }
