@@ -12,6 +12,8 @@ export function makeUniqueFileName(base:string) {
   while (fileName.length < ext.length) {
     fileName = "" + ext[fileName.length];
   }
+
+  
   return base[0].replace(/[^a-zA-Z ]/g, "") + now + random +'__'+fileName+ basefileExt;
 }
 
