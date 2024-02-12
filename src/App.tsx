@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import { Layout, theme } from 'antd';
 import Router from "./routes";
@@ -7,6 +7,7 @@ import { useLocation } from "react-router-dom";
 import HeaderIcon from './components/HeaderIcon';
 import BottomIcon from './components/BottomIcon';
 import { useDynamicData } from './context/DynamicDataProvider';
+import ReactGA from "react-ga4";
 
 const { Header, Footer, Content } = Layout;
 
@@ -35,6 +36,20 @@ const App: React.FC = () => {
     token: { colorBgContainer },
   } = theme.useToken();
 
+  const addScript = (gId:string) => {
+    // let script = document.createElement('script');
+    // script.src = `https://www.googletagmanager.com/gtag/js?id=${gId}`;
+    // document.getElementsByTagName('head')[0].appendChild(script);
+    console.log('gId',gId)
+    ReactGA.initialize(gId);
+    const eventName = "file_manager_app_loaded";
+    const eventParams = {
+      'loaded': 'true'
+    };
+    ReactGA.event(eventName, eventParams);
+  }
+
+  // addScript('G-HPJGR0WY9W');
   window.addEventListener("message", function(event) {
     // if (event.origin != '*') {
     //   // something from an unknown domain, let's ignore it
@@ -67,6 +82,7 @@ const App: React.FC = () => {
              :""
              ),
       }
+
       localStorage.setItem('libraryAccountKey', updateUserInfo.libraryAccountKey);
       console.log('updateUserInfo...',updateUserInfo);
       let userInfoObj = {...userInfo,...updateUserInfo};
@@ -84,6 +100,26 @@ const App: React.FC = () => {
   
     // can message back using event.source.postMessage(...)
   });
+
+  useEffect(() => {
+
+    if (userInfo?.domain) {
+      let gId = 'G-HPJGR0WY9W';
+      if (userInfo?.domain === 'ezcanvas.com') {
+        gId='G-3SK23H6SVW';
+      } else if (userInfo?.domain === 'geogalleries.com') {
+        gId='G-L5FVTJPL3J';
+      }
+      addScript(gId);  
+    } else{
+      addScript('G-HPJGR0WY9W');
+    }
+
+    // if (gtag !== 'undefined') {
+    //   gtag('event', 'file_manager_app_loaded', {'loaded': 'true'});
+    // }
+   
+  },[]);
 
   return (
     <Layout className="layout">
