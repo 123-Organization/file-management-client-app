@@ -4,6 +4,7 @@ import { Pagination } from 'antd';
 import { useDynamicData } from '../context/DynamicDataProvider';
 import { deleteImages } from '../api/gallaryApi';
 import { useMutation } from '@tanstack/react-query';
+import { sendEvent } from '../helpers/GA4Events';
 
 
 
@@ -20,6 +21,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
         isLoading:isLoadingImgDelete,
       } = useMutation((data: any) => deleteImages(data), {
         onSuccess(data) {
+          fileManagerAppFileDeletedEvent()
           messageApi.open({
             type: 'success',
             content: 'File has been deleted',
@@ -31,6 +33,14 @@ const BottomIcon: React.FC = (): JSX.Element => {
         },
         onError(error: any) {},
     });
+
+    const fileManagerAppFileDeletedEvent = () => {
+        const eventName = "file_manager_app_file_deleted";
+        const eventParams = {
+          'deleted': 'true'
+        };
+        sendEvent(userInfo.GAID,eventName,eventParams);
+    }
     
     const onChange: PaginationProps['onChange']|any = (filterPageNumber:number) => {
         console.log('Page: ', filterPageNumber);
