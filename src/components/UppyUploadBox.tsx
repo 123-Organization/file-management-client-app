@@ -16,6 +16,7 @@ import config  from "../config/configs";
 
 import ArtzipIcon from "../assets/provider/icon_artzip_32.svg"
 import Url from '@uppy/url';
+import { sendEvent } from '../helpers/GA4Events';
 
 const SERVER_BASE_URL = config.COMPANION_BASE_URL;
 
@@ -45,6 +46,7 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     isLoading:isLoadingImgUpload,
    } = useMutation((data: any) => postUppyImages(data), {
     onSuccess(data) {
+      fileManagerAppFileUploadedEvent();
       messageApi.open({
         type: 'success',
         content: 'File has been uploaded',
@@ -134,6 +136,7 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
       }
   
       if(result.successful.length){
+        
         console.log('result.successful',result.successful)
         let fileDetails = result.successful.map((file:any) => {
             let path = file.uploadURL.split('/');
@@ -158,6 +161,14 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     const gotoArtZip = () => {
       userDetailsDataFn({"account_key":"a737999f-bc07-43f4-8fab-affce461bcf1"})
       
+    }
+
+    const fileManagerAppFileUploadedEvent = () => {
+      const eventName = "file_manager_app_file_uploaded";
+      const eventParams = {
+        'upload_complete': 'true'
+      };
+      sendEvent(userInfo.GAID,eventName,eventParams);
     }
 
     const removeArtzip = () => {

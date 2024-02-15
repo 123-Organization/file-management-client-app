@@ -1,9 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Typography, Checkbox, Modal, Button, message, Alert, Spin } from 'antd';
-
-
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
-
 import tiffDefault from "../assets/images/tiff_default.png"
 
 import {
@@ -16,6 +13,7 @@ import { makeUniqueFileName, osName } from '../helpers/fileHelper';
 import UppyUploadBox from './UppyUploadBox';
 
 import config  from "../config/configs";
+import { sendEvent } from '../helpers/GA4Events';
 const contentFlagLongFileName:string = 'File name is too long. Please shorten the filename and try again.'
 const { Title, Text } = Typography;
 let OsName = osName();
@@ -179,6 +177,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
           type: 'success',
           content: 'File has been uploaded',
         });
+        fileManagerAppFileUploadedEvent();
         setImageListEventLoad(true)
         setTimeout(() => {
           setUploadImageModal([],false)
@@ -204,6 +203,14 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     setUploadErrors(errors);
     // setImageListModal(true)
   };
+
+  const fileManagerAppFileUploadedEvent = () => {
+    const eventName = "file_manager_app_file_uploaded";
+    const eventParams = {
+      'upload_complete': 'true'
+    };
+    sendEvent(userInfo.GAID,eventName,eventParams);
+  }
 
   const onImageRemoveAllHandler = async() => {
 

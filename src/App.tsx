@@ -8,6 +8,7 @@ import HeaderIcon from './components/HeaderIcon';
 import BottomIcon from './components/BottomIcon';
 import { useDynamicData } from './context/DynamicDataProvider';
 import ReactGA from "react-ga4";
+import { sendEvent } from './helpers/GA4Events';
 
 const { Header, Footer, Content } = Layout;
 
@@ -36,17 +37,12 @@ const App: React.FC = () => {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  const addScript = (gId:string) => {
-    // let script = document.createElement('script');
-    // script.src = `https://www.googletagmanager.com/gtag/js?id=${gId}`;
-    // document.getElementsByTagName('head')[0].appendChild(script);
-    console.log('gId',gId)
-    ReactGA.initialize(gId);
+  const fileManagerAppLoadedEvent = () => {
     const eventName = "file_manager_app_loaded";
     const eventParams = {
       'loaded': 'true'
     };
-    ReactGA.event(eventName, eventParams);
+    sendEvent(userInfo.GAID,eventName,eventParams)
   }
 
   // addScript('G-HPJGR0WY9W');
@@ -65,8 +61,19 @@ const App: React.FC = () => {
     }
 
     if(settings && settings['libraries']){
+      let domain = settings['domain']?settings['domain']:"finerworks.com";
+      let GAID = 'G-HPJGR0WY9W';
+      if (domain) {
+        if (domain === 'ezcanvas.com') {
+          GAID='G-3SK23H6SVW';
+        } else if (domain === 'geogalleries.com') {
+          GAID='G-L5FVTJPL3J';
+        }
+      }
+      
       let updateUserInfo = {
         libraryOptions:settings['libraries'],
+        GAID,
         multiselectOptions:!!(settings['multiselect']),
         librarySessionId:settings['session_id'],
         libraryAccountKey:settings['account_key'],
@@ -82,6 +89,8 @@ const App: React.FC = () => {
              :""
              ),
       }
+
+      
 
       localStorage.setItem('libraryAccountKey', updateUserInfo.libraryAccountKey);
       console.log('updateUserInfo...',updateUserInfo);
@@ -103,17 +112,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
 
-    if (userInfo?.domain) {
-      let gId = 'G-HPJGR0WY9W';
-      if (userInfo?.domain === 'ezcanvas.com') {
-        gId='G-3SK23H6SVW';
-      } else if (userInfo?.domain === 'geogalleries.com') {
-        gId='G-L5FVTJPL3J';
-      }
-      addScript(gId);  
-    } else{
-      addScript('G-HPJGR0WY9W');
-    }
+    fileManagerAppLoadedEvent()
 
     // if (gtag !== 'undefined') {
     //   gtag('event', 'file_manager_app_loaded', {'loaded': 'true'});
