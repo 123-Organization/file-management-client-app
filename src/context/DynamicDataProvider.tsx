@@ -29,6 +29,7 @@ interface IUserInfo {
   filterSortField:string
   filterSortDirection:string
   filterUpdate:string
+  GAID:string
   guidPreSelected:string
   libraryOptions: string[]
   multiselectOptions: boolean
@@ -61,6 +62,7 @@ const userInfo: IUserInfo = {
   "filterSortField": "id",
   "filterSortDirection": "DESC",
   "filterUpdate": "1",
+  "GAID": "",
   // "guidPreSelected": "ebc02edb-4ec0-44d7-87e1-fb8395182c36",
   "guidPreSelected": "",
   // "guidPreSelected": "12d2523f-9e9c-49ee-944e-598b3bce0815",
