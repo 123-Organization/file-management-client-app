@@ -9,7 +9,7 @@ import {
 import { useDynamicData } from '../context/DynamicDataProvider';
 import { flushSync } from 'react-dom';
 import { Uploader } from '../helpers/fileUploader';
-import { makeUniqueFileName, osName } from '../helpers/fileHelper';
+import { makeUniqueFileName, osName, sumTo } from '../helpers/fileHelper';
 import UppyUploadBox from './UppyUploadBox';
 
 import config  from "../config/configs";
@@ -28,6 +28,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   const maxNumber = 8;
   const maxFileSize = 1024 * 1024 * 500 * 20; //40 MB
 
+  const [successImagesList, setSuccessImagesList] = React.useState<string[]>([]);
   const [images, setImages] = React.useState([]);
   const [uploaders, setUploaders] = React.useState<object[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
@@ -37,7 +38,6 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   const [imageListEvent, setImageListEvent] = React.useState<boolean>(false);
   const [imageListEventLoad, setImageListEventLoad] = React.useState<boolean>(false);
   const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
-
 
   const dynamicData: any = useDynamicData();
   const { referrer, userInfo } = dynamicData.state;
@@ -110,10 +110,16 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     const uploadPromises = imageList.map((img, i) => uploadImage(img?.file,i));
 
     await Promise.allSettled(uploadPromises)
-      .then((results) => results.forEach((result) => console.log(result.status)))
+      .then((results) => {
+          results.forEach((result) => console.log('result.status',result.status))
+
+          console.log('All settled result.status')  
+        } 
+      )
 
      
   }
+  
 
   const uploadImage = async(file: any, addUpdateIndex: any) => {
 
@@ -157,13 +163,43 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
             type: 'error',
             content: 'File having issue while upload',
           });
+          setSuccessImagesList(prevList => [...prevList, videoUploaderOptions.fileName]);
         })
+        .onSuccess(({ response: newResponse}: any) => {
+          setSuccessImagesList(prevList => [...prevList, newResponse.data.result.guid]);
+          // to avoid the same percentage to be logged twice
+          console.log("Check on success function response", newResponse);
+        })
+
 
       return await uploader.start()
 
     }
   }   
 
+
+  useEffect(()=>{
+
+    console.log(` handleRedirection `);
+    if(images.length===successImagesList.length && successImagesList.length > 0){
+      setTimeout(() => {
+        setUploadImageModal([],false)
+        setOpen(false)  
+        setImageListEventLoad(false) 
+        messageApi.open({
+          type: 'success',
+          content: 'File has been uploaded',
+        });
+        setSuccessImagesList([])
+        console.log(`uploader.completeResponse `,uploaders);
+        // window.location.reload();
+        let filterUpdate=(userInfo.filterUpdate?"":" ");
+        let userInfoObj={...userInfo,filterUpdate};
+        dynamicData.mutations.setUserInfoData(userInfoObj);
+      },1000);
+    }
+
+  },[successImagesList])
 
   useEffect(() => {
     console.log(`UseEffect Called:  ${images} ${imagesProgress}`,images);
@@ -172,23 +208,12 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
       console.log('totalProcess',totalProcess)
       let totalImagesProgress = (imagesProgress.filter(imagesProgress => Number(imagesProgress)).length*100)
       console.log('totalImagesProgress',totalImagesProgress)
+      
       if(totalProcess===totalImagesProgress){
-        messageApi.open({
-          type: 'success',
-          content: 'File has been uploaded',
-        });
+       
         fileManagerAppFileUploadedEvent();
         setImageListEventLoad(true)
-        setTimeout(() => {
-          setUploadImageModal([],false)
-          setOpen(false)
-          setImageListEventLoad(false) 
-          console.log(`uploader.completeResponse `,uploaders);
-          // window.location.reload();
-          let filterUpdate=(userInfo.filterUpdate?"":" ");
-          let userInfoObj={...userInfo,filterUpdate};
-          dynamicData.mutations.setUserInfoData(userInfoObj);
-        },10000);
+
       }
     } else {
       setTimeout(() => {

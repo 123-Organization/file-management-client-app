@@ -36,6 +36,7 @@ export class Uploader {
   fileKey: null | string
   onProgressFn: (err: any) => void
   onErrorFn: (err: any) => void
+  onSuccessFn: (err: any) => void
   constructor(options: any) {
     // this must be bigger than or equal to 5MB,
     // otherwise AWS will respond with:
@@ -60,6 +61,7 @@ export class Uploader {
     this.fileKey = null
     this.onProgressFn = () => {}
     this.onErrorFn = () => {}
+    this.onSuccessFn = () => {}
   }
 
  
@@ -217,6 +219,9 @@ export class Uploader {
       })
 
       this.completeResponse[this.basecampProjectID] = res;
+      this.onSuccessFn({
+        response: res
+      })
     }
   }
 
@@ -327,6 +332,11 @@ export class Uploader {
     })
   }
 
+  onSuccess(onSuccess: any) {
+    this.onSuccessFn = onSuccess
+    return this
+  }
+  
   onProgress(onProgress: any) {
     this.onProgressFn = onProgress
     return this
