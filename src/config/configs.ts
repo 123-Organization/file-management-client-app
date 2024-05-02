@@ -1,6 +1,6 @@
 const prod = {
   ENVIRONMENT : "PROD",
-  SERVER_BASE_URL : "https://prod1-api.finerworks.com/api/",
+  SERVER_BASE_URL : "https://prod3-api.finerworks.com/api/",
   COMPANION_BASE_URL : "https://prod-companion-app-filemanagement.finerworks.com",
 }
 
