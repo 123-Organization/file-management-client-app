@@ -198,7 +198,7 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
         
         const params:any = { "metadata[name]": userInfo.libraryName, "metadata[session_id]": userInfo.librarySessionId, "metadata[account_key]": userInfo.libraryAccountKey,"metadata[site_id]": userInfo.librarySiteId };
         const queryString = new URLSearchParams(params).toString();
-        const baseurl = 'https://app.artzip.com/referrals/fine_dummy?' + queryString;
+        const baseurl = 'https://app.artzip.com/referrals/finerworks?' + queryString;
 
         const div = document.createElement("div")
         div.setAttribute("class","uppy-DashboardTab")
