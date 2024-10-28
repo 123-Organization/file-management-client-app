@@ -10,3 +10,4 @@ module.exports = {
     'smg': '300px',
   },
 };
+
