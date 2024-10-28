@@ -70,7 +70,7 @@
         //GetIFrameUrl()
       }, 5000);
 
-      var message = {
+      var message1 = {
                         "settings": {
                             // Optional. When included it pre-selects the images by first calling the List File Selection
                             // endpoint: https://api.finerworks.com/Help/Api/GET-v3-list_file_selection_guid
@@ -87,6 +87,27 @@
                         }
                     };
 
+      var message = {
+          "settings": {
+              // Optional. When included it pre-selects the images by first calling the List File Selection
+              // endpoint: https://api.finerworks.com/Help/Api/GET-v3-list_file_selection_guid
+              "guid": null,
+              // This will allow FinerWorks to pass the session_id associated with calls to the FinerWorks API.
+              "session_id": "xo3o3nrbj1tna0un1tftzwbv",
+              // This will allow FinerWorks to pass the account_key associated with calls to the FinerWorks API.
+              "account_key": "81de5dba-0300-4988-a1cb-df97dfa4e372",
+              // If included AND set it to 'false', the user can only select a single thumbnail.
+              "multiselect": false,
+              // List any libraries to make available to the user (array of comma-separated values).
+              // If only listing one, then the option to switch libraries in the UI should be hidden / unavailable.
+              "libraries": ["inventory"],
+              "domain":"finerworks.com",
+              "terms_of_service_url":"/terms.aspx",
+              "button_text":"Next >",
+              "account_id":1556
+          }
+      };
+              
       function iframeDidLoad() {
 
         var frm = document.getElementById("frmExternal");
@@ -102,6 +123,7 @@
     onclick1="GetIFrameUrl()"
     ></div>
     <div id="containerId"></div>
+    <div id="manualUploadId" style="display: none;"></div>
 
     <!--
       This HTML file is a template.

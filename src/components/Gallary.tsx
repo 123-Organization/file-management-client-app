@@ -6,6 +6,8 @@ import { useMutation } from '@tanstack/react-query';
 import { deleteImages, getGUID, getImages } from '../api/gallaryApi';
 import { Typography } from 'antd';
 import { removeDuplicates } from '../helpers/fileHelper';
+import { useCookies } from 'react-cookie';
+import { Session } from 'inspector';
 
 
 /**
@@ -30,6 +32,8 @@ interface ImageType {
  */
 
 const Gallary: React.FC = (): JSX.Element => {
+  const [cookies] = useCookies(['AccountGUID', "Session"]);
+  console.log('cookies',cookies?.AccountGUID)
 
     const [open, setOpen] = useState(false);
     const [imgData, setImgData] = useState({});
@@ -254,11 +258,13 @@ const Gallary: React.FC = (): JSX.Element => {
         await getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
       }
 
+      
+
       useEffect(() => {
         const locationIsDifferent = (window.location !== window.parent.location);
         console.log('locationIsDifferent',locationIsDifferent)
-        const diffentUser = (userInfo.librarySessionId!=='81de5dba-0300-4988-a1cb-df97dfa4e3721' && locationIsDifferent)
-        const defalutUser = (userInfo.librarySessionId==='81de5dba-0300-4988-a1cb-df97dfa4e3721' && !locationIsDifferent)
+        const diffentUser = (userInfo.librarySessionId!== cookies.AccountGUID && locationIsDifferent)
+        const defalutUser = (userInfo.librarySessionId=== cookies.Session && !locationIsDifferent)
           if(defalutUser || diffentUser){
             getImagesData()
           }
