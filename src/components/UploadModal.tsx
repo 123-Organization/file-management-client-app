@@ -25,7 +25,7 @@ interface UploadModalProps {
 
 const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) => {
 
-  const maxNumber = 8;
+  const maxNumber = 25;
   const maxFileSize = 1024 * 1024 * 500 * 20; //40 MB
 
   const [successImagesList, setSuccessImagesList] = React.useState<string[]>([]);
