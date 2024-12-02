@@ -19,7 +19,7 @@ const config = isProd ? prod : dev;
 
 export default {
   // Add common config values here
-  MAX_CHARACTER_FILENAME: 30,
+  MAX_CHARACTER_FILENAME: 100,
   MAX_ATTACHMENT_SIZE: 5000000,
   ...config
 };
