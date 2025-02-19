@@ -54,8 +54,8 @@ const fileLocation: IFileLocation = {
 
 const userInfo: IUserInfo = {
   "libraryName": "temporary",
-  "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e372",
-  "libraryAccountKey": "81de5dba-0300-4988-a1cb-df97dfa4e372",
+  "librarySessionId": "",
+  "libraryAccountKey": "",
   "librarySiteId": "2",
   "filterSearchFilter": "",
   "filterPageNumber": "1",
@@ -85,16 +85,35 @@ const initialState = {
 
 
 
+
+
 export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = ({ children }) => {
   const [cookies] = useCookies(['Session', 'AccountGUID']);
-  console.log('cookies',cookies)
+  
+  
 
-  if(cookies['Session'] || cookies['AccountGUID'] ){
-    userInfo.librarySessionId = cookies['Session'];
-    userInfo.libraryAccountKey = cookies['AccountGUID'];
-  }
-  // init state
-  const [state, setState] = useState(initialState);
+  const [state, setState] = useState(() => {
+    return {
+      referrer,
+      fileLocation,
+      userInfo: {
+        ...userInfo,
+        librarySessionId: cookies['Session'] || userInfo.librarySessionId,
+        libraryAccountKey: cookies['AccountGUID'] || userInfo.libraryAccountKey,
+      }
+    };
+  });
+
+  useEffect(() => {
+    setState((prevState) => ({
+      ...prevState,
+      userInfo: {
+        ...prevState.userInfo,
+        librarySessionId: cookies['Session'] || prevState.userInfo.librarySessionId,
+        libraryAccountKey: cookies['AccountGUID'] || prevState.userInfo.libraryAccountKey,
+      },
+    }));
+  }, [cookies]);
 
   // define getters
   const getters = {

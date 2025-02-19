@@ -17,9 +17,11 @@ const isProd = prodDomain.includes(document.domain);
 
 const config = isProd ? prod : dev;
 
-export default {
+const configObject = {
   // Add common config values here
   MAX_CHARACTER_FILENAME: 100,
   MAX_ATTACHMENT_SIZE: 5000000,
   ...config
 };
+
+export default configObject;
