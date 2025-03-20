@@ -197,6 +197,12 @@ const Gallary: React.FC = (): JSX.Element => {
         //@ts-ignore
         const referrerObj = {...referrer,...{hasSelected,fileSelected}}
         console.log('referrer',referrer)
+        //post window event 
+        if (window.parent) {
+          window.parent.postMessage({ type: 'REFERRER_UPDATE', data: referrerObj }, '*');
+      }
+        
+                         
         console.log('referrerObj',referrerObj)
 
         let isUpdated = (
