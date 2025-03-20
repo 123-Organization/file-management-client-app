@@ -199,7 +199,7 @@ const Gallary: React.FC = (): JSX.Element => {
         console.log('referrer',referrer)
         //post window event 
        
-          window.postMessage({ type: 'REFERRER_UPDATE', data: referrerObj }, '*');
+          window.parent.postMessage({ type: 'REFERRER_UPDATE', data: referrerObj }, '*');
       
         
                          
