@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useState } from 'react'
+import React, { CSSProperties, useEffect, useState, useRef } from 'react'
 import EditGallaryModal from './EditGallaryModal';
 import { useDynamicData } from "../context/DynamicDataProvider";
 import { Empty, message, Skeleton, Space, Spin } from 'antd';
@@ -42,6 +42,8 @@ const Gallary: React.FC = (): JSX.Element => {
     const [messageApi, contextHolder] = message.useMessage();
     const dynamicData: any = useDynamicData();
     const { referrer, userInfo } = dynamicData.state;
+    const [isRequestInProgress, setIsRequestInProgress] = useState(false);
+    const pendingLibraryRef = useRef<string | null>(null);
 
     const {
         mutate: deleteImageFn,
@@ -85,9 +87,32 @@ const Gallary: React.FC = (): JSX.Element => {
           
           console.log('get all images referrer',referrerObj)
           isUpdated && dynamicData.mutations.setReferrerData(referrerObj);
-          // QueryClient.setQueryData('allImages', newArticle);
+          
+          // Mark request as complete
+          setIsRequestInProgress(false);
+          
+          // Check if there's a pending library request
+          if (pendingLibraryRef.current !== null) {
+            console.log('Processing pending library request for:', pendingLibraryRef.current);
+            const pendingLibrary = pendingLibraryRef.current;
+            pendingLibraryRef.current = null;
+            // Call getImagesData with the pending library
+            fetchImagesForLibrary(pendingLibrary);
+          }
         },
-        onError(error: any) {},
+        onError(error: any) {
+          // Mark request as complete even if error occurs
+          setIsRequestInProgress(false);
+          
+          // Process any pending requests
+          if (pendingLibraryRef.current !== null) {
+            console.log('Processing pending library request after error:', pendingLibraryRef.current);
+            const pendingLibrary = pendingLibraryRef.current;
+            pendingLibraryRef.current = null;
+            // Call getImagesData with the pending library
+            fetchImagesForLibrary(pendingLibrary);
+          }
+        },
     });
 
     const {
@@ -230,40 +255,65 @@ const Gallary: React.FC = (): JSX.Element => {
           );
           
           if(referrerImagesChange.length){
-            
-            let finalArray:any[] = [...referrerImages,...referrerImagesChange] || [];
-            if(finalArray && finalArray.length){
-
+            let finalArray:any[] = [...referrerImages,...referrerImagesChange];
+            if(finalArray.length){
               let unique = [...removeDuplicates(finalArray)];
               setReferrerImages(unique);
             }
-
           }
-
         }  
-
       };
 
-      const getAllImageParams = (filterPageNumber:string="1") => {
-          let libraryName="";
-          if(userInfo.libraryOptions.length===1){
-            libraryName=userInfo.libraryOptions[0];
-          } else if(userInfo.libraryOptions.length===2){
-            libraryName=userInfo.libraryName;
+      const getAllImageParams = (filterPageNumber:string="1", libraryNameOverride:string | null = null) => {
+          let libraryName = libraryNameOverride || "";
+          if(!libraryName) {
+            if(userInfo.libraryOptions.length===1){
+              libraryName=userInfo.libraryOptions[0];
+            } else if(userInfo.libraryOptions.length===2){
+              libraryName=userInfo.libraryName;
+            }
           }
+          
           localStorage.setItem('libraryAccountKey', userInfo.libraryAccountKey);
           const fileLocationObj= {selected:libraryName}
           dynamicData.mutations.setFileLocationData(fileLocationObj);
+          
           return {...userInfo,...{filterPageNumber,libraryName}};
       }
-    
-      const getImagesData = async () => {
-        if(userInfo.guidPreSelected && !referrerImages.length)
-          await getImagesGUIDFn({"guid":userInfo.guidPreSelected})
-
-        await getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+      
+      const fetchImagesForLibrary = (libraryName: string) => {
+        // Mark request as in progress
+        setIsRequestInProgress(true);
+        
+        // Get images for the specified library
+        getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName));
       }
-
+    
+      const getImagesData = () => {
+        let libraryName = "";
+        if(userInfo.libraryOptions.length===1){
+          libraryName=userInfo.libraryOptions[0];
+        } else if(userInfo.libraryOptions.length===2){
+          libraryName=userInfo.libraryName;
+        }
+        
+        // Check if we already have a request in progress
+        if (isRequestInProgress) {
+          console.log('Request in progress, storing library for later:', libraryName);
+          // Store the library name for processing when current request completes
+          pendingLibraryRef.current = libraryName;
+          return;
+        }
+        
+        // If GUID pre-selected and no referrer images, fetch GUID first
+        if(userInfo.guidPreSelected && !referrerImages.length) {
+          getImagesGUIDFn({"guid":userInfo.guidPreSelected});
+        }
+        
+        // Fetch images for the library
+        fetchImagesForLibrary(libraryName);
+      }
+      
       
 
       useEffect(() => {
@@ -316,7 +366,7 @@ const Gallary: React.FC = (): JSX.Element => {
                     <Skeleton.Image style={IMAGE_STYLES} active />
                   </Space>
                 </div>
-              :images.length
+              :images.length 
                 ?
                    <>
                     {images.map(
