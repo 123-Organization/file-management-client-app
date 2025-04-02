@@ -335,13 +335,17 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
 
             }}
             disableLocalFiles={true}  
-            disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} locale={{
+            disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} 
+            locale={{
               strings: {
                 uploading: 'Importing images...',
                 uploadComplete: 'Import complete',
                 uploadFailed: 'Import failed',
                 uploadPaused: 'Import paused',
+                uploadXFiles: 'Import {x} files',
+                
               }
+               
             }}/>
            
         </>
