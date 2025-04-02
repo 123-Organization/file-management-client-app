@@ -342,7 +342,10 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
                 uploadComplete: 'Import complete',
                 uploadFailed: 'Import failed',
                 uploadPaused: 'Import paused',
-                uploadXFiles: `Import ${uppy.getFiles().length} files`,
+                uploadXFiles: {
+                  0: 'Import %{smart_count} file',
+                  1: 'Import %{smart_count} files'
+                }
                 
               }
                
