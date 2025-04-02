@@ -342,7 +342,7 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
                 uploadComplete: 'Import complete',
                 uploadFailed: 'Import failed',
                 uploadPaused: 'Import paused',
-                uploadXFiles: 'Import {x} files',
+                uploadXFiles: `Import ${uppy.getFiles().length} files`,
                 
               }
                
