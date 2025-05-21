@@ -76,7 +76,7 @@ const treeData: DataNode[] = [
   return (
     <div className='realtive'>
       <div className='flex '>
-        <div className={`${userInfo.libraryOptions.length ? 'w-10/12':'w-full'} max-xl:w-9/12  max-md:w-full  max-md:mt-40`}>
+        <div className={`${userInfo.libraryOptions.length ? 'w-10/12':'w-full'} max-xl:w-9/12  max-md:w-full mt-40 bg-slate-200`}>
           <Gallary />
         </div>
         {
