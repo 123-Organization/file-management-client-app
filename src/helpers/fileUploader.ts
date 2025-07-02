@@ -41,7 +41,7 @@ export class Uploader {
     // this must be bigger than or equal to 5MB,
     // otherwise AWS will respond with:
     // "Your proposed upload is smaller than the minimum allowed size"
-    this.chunkSize = options.chunkSize || 1024 * 1024 * 10 // 5 MB
+    this.chunkSize = options.chunkSize || 1024 * 1024 * 30 // 20 MB
     // number of parallel uploads
     this.threadsQuantity = Math.min(options.threadsQuantity || 20, 30)
     this.file = options.file
@@ -319,6 +319,7 @@ export class Uploader {
           this.aborted = true
           reject(error)
           delete this.activeConnections[part.PartNumber - 1]
+          console.log('xhr.onerror', error);
         }
 
         xhr.onabort = () => {
