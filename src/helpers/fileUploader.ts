@@ -41,7 +41,7 @@ export class Uploader {
     // this must be bigger than or equal to 5MB,
     // otherwise AWS will respond with:
     // "Your proposed upload is smaller than the minimum allowed size"
-    this.chunkSize = options.chunkSize || 1024 * 1024 * 30 // 20 MB
+    this.chunkSize = options.chunkSize || 1024 * 1024 * 100 // 100 MB
     // number of parallel uploads
     this.threadsQuantity = Math.min(options.threadsQuantity || 20, 30)
     this.file = options.file
@@ -197,15 +197,17 @@ export class Uploader {
   async sendCompleteRequest() {
     this.uploadedParts.sort((a, b) => parseFloat(a.PartNumber) - parseFloat(b.PartNumber));
     if (this.fileId && this.fileKey) {
-      const videoFinalizationMultiPartInput = {"params": {
-        uploadId: this.fileId,
-        Key: this.fileKey,
-        parts: this.uploadedParts,
-        fileName: this.fileName,
-        userInfo: this.userInfo,
-        fileSize:this.file.size,
-        fileLibrary:this.fileLibrary
-      }}
+      const videoFinalizationMultiPartInput = {
+        "params": {
+          uploadId: this.fileId,
+          Key: this.fileKey,
+          parts: this.uploadedParts,
+          fileName: this.fileName,
+          userInfo: this.userInfo,
+          fileSize: this.file.size,
+          fileLibrary: this.fileLibrary
+        }
+      }
       
       if (this.aborted) {
         console.log('sendCompleteRequest aborted', videoFinalizationMultiPartInput)
@@ -219,8 +221,16 @@ export class Uploader {
       })
 
       this.completeResponse[this.basecampProjectID] = res;
+      
+      // Update the userInfo to trigger a gallery refresh
+      const currentUserInfo = this.userInfo as any;
+      if (currentUserInfo && typeof currentUserInfo === 'object') {
+        currentUserInfo.filterUpdate = Date.now().toString();
+      }
+
       this.onSuccessFn({
-        response: res
+        response: res,
+        userInfo: currentUserInfo
       })
     }
   }

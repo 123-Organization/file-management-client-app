@@ -36,7 +36,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   const [imagesProgress, setImagesProgress] = React.useState<number[]>([]);
   const [imageListModal, setImageListModal] = React.useState<boolean>(false);
   const [imageListEvent, setImageListEvent] = React.useState<boolean>(false);
-  const [imageListEventLoad, setImageListEventLoad] = React.useState<boolean>(false);
+  const [imageListEventLoad, setImageListEventLoad] = useState<boolean>(false);
   const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
 
   const dynamicData: any = useDynamicData();
@@ -155,20 +155,26 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
           } 
         })
         .onError((error: any) => {
-          //setFile(undefined)
-          // imagesProgress[addUpdateIndex] = 100;
-          // flushImagesProgress(imagesProgress);
-          console.error('error file upload',error)
+          console.error('error file upload', error)
+          let errorMessage = 'File upload failed';
+          if (error?.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          } else if (error?.message) {
+            errorMessage = error.message;
+          }
           messageApi.open({
             type: 'error',
-            content: 'File having issue while upload',
+            content: errorMessage,
+            duration: 5
           });
-          setSuccessImagesList(prevList => [...prevList, videoUploaderOptions.fileName]);
+          // Don't add to successImagesList since it failed
+          // setSuccessImagesList(prevList => [...prevList, videoUploaderOptions.fileName]);
         })
-        .onSuccess(({ response: newResponse}: any) => {
-          setSuccessImagesList(prevList => [...prevList, newResponse.data.result.guid]);
-          // to avoid the same percentage to be logged twice
+        .onSuccess(({ response: newResponse, userInfo: updatedUserInfo }: any) => {
           console.log("Check on success function response", newResponse);
+          if (newResponse?.data?.result?.guid) {
+            setSuccessImagesList(prevList => [...prevList, newResponse.data.result.guid]);
+          }
         })
 
 
@@ -181,25 +187,33 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   useEffect(()=>{
 
     console.log(` handleRedirection `);
-    if(images.length===successImagesList.length && successImagesList.length > 0){
-      setTimeout(() => {
-        setUploadImageModal([],false)
-        setOpen(false)  
-        setImageListEventLoad(false) 
+    if(images.length === successImagesList.length && successImagesList.length > 0){
+      // Add a delay to allow for thumbnail generation
+      setTimeout(async () => {
+        setUploadImageModal([],false);
+        setOpen(false);
+        setImageListEventLoad(false);
+        
+        // First delay for thumbnail generation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Update filterUpdate with timestamp to trigger refresh
+        let filterUpdate = Date.now().toString();
+        let userInfoObj = {...userInfo, filterUpdate};
+        await dynamicData.mutations.setUserInfoData(userInfoObj);
+        
+        // Second delay to ensure the gallery picks up the change
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         messageApi.open({
           type: 'success',
           content: 'File has been uploaded',
         });
-        setSuccessImagesList([])
-        console.log(`uploader.completeResponse `,uploaders);
-        // window.location.reload();
-        let filterUpdate=(userInfo.filterUpdate?"":" ");
-        let userInfoObj={...userInfo,filterUpdate};
-        dynamicData.mutations.setUserInfoData(userInfoObj);
-      },1000);
+        setSuccessImagesList([]);
+      }, 1000);
     }
 
-  },[successImagesList])
+  },[successImagesList]);
 
   useEffect(() => {
     console.log(`UseEffect Called:  ${images} ${imagesProgress}`,images);
@@ -293,6 +307,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
 
   };
 
+  console.log('bebe',images)
   
   return (
     <Modal

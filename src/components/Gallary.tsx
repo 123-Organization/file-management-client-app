@@ -24,8 +24,9 @@ interface ImageType {
   public_thumbnail_uri?: string;
   guid?: string;
   public_preview_uri?: string;
-  isSelected?: false;
-  title?:string;
+  isSelected?: boolean;
+  title?: string;
+  file_size?: number;
 }
 /**
  * ****************************************************************** Function Components *******************************************************
@@ -38,12 +39,84 @@ const Gallary: React.FC = (): JSX.Element => {
     const [open, setOpen] = useState(false);
     const [imgData, setImgData] = useState({});
     const [referrerImages, setReferrerImages] = useState<Array<String|undefined>>([]);
-    const [images, setImages] = useState<Array<ImageType>>([]);
+    const [images, setImages] = useState<ImageType[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
     const dynamicData: any = useDynamicData();
     const { referrer, userInfo } = dynamicData.state;
     const [isRequestInProgress, setIsRequestInProgress] = useState(false);
     const pendingLibraryRef = useRef<string | null>(null);
+    const [retryCount, setRetryCount] = useState<{[key: string]: number}>({});
+    const retryTimeoutRef = useRef<{[key: string]: NodeJS.Timeout}>({});
+    const [failedImages, setFailedImages] = useState<{[key: string]: boolean}>({});
+    const imageRetryTimeouts = useRef<{[key: string]: NodeJS.Timeout}>({});
+    const [recentUpload, setRecentUpload] = useState<string | null>(null);
+    const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const pollAttemptsRef = useRef<number>(0);
+    const lastUserInfoRef = useRef<any>(null);
+    const [loadingThumbnails, setLoadingThumbnails] = useState<{[key: string]: boolean}>({});
+    const retryTimeoutsRef = useRef<{[key: string]: NodeJS.Timeout}>({});
+    const retryCountRef = useRef<{[key: string]: number}>({});
+    const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50MB
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 2000; // 2 seconds
+
+  // Function to check and load thumbnail
+  const checkAndLoadThumbnail = async (image: ImageType) => {
+    if (!image.guid || !image.public_thumbnail_uri) return;
+
+    const isLargeFile = (image.file_size || 0) > LARGE_FILE_THRESHOLD;
+    
+    if (isLargeFile) {
+      setLoadingThumbnails(prev => ({ ...prev, [image.guid!]: true }));
+      retryCountRef.current[image.guid!] = 0;
+      await retryLoadThumbnail(image);
+    }
+  };
+
+  // Function to retry loading thumbnail
+  const retryLoadThumbnail = async (image: ImageType) => {
+    if (!image.guid || !image.public_thumbnail_uri) return;
+
+    const guid = image.guid;
+    const retryCount = retryCountRef.current[guid] || 0;
+
+    if (retryCount >= MAX_RETRIES) {
+      setLoadingThumbnails(prev => ({ ...prev, [guid]: false }));
+      return;
+    }
+
+    // Clear any existing timeout
+    if (retryTimeoutsRef.current[guid]) {
+      clearTimeout(retryTimeoutsRef.current[guid]);
+    }
+
+    // Try to load the image
+    const img = new Image();
+    img.onload = () => {
+      setLoadingThumbnails(prev => ({ ...prev, [guid]: false }));
+      // Force a re-render of the image
+      setImages(prev => prev.map(img => 
+        img.guid === guid 
+          ? { ...img, public_thumbnail_uri: `${image.public_thumbnail_uri}?t=${Date.now()}` }
+          : img
+      ));
+    };
+    img.onerror = () => {
+      retryCountRef.current[guid] = retryCount + 1;
+      // Set timeout for next retry
+      retryTimeoutsRef.current[guid] = setTimeout(() => {
+        retryLoadThumbnail(image);
+      }, RETRY_DELAY);
+    };
+    img.src = `${image.public_thumbnail_uri}?t=${Date.now()}`;
+  };
+
+  // Cleanup function
+  useEffect(() => {
+    return () => {
+      Object.values(retryTimeoutsRef.current).forEach(timeout => clearTimeout(timeout));
+    };
+  }, []);
 
     const {
         mutate: deleteImageFn,
@@ -69,7 +142,7 @@ const Gallary: React.FC = (): JSX.Element => {
         onSuccess(data:any) {
           console.log('getAll images',data.data.images);
           console.log('referrerImages',referrerImages);
-          const imgs = data.data.images.map((image:any) =>
+          const imgs = data.data.images.map((image: ImageType) =>
             (referrerImages?.length && referrerImages.includes(image.guid))
             ? { ...image, isSelected: true } : image
           );
@@ -90,6 +163,17 @@ const Gallary: React.FC = (): JSX.Element => {
           
           // Mark request as complete
           setIsRequestInProgress(false);
+          
+          // Check if we found our recently uploaded image and it has a thumbnail
+          if (recentUpload) {
+            const uploadedImage = imgs.find((img: ImageType) => img.guid === recentUpload);
+            if (uploadedImage && uploadedImage.public_thumbnail_uri) {
+              setRecentUpload(null); // Stop polling once we find the image with thumbnail
+              if (pollTimeoutRef.current) {
+                clearTimeout(pollTimeoutRef.current);
+              }
+            }
+          }
           
           // Check if there's a pending library request
           if (pendingLibraryRef.current !== null) {
@@ -314,7 +398,37 @@ const Gallary: React.FC = (): JSX.Element => {
         fetchImagesForLibrary(libraryName);
       }
       
-      
+      const retryLoadImage = (imageGuid: string, imageUrl: string) => {
+        // Create a new image object to test loading
+        const img = new Image();
+        img.onload = () => {
+          setFailedImages(prev => ({...prev, [imageGuid]: false}));
+        };
+        img.onerror = () => {
+          setFailedImages(prev => ({...prev, [imageGuid]: true}));
+        };
+        img.src = `${imageUrl}?retry=${Date.now()}`; // Add cache-busting parameter
+      };
+
+      useEffect(() => {
+        // Cleanup timeouts
+        return () => {
+          Object.values(retryTimeoutRef.current).forEach(timeout => clearTimeout(timeout));
+          Object.values(imageRetryTimeouts.current).forEach(timeout => clearTimeout(timeout));
+        };
+      }, []);
+
+      const handleImageError = (imageGuid: string, imageUrl: string) => {
+        // Clear any existing timeout for this image
+        if (imageRetryTimeouts.current[imageGuid]) {
+          clearTimeout(imageRetryTimeouts.current[imageGuid]);
+        }
+
+        // Set a timeout to retry loading the image
+        imageRetryTimeouts.current[imageGuid] = setTimeout(() => {
+          retryLoadImage(imageGuid, imageUrl);
+        }, 2000);
+      };
 
       useEffect(() => {
         const locationIsDifferent = (window.location !== window.parent.location);
@@ -334,6 +448,61 @@ const Gallary: React.FC = (): JSX.Element => {
         // }
       },[referrer.fileSelected]);
 
+      const startPollingForNewUpload = (uploadedGuid: string) => {
+        setRecentUpload(uploadedGuid);
+        pollAttemptsRef.current = 0;
+        const maxAttempts = 5;
+
+        const pollForImage = () => {
+          if (pollAttemptsRef.current >= maxAttempts) {
+            setRecentUpload(null);
+            return;
+          }
+
+          getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+          pollAttemptsRef.current++;
+
+          pollTimeoutRef.current = setTimeout(pollForImage, 2000);
+        };
+
+        // Start polling
+        pollForImage();
+      };
+
+      useEffect(() => {
+        return () => {
+          if (pollTimeoutRef.current) {
+            clearTimeout(pollTimeoutRef.current);
+          }
+        };
+      }, []);
+
+      useEffect(() => {
+        if (userInfo.guidPreSelected && !referrerImages.length) {
+          startPollingForNewUpload(userInfo.guidPreSelected);
+        }
+      }, [userInfo.guidPreSelected]);
+
+      // Function to check if we need to refresh based on userInfo changes
+      const checkForRefreshTrigger = (currentUserInfo: any) => {
+        if (!lastUserInfoRef.current) {
+          lastUserInfoRef.current = currentUserInfo;
+          return;
+        }
+
+        // Check if filterUpdate has changed, indicating a new upload
+        if (currentUserInfo.filterUpdate !== lastUserInfoRef.current.filterUpdate) {
+          console.log('Detected new upload, refreshing gallery...');
+          getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+        }
+
+        lastUserInfoRef.current = currentUserInfo;
+      };
+
+      // Watch for userInfo changes that indicate new uploads
+      useEffect(() => {
+        checkForRefreshTrigger(userInfo);
+      }, [userInfo]);
 
 
 /**
@@ -374,8 +543,23 @@ const Gallary: React.FC = (): JSX.Element => {
                             <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected || (referrerImages?.length && referrerImages.includes(image.guid)) ?'isSelectedImg':''}`} >
                                 <div onClick={()=> handleSelect(i)}  className='min-h-[300px] flex justify-center items-center'>
                                   <div>
+                                  
 
-                                  <img className={`m-2 min-h-[200px] cursor-pointer  max-w-[200px]   object-contain    `} src={image.public_thumbnail_uri} alt="" />
+                                  {loadingThumbnails[image.guid!] ? (
+                    <div className="m-2 min-h-[200px] w-[200px] flex items-center justify-center bg-gray-100">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto mb-2"></div>
+                        <span className="text-sm text-gray-500">Loading thumbnail...</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <img 
+                                    className={`m-2 min-h-[200px] cursor-pointer max-w-[200px] object-contain`}
+                                    src={image.public_thumbnail_uri} 
+                                    alt={image.title || ''}
+                                    onError={() => checkAndLoadThumbnail(image)}
+                                  />
+                                  )}
                                   </div>
                                 </div>                      
                                 <div className='flex relative w-full justify-center pb-2'>
