@@ -67,7 +67,8 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   const setUploadImageModal = (imageList: any, modal: boolean) => {
     flushSync(() => {
       setImages(imageList);
-      setImageListModal(modal)
+      setImageListModal(modal) 
+      
     });  
   }
 
@@ -209,10 +210,13 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
           type: 'success',
           content: 'File has been uploaded',
         });
+        setTimeout(()=>{ messageApi.open({
+          type: 'success',
+          content: 'Large files may take a few minutes to process',
+        });},2000)
         setSuccessImagesList([]);
       }, 1000);
     }
-
   },[successImagesList]);
 
   useEffect(() => {

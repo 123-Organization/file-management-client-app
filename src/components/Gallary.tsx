@@ -259,6 +259,17 @@ const Gallary: React.FC = (): JSX.Element => {
     
     const handleSelect = (index: number) => {
       console.log('referrerImages',referrerImages)
+      
+      // Check if thumbnail is still loading for the selected image
+      const selectedImage = images[index];
+      if (selectedImage && loadingThumbnails[selectedImage.guid!]) {
+        messageApi.open({
+          type: 'warning',
+          content: 'File not ready yet. Please wait while the thumbnail is being processed.',
+        });
+        return;
+      }
+      
         const nextImages = images.map((image, i) =>
           ( i === index 
             || (!userInfo.multiselectOptions && image.isSelected) 
@@ -549,7 +560,7 @@ const Gallary: React.FC = (): JSX.Element => {
                     <div className="m-2 min-h-[200px] w-[200px] flex items-center justify-center bg-gray-100">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto mb-2"></div>
-                        <span className="text-sm text-gray-500">Loading thumbnail...</span>
+                        <span className="text-sm text-gray-500">Preparing File...</span>
                       </div>
                     </div>
                   ) : (
@@ -573,10 +584,17 @@ const Gallary: React.FC = (): JSX.Element => {
                                     </div>
                                     <div>
                                     <svg onClick={() => {
+                                        // Check if thumbnail is still loading
+                                        if (loadingThumbnails[image.guid!]) {
+                                          messageApi.open({
+                                            type: 'warning',
+                                            content: 'File not ready yet. Please wait while the thumbnail is being processed.',
+                                          });
+                                          return;
+                                        }
+                                        
                                         setOpen(true)
                                         setImgData(image)
-
-                                        
                                     }}  className="absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-2 mr-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h2v5m-2 0h4M9.408 5.5h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                                     </svg>
