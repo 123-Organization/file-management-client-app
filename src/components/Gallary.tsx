@@ -264,8 +264,10 @@ const Gallary: React.FC = (): JSX.Element => {
       const selectedImage = images[index];
       if (selectedImage && loadingThumbnails[selectedImage.guid!]) {
         messageApi.open({
+          key: 'loading-notification', // Use key to prevent stacking
           type: 'warning',
-          content: 'File not ready yet. Please wait while the thumbnail is being processed.',
+          content: 'File is still being processed. Please wait until preparation is complete.',
+          duration: 3,
         });
         return;
       }
@@ -551,8 +553,8 @@ const Gallary: React.FC = (): JSX.Element => {
                    <>
                     {images.map(
                       (image, i) => (            
-                            <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected || (referrerImages?.length && referrerImages.includes(image.guid)) ?'isSelectedImg':''}`} >
-                                <div onClick={()=> handleSelect(i)}  className='min-h-[300px] flex justify-center items-center'>
+                            <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected || (referrerImages?.length && referrerImages.includes(image.guid)) ?'isSelectedImg':''} ${loadingThumbnails[image.guid!] ? 'opacity-60 cursor-not-allowed' : ''}`} >
+                                <div onClick={()=> handleSelect(i)}  className={`min-h-[300px] flex justify-center items-center ${loadingThumbnails[image.guid!] ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                                   <div>
                                   
 
@@ -574,7 +576,9 @@ const Gallary: React.FC = (): JSX.Element => {
                                   </div>
                                 </div>                      
                                 <div className='flex relative w-full justify-center pb-2'>
-                                    <div className='text-sm pt-2'>
+                                    <div className='text-sm pt-2 align-middle
+                                     text-center mr-2
+                                    '>
                                       <Text
                                         style={{ width: 100 } }
                                         ellipsis={{ tooltip: image.title } }
@@ -584,15 +588,6 @@ const Gallary: React.FC = (): JSX.Element => {
                                     </div>
                                     <div>
                                     <svg onClick={() => {
-                                        // Check if thumbnail is still loading
-                                        if (loadingThumbnails[image.guid!]) {
-                                          messageApi.open({
-                                            type: 'warning',
-                                            content: 'File not ready yet. Please wait while the thumbnail is being processed.',
-                                          });
-                                          return;
-                                        }
-                                        
                                         setOpen(true)
                                         setImgData(image)
                                     }}  className="absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-2 mr-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -603,7 +598,7 @@ const Gallary: React.FC = (): JSX.Element => {
                             </div>
                         )
                     )}
-                    <EditGallaryModal onDeleteHandler={onDeleteHandler} isSuccess={!isLoadingImgDelete} openModel={open} setOpen={setOpen} imgData={imgData} />
+                    <EditGallaryModal onDeleteHandler={onDeleteHandler} isSuccess={!isLoadingImgDelete} openModel={open} setOpen={setOpen} imgData={imgData} isImageLoading={(imgData as any)?.guid ? (loadingThumbnails[(imgData as any).guid] || false) : false} />
                    </>
               : <Empty />
             }

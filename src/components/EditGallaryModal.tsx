@@ -1,5 +1,5 @@
 import React, { useState, Dispatch, SetStateAction, FC  } from 'react'
-import { Button, Form, Input, message, Modal, Spin } from 'antd';
+import { Button, Form, Input, message, Modal, Spin, Alert } from 'antd';
 import { formatFileSize } from '../helpers/fileHelper';
 import { putImages } from '../api/gallaryApi';
 import { useMutation } from '@tanstack/react-query';
@@ -15,6 +15,7 @@ interface EditGallaryModalProps {
   imgData: any;
   onDeleteHandler: Function
   isSuccess: boolean;
+  isImageLoading: boolean;
 }
 
 const { TextArea } = Input;
@@ -22,7 +23,7 @@ const { TextArea } = Input;
  * ****************************************************************** Function Components *******************************************************
  */
 
-const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgData, onDeleteHandler, isSuccess} ) : JSX.Element => {
+const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgData, onDeleteHandler, isSuccess, isImageLoading} ) : JSX.Element => {
   
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -121,12 +122,29 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
       <div>
         <section className="text-gray-600 body-font">
           {contextHolder}
+          {isImageLoading && (
+            <Alert
+              message="File is being prepared"
+              description="The file thumbnail is still being processed. You can edit the file details normally, but the preview may not be fully available yet."
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
             <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 mr-6 md:mb-0 border rounded-lg shadow-lg   border-gray-100">
-              {
-              !loading &&
-              <img className="object-cover object-center rounded" alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
-              }
+              {!loading && (
+                isImageLoading ? (
+                  <div className="min-h-[300px] flex items-center justify-center bg-gray-100">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto mb-2"></div>
+                      <span className="text-sm text-gray-500">Preparing File Preview...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <img className="object-cover object-center rounded" alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
+                )
+              )}
             </div>
             <div className="lg:w-1/2 md:w-1/2 bg-white flex flex-col md:ml-auto w-full md:py-8 mt-8 md:mt-0">
               <h2 className="text-gray-400 text-base leading-7 mb-1 font-semibold title-font">
