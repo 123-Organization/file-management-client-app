@@ -55,12 +55,12 @@ const Upload: React.FC = (): JSX.Element => {
               </div>
             </div>
             <div className='flex flex-row h-full w-full items-center text-center '>
-              <div className='basis-2/4 flex flex-col'>
+              {/* <div className='basis-2/4 flex flex-col'>
                 <div className='pb-5'>
                   <img src={googleDriveImg} className="upload-logo inline cursor-pointer " alt="logo" />
                 </div>
                 <Text type="secondary" className='text-lg'>Google Drive</Text>
-              </div>
+              </div> */}
               <div className='basis-2/4 flex flex-col'>
                 <div className='pb-5'>
                   <img src={artzipImg} className="upload-logo inline cursor-pointer " alt="logo" />

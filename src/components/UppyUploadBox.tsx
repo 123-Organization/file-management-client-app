@@ -105,9 +105,6 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
       companionUrl: `${SERVER_BASE_URL}`,
       allowedMetaFields: []
     })
-    .use(GoogleDrive, {
-      companionUrl: `${SERVER_BASE_URL}`,
-    })
     .use(Dropbox, {
       companionUrl: `${SERVER_BASE_URL}`,
       companionAllowedHosts: ['dropbox.com','www.dropbox.com'],
