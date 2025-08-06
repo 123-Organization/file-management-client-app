@@ -361,21 +361,31 @@ const Gallary: React.FC = (): JSX.Element => {
         }  
       };
 
-      const getAllImageParams = (filterPageNumber:string="1", libraryNameOverride:string | null = null) => {
+      const getAllImageParams = (filterPageNumber:string="1", libraryNameOverride:string | null = null, filterPerPageOverride:string | null = null) => {
+          // Get fresh userInfo from context to avoid stale state
+          const currentUserInfo = dynamicData.state.userInfo;
+          
           let libraryName = libraryNameOverride || "";
           if(!libraryName) {
-            if(userInfo.libraryOptions.length===1){
-              libraryName=userInfo.libraryOptions[0];
-            } else if(userInfo.libraryOptions.length===2){
-              libraryName=userInfo.libraryName;
+            if(currentUserInfo.libraryOptions.length===1){
+              libraryName=currentUserInfo.libraryOptions[0];
+            } else if(currentUserInfo.libraryOptions.length===2){
+              libraryName=currentUserInfo.libraryName;
             }
           }
           
-          localStorage.setItem('libraryAccountKey', userInfo.libraryAccountKey);
+          localStorage.setItem('libraryAccountKey', currentUserInfo.libraryAccountKey);
           const fileLocationObj= {selected:libraryName}
           dynamicData.mutations.setFileLocationData(fileLocationObj);
           
-          return {...userInfo,...{filterPageNumber,libraryName}};
+          // Use override value if provided, otherwise use current state
+          const filterPerPage = filterPerPageOverride || currentUserInfo.filterPerPage;
+          const apiParams = {...currentUserInfo,...{filterPageNumber,libraryName,filterPerPage}};
+          console.log('🔧 API PARAMS - filterPerPage:', apiParams.filterPerPage);
+          console.log('🔧 currentUserInfo.filterPerPage:', currentUserInfo.filterPerPage);
+          console.log('🔧 filterPerPageOverride:', filterPerPageOverride);
+          
+          return apiParams;
       }
       
       const fetchImagesForLibrary = (libraryName: string) => {
@@ -385,6 +395,26 @@ const Gallary: React.FC = (): JSX.Element => {
         // Get images for the specified library
         getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName));
       }
+
+      const refreshWithNewFilterPerPage = (newFilterPerPage: string) => {
+        let libraryName = "";
+        if(userInfo.libraryOptions.length===1){
+          libraryName=userInfo.libraryOptions[0];
+        } else if(userInfo.libraryOptions.length===2){
+          libraryName=userInfo.libraryName;
+        }
+        
+        console.log('🚀 Direct refresh with new filterPerPage:', newFilterPerPage);
+        getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName, newFilterPerPage));
+      }
+
+      // Expose the refresh function globally so BottomIcon can call it
+      useEffect(() => {
+        (window as any).refreshGalleryWithNewFilterPerPage = refreshWithNewFilterPerPage;
+        return () => {
+          delete (window as any).refreshGalleryWithNewFilterPerPage;
+        };
+      }, [refreshWithNewFilterPerPage]);
     
       const getImagesData = () => {
         let libraryName = "";
@@ -516,6 +546,22 @@ const Gallary: React.FC = (): JSX.Element => {
       useEffect(() => {
         checkForRefreshTrigger(userInfo);
       }, [userInfo]);
+
+      // Watch for filter changes and refresh data accordingly
+      useEffect(() => {
+        console.log('🔄 Gallery detected filterPerPage change:', userInfo.filterPerPage);
+        
+        // Force immediate API call with current userInfo
+        let libraryName = "";
+        if(userInfo.libraryOptions.length===1){
+          libraryName=userInfo.libraryOptions[0];
+        } else if(userInfo.libraryOptions.length===2){
+          libraryName=userInfo.libraryName;
+        }
+        
+        console.log('🔄 Calling API immediately with filterPerPage:', userInfo.filterPerPage);
+        getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName));
+      }, [userInfo.filterPerPage, userInfo.filterSearchFilter, userInfo.filterSortField, userInfo.filterSortDirection]);
 
 
 /**

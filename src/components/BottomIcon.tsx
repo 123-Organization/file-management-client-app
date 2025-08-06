@@ -13,7 +13,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const { userInfo, referrer, fileLocation } = dynamicData.state;
     const [messageApi, contextHolder] = message.useMessage();
     const [current, setCurrent] = useState(1);
-    const [pageSize, setPageSize] = useState(12);
+    const [pageSize, setPageSize] = useState(parseInt(userInfo.filterPerPage) || 12);
 
     
     const {
@@ -83,9 +83,8 @@ const BottomIcon: React.FC = (): JSX.Element => {
       },[userInfo.filterPageNumber]);
 
       useEffect(() => {
-        console.log('userInfo.filterPerPage',userInfo.filterPerPage)
-        // onChange(userInfo.filterPageNumber);
-        // setPageNumber(userInfo.filterPageNumber)
+        console.log('📊 BottomIcon useEffect - userInfo.filterPerPage changed to:', userInfo.filterPerPage)
+        console.log('📊 Setting pageSize state to:', +userInfo.filterPerPage)
         setPageSize(+userInfo.filterPerPage)
       },[userInfo.filterPerPage]);
         
@@ -125,6 +124,18 @@ const BottomIcon: React.FC = (): JSX.Element => {
                         simple className=' mt-5 mr-3 ' 
                         // defaultCurrent={current}  
                         onChange={onChange}
+                        onShowSizeChange={(current, size) => {
+                            console.log('📏 PAGE SIZE CHANGED TO:', size);
+                            console.log('📏 Updating userInfo.filterPerPage...');
+                            const userInfoObj = {...userInfo, filterPerPage: size.toString()};
+                            dynamicData.mutations.setUserInfoData(userInfoObj);
+                            setPageSize(size);
+                            
+                            // Call gallery refresh directly with new value
+                            if ((window as any).refreshGalleryWithNewFilterPerPage) {
+                                (window as any).refreshGalleryWithNewFilterPerPage(size.toString());
+                            }
+                        }}
                         current={current} 
                         pageSize={pageSize} 
                         total={referrer.filterCount} 
