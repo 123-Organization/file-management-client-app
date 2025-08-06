@@ -122,6 +122,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
                 <div className='flex w-full justify-end'>
                     <Pagination 
                         simple className=' mt-5 mr-3 ' 
+                        showSizeChanger={true}
                         // defaultCurrent={current}  
                         onChange={onChange}
                         onShowSizeChange={(current, size) => {
