@@ -397,6 +397,8 @@ const Gallary: React.FC = (): JSX.Element => {
       }
 
       const refreshWithNewFilterPerPage = (newFilterPerPage: string) => {
+        console.log('🚀 Direct refresh with new filterPerPage:', newFilterPerPage);
+        // Force immediate refresh for external calls
         let libraryName = "";
         if(userInfo.libraryOptions.length===1){
           libraryName=userInfo.libraryOptions[0];
@@ -404,7 +406,7 @@ const Gallary: React.FC = (): JSX.Element => {
           libraryName=userInfo.libraryName;
         }
         
-        console.log('🚀 Direct refresh with new filterPerPage:', newFilterPerPage);
+        // Bypass debouncing for external refresh calls
         getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName, newFilterPerPage));
       }
 
@@ -417,28 +419,8 @@ const Gallary: React.FC = (): JSX.Element => {
       }, [refreshWithNewFilterPerPage]);
     
       const getImagesData = () => {
-        let libraryName = "";
-        if(userInfo.libraryOptions.length===1){
-          libraryName=userInfo.libraryOptions[0];
-        } else if(userInfo.libraryOptions.length===2){
-          libraryName=userInfo.libraryName;
-        }
-        
-        // Check if we already have a request in progress
-        if (isRequestInProgress) {
-          console.log('Request in progress, storing library for later:', libraryName);
-          // Store the library name for processing when current request completes
-          pendingLibraryRef.current = libraryName;
-          return;
-        }
-        
-        // If GUID pre-selected and no referrer images, fetch GUID first
-        if(userInfo.guidPreSelected && !referrerImages.length) {
-          getImagesGUIDFn({"guid":userInfo.guidPreSelected});
-        }
-        
-        // Fetch images for the library
-        fetchImagesForLibrary(libraryName);
+        console.log('🔧 getImagesData called - delegating to debounced API call');
+        debouncedApiCall('manual_call', 0);
       }
       
       const retryLoadImage = (imageGuid: string, imageUrl: string) => {
@@ -473,16 +455,57 @@ const Gallary: React.FC = (): JSX.Element => {
         }, 2000);
       };
 
-      useEffect(() => {
-        const locationIsDifferent = (window.location !== window.parent.location);
-        console.log('locationIsDifferent',locationIsDifferent)
-        const diffentUser = (userInfo.librarySessionId!== cookies.AccountGUID && locationIsDifferent)
-        const defalutUser = (userInfo.librarySessionId=== cookies.Session && !locationIsDifferent)
-          if(defalutUser || diffentUser){
-            getImagesData()
+      // API call management
+      const apiCallTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+      const hasMountedRef = useRef(false);
+      const lastApiCallParamsRef = useRef<string>('');
+      const lastLibraryNameRef = useRef<string>('');
+
+      // Debounced API call function to prevent multiple simultaneous calls
+      const debouncedApiCall = (reason: string, delay: number = 100, forceCall: boolean = false) => {
+        // Clear any existing timeout
+        if (apiCallTimeoutRef.current) {
+          clearTimeout(apiCallTimeoutRef.current);
+        }
+
+        // Set new timeout
+        apiCallTimeoutRef.current = setTimeout(() => {
+          console.log(`🚀 Making API call for reason: ${reason}`);
+          
+          let libraryName = "";
+          if(userInfo.libraryOptions.length === 1){
+            libraryName = userInfo.libraryOptions[0];
+          } else if(userInfo.libraryOptions.length === 2){
+            libraryName = userInfo.libraryName;
           }
-        // eslint-disable-next-line react-hooks/exhaustive-deps    
-      },[userInfo]);
+          
+          const apiParams = getAllImageParams(userInfo.filterPageNumber, libraryName);
+          const paramsString = JSON.stringify(apiParams);
+          
+          // Prevent duplicate calls with same parameters (unless forced)
+          if (!forceCall && paramsString === lastApiCallParamsRef.current && hasMountedRef.current) {
+            console.log('🚫 Skipping duplicate API call with same parameters');
+            return;
+          }
+          
+          lastApiCallParamsRef.current = paramsString;
+          
+          // Check if we already have a request in progress
+          if (isRequestInProgress) {
+            console.log('Request in progress, storing library for later:', libraryName);
+            pendingLibraryRef.current = libraryName;
+            return;
+          }
+
+          // If GUID pre-selected and no referrer images, fetch GUID first
+          if(userInfo.guidPreSelected && !referrerImages.length && reason === 'initial_load') {
+            getImagesGUIDFn({"guid":userInfo.guidPreSelected});
+          }
+          
+          // Make the API call
+          fetchImagesForLibrary(libraryName);
+        }, delay);
+      };
 
       useEffect(() => {
         // if(referrer.fileSelected.length && userInfo.guidPreSelected){
@@ -517,14 +540,11 @@ const Gallary: React.FC = (): JSX.Element => {
           if (pollTimeoutRef.current) {
             clearTimeout(pollTimeoutRef.current);
           }
+          if (apiCallTimeoutRef.current) {
+            clearTimeout(apiCallTimeoutRef.current);
+          }
         };
       }, []);
-
-      useEffect(() => {
-        if (userInfo.guidPreSelected && !referrerImages.length) {
-          startPollingForNewUpload(userInfo.guidPreSelected);
-        }
-      }, [userInfo.guidPreSelected]);
 
       // Function to check if we need to refresh based on userInfo changes
       const checkForRefreshTrigger = (currentUserInfo: any) => {
@@ -536,32 +556,89 @@ const Gallary: React.FC = (): JSX.Element => {
         // Check if filterUpdate has changed, indicating a new upload
         if (currentUserInfo.filterUpdate !== lastUserInfoRef.current.filterUpdate) {
           console.log('Detected new upload, refreshing gallery...');
-          getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+          debouncedApiCall('filter_update', 0); // Immediate for uploads
         }
 
         lastUserInfoRef.current = currentUserInfo;
       };
 
-      // Watch for userInfo changes that indicate new uploads
+      // Main effect to handle all API triggers
       useEffect(() => {
-        checkForRefreshTrigger(userInfo);
-      }, [userInfo]);
-
-      // Watch for filter changes and refresh data accordingly
-      useEffect(() => {
-        console.log('🔄 Gallery detected filterPerPage change:', userInfo.filterPerPage);
+        const locationIsDifferent = (window.location !== window.parent.location);
+        console.log('locationIsDifferent', locationIsDifferent);
+        const diffentUser = (userInfo.librarySessionId !== cookies.AccountGUID && locationIsDifferent);
+        const defalutUser = (userInfo.librarySessionId === cookies.Session && !locationIsDifferent);
         
-        // Force immediate API call with current userInfo
-        let libraryName = "";
-        if(userInfo.libraryOptions.length===1){
-          libraryName=userInfo.libraryOptions[0];
-        } else if(userInfo.libraryOptions.length===2){
-          libraryName=userInfo.libraryName;
+        // Initial load condition
+        if ((defalutUser || diffentUser) && !hasMountedRef.current) {
+          console.log('🎯 Initial load detected');
+          hasMountedRef.current = true;
+          
+          // Initialize library name ref
+          lastLibraryNameRef.current = userInfo.libraryName || '';
+          
+          debouncedApiCall('initial_load', 0); // Immediate for initial load
+          
+          // Handle guidPreSelected polling after initial load
+          if (userInfo.guidPreSelected && !referrerImages.length) {
+            setTimeout(() => startPollingForNewUpload(userInfo.guidPreSelected), 500);
+          }
+          
+          return;
         }
         
-        console.log('🔄 Calling API immediately with filterPerPage:', userInfo.filterPerPage);
-        getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName));
+        // Only check for subsequent changes after initial load
+        if (hasMountedRef.current) {
+          checkForRefreshTrigger(userInfo);
+        }
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps    
+      }, [userInfo, cookies.AccountGUID, cookies.Session]);
+
+      // Effect for filter changes
+      useEffect(() => {
+        // Don't trigger on initial mount
+        if (!hasMountedRef.current) {
+          return;
+        }
+        
+        console.log('🔄 Filter change detected');
+        debouncedApiCall('filter_change', 200); // Small delay for filter changes
+        
       }, [userInfo.filterPerPage, userInfo.filterSearchFilter, userInfo.filterSortField, userInfo.filterSortDirection]);
+
+      // Effect for guidPreSelected changes (only after initial load)
+      useEffect(() => {
+        // Don't trigger on initial mount
+        if (!hasMountedRef.current) {
+          return;
+        }
+        
+        if (userInfo.guidPreSelected && !referrerImages.length) {
+          console.log('🔄 guidPreSelected changed, starting polling');
+          startPollingForNewUpload(userInfo.guidPreSelected);
+        }
+      }, [userInfo.guidPreSelected]);
+
+      // Separate effect specifically for library name changes
+      useEffect(() => {
+        // Don't trigger on initial mount
+        if (!hasMountedRef.current) {
+          return;
+        }
+        
+        const currentLibraryName = userInfo.libraryName || '';
+        
+        // Check if library name actually changed
+        if (currentLibraryName !== lastLibraryNameRef.current) {
+          console.log('📚 Library switch detected:', lastLibraryNameRef.current, '→', currentLibraryName);
+          lastLibraryNameRef.current = currentLibraryName;
+          
+          // Force immediate API call for library switching (bypass duplicate detection)
+          debouncedApiCall('library_switch', 0, true);
+        }
+        
+      }, [userInfo.libraryName]);
 
 
 /**
