@@ -396,27 +396,7 @@ const Gallary: React.FC = (): JSX.Element => {
         getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName));
       }
 
-      const refreshWithNewFilterPerPage = (newFilterPerPage: string) => {
-        console.log('🚀 Direct refresh with new filterPerPage:', newFilterPerPage);
-        // Force immediate refresh for external calls
-        let libraryName = "";
-        if(userInfo.libraryOptions.length===1){
-          libraryName=userInfo.libraryOptions[0];
-        } else if(userInfo.libraryOptions.length===2){
-          libraryName=userInfo.libraryName;
-        }
-        
-        // Bypass debouncing for external refresh calls
-        getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName, newFilterPerPage));
-      }
 
-      // Expose the refresh function globally so BottomIcon can call it
-      useEffect(() => {
-        (window as any).refreshGalleryWithNewFilterPerPage = refreshWithNewFilterPerPage;
-        return () => {
-          delete (window as any).refreshGalleryWithNewFilterPerPage;
-        };
-      }, [refreshWithNewFilterPerPage]);
     
       const getImagesData = () => {
         console.log('🔧 getImagesData called - delegating to debounced API call');
@@ -603,9 +583,9 @@ const Gallary: React.FC = (): JSX.Element => {
         }
         
         console.log('🔄 Filter change detected');
-        debouncedApiCall('filter_change', 200); // Small delay for filter changes
+        debouncedApiCall('filter_change', 0); // Immediate for all filter changes
         
-      }, [userInfo.filterPerPage, userInfo.filterSearchFilter, userInfo.filterSortField, userInfo.filterSortDirection]);
+      }, [userInfo.filterPerPage, userInfo.filterPageNumber, userInfo.filterSearchFilter, userInfo.filterSortField, userInfo.filterSortDirection]);
 
       // Effect for guidPreSelected changes (only after initial load)
       useEffect(() => {

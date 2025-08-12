@@ -45,13 +45,15 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const onChange: PaginationProps['onChange']|any = (filterPageNumber:number) => {
         console.log('Page: ', filterPageNumber);
     
-        let userInfoObj = {...userInfo,filterPageNumber};
+        let userInfoObj = {...userInfo,filterPageNumber: filterPageNumber.toString()};
     
         let isUpdated = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
         console.log('isUpdated',isUpdated,userInfo,userInfoObj)
     
         isUpdated && dynamicData.mutations.setUserInfoData(userInfoObj);
-        setCurrent(filterPageNumber)
+        setCurrent(filterPageNumber);
+        
+        // Let the useEffect in Gallery handle the API call to avoid duplicates
       };
 
     const onDeleteHandler = () => {
@@ -132,10 +134,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
                             dynamicData.mutations.setUserInfoData(userInfoObj);
                             setPageSize(size);
                             
-                            // Call gallery refresh directly with new value
-                            if ((window as any).refreshGalleryWithNewFilterPerPage) {
-                                (window as any).refreshGalleryWithNewFilterPerPage(size.toString());
-                            }
+                            // Let the useEffect in Gallery handle the API call to avoid duplicates
                         }}
                         current={current} 
                         pageSize={pageSize} 
