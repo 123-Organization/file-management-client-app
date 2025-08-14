@@ -65,20 +65,28 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     
     
     const handleMenuClick: MenuProps['onClick'] = (e) => {
+        console.log('🚨 HeaderIcon handleMenuClick triggered! This might be resetting our pagination!');
+        console.log('🚨 Event key:', e.key);
 
         let libraryName  = ((e.key==='2')?'inventory':'temporary')
         const fileLocationObj= {selected:libraryName} 
         
         let isUpdated = JSON.stringify(fileLocation) !== JSON.stringify(fileLocationObj);
-        console.log('isUpdated',isUpdated)
+        console.log('🚨 Library location isUpdated:', isUpdated)
         isUpdated && dynamicData.mutations.setFileLocationData(fileLocationObj);
 
         let userInfoObj = {...userInfo,libraryName};
     
         let isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
-        console.log('isUpdated',isUpdated,userInfo,userInfoObj)
+        console.log('🚨 UserInfo isUpdatedUser:', isUpdatedUser);
+        console.log('🚨 userInfoObj being created:', {
+            filterPageNumber: userInfoObj.filterPageNumber,
+            filterPerPage: userInfoObj.filterPerPage,
+            libraryName: userInfoObj.libraryName
+        });
     
         if(isUpdatedUser) {
+            console.log('🚨 RESETTING filterPageNumber to 1 and calling setUserInfoData!');
             userInfoObj.filterPageNumber="1";
             dynamicData.mutations.setUserInfoData(userInfoObj);
         } 

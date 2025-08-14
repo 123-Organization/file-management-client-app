@@ -130,6 +130,7 @@ const Gallary: React.FC = (): JSX.Element => {
           setOpen(false)
           let filterUpdate=(userInfo.filterUpdate?"":" ");
           let userInfoObj={...userInfo,filterUpdate};
+          
           dynamicData.mutations.setUserInfoData(userInfoObj);
         },
         onError(error: any) {},
@@ -365,6 +366,19 @@ const Gallary: React.FC = (): JSX.Element => {
           // Get fresh userInfo from context to avoid stale state
           const currentUserInfo = dynamicData.state.userInfo;
           
+          console.log('🔧 ===== getAllImageParams DEBUG =====');
+          console.log('🔧 dynamicData.state reference:', dynamicData.state);
+          console.log('🔧 currentUserInfo reference:', currentUserInfo);
+          console.log('🔧 Parameters passed:');
+          console.log('🔧   filterPageNumber parameter:', filterPageNumber);
+          console.log('🔧   libraryNameOverride:', libraryNameOverride);
+          console.log('🔧   filterPerPageOverride:', filterPerPageOverride);
+          console.log('🔧 Current state values:');
+          console.log('🔧   currentUserInfo.filterPageNumber:', currentUserInfo.filterPageNumber);
+          console.log('🔧   currentUserInfo.filterPerPage:', currentUserInfo.filterPerPage);
+          console.log('🔧   currentUserInfo.libraryName:', currentUserInfo.libraryName);
+          console.log('🔧 Component userInfo (for comparison):', userInfo.filterPageNumber, userInfo.filterPerPage);
+          
           let libraryName = libraryNameOverride || "";
           if(!libraryName) {
             if(currentUserInfo.libraryOptions.length===1){
@@ -378,12 +392,16 @@ const Gallary: React.FC = (): JSX.Element => {
           const fileLocationObj= {selected:libraryName}
           dynamicData.mutations.setFileLocationData(fileLocationObj);
           
-          // Use override value if provided, otherwise use current state
+          // Use override values if provided, otherwise use current state
           const filterPerPage = filterPerPageOverride || currentUserInfo.filterPerPage;
-          const apiParams = {...currentUserInfo,...{filterPageNumber,libraryName,filterPerPage}};
-          console.log('🔧 API PARAMS - filterPerPage:', apiParams.filterPerPage);
-          console.log('🔧 currentUserInfo.filterPerPage:', currentUserInfo.filterPerPage);
-          console.log('🔧 filterPerPageOverride:', filterPerPageOverride);
+          // ALWAYS use currentUserInfo values, ignore parameters to avoid stale state
+          const apiParams = {...currentUserInfo, libraryName, filterPerPage};
+          
+          console.log('🚀 FINAL API PARAMS BEING SENT TO API:');
+          console.log('🚀   filterPageNumber:', apiParams.filterPageNumber);
+          console.log('🚀   filterPerPage:', apiParams.filterPerPage);
+          console.log('🚀   libraryName:', apiParams.libraryName);
+          console.log('🚀   FULL API PARAMS:', JSON.stringify(apiParams, null, 2));
           
           return apiParams;
       }
@@ -392,8 +410,11 @@ const Gallary: React.FC = (): JSX.Element => {
         // Mark request as in progress
         setIsRequestInProgress(true);
         
+        // Get fresh userInfo from context to avoid stale state
+        const currentUserInfo = dynamicData.state.userInfo;
+        
         // Get images for the specified library
-        getAllImagesFn(getAllImageParams(userInfo.filterPageNumber, libraryName));
+        getAllImagesFn(getAllImageParams(currentUserInfo.filterPageNumber, libraryName));
       }
 
 
@@ -452,14 +473,17 @@ const Gallary: React.FC = (): JSX.Element => {
         apiCallTimeoutRef.current = setTimeout(() => {
           console.log(`🚀 Making API call for reason: ${reason}`);
           
+          // Get fresh userInfo from context to avoid stale state
+          const currentUserInfo = dynamicData.state.userInfo;
+          
           let libraryName = "";
-          if(userInfo.libraryOptions.length === 1){
-            libraryName = userInfo.libraryOptions[0];
-          } else if(userInfo.libraryOptions.length === 2){
-            libraryName = userInfo.libraryName;
+          if(currentUserInfo.libraryOptions.length === 1){
+            libraryName = currentUserInfo.libraryOptions[0];
+          } else if(currentUserInfo.libraryOptions.length === 2){
+            libraryName = currentUserInfo.libraryName;
           }
           
-          const apiParams = getAllImageParams(userInfo.filterPageNumber, libraryName);
+          const apiParams = getAllImageParams(currentUserInfo.filterPageNumber, libraryName);
           const paramsString = JSON.stringify(apiParams);
           
           // Prevent duplicate calls with same parameters (unless forced)
@@ -478,8 +502,8 @@ const Gallary: React.FC = (): JSX.Element => {
           }
 
           // If GUID pre-selected and no referrer images, fetch GUID first
-          if(userInfo.guidPreSelected && !referrerImages.length && reason === 'initial_load') {
-            getImagesGUIDFn({"guid":userInfo.guidPreSelected});
+          if(currentUserInfo.guidPreSelected && !referrerImages.length && reason === 'initial_load') {
+            getImagesGUIDFn({"guid":currentUserInfo.guidPreSelected});
           }
           
           // Make the API call
@@ -505,7 +529,9 @@ const Gallary: React.FC = (): JSX.Element => {
             return;
           }
 
-          getAllImagesFn(getAllImageParams(userInfo.filterPageNumber));
+          // Get fresh userInfo from context to avoid stale state
+          const currentUserInfo = dynamicData.state.userInfo;
+          getAllImagesFn(getAllImageParams(currentUserInfo.filterPageNumber));
           pollAttemptsRef.current++;
 
           pollTimeoutRef.current = setTimeout(pollForImage, 2000);
@@ -582,10 +608,18 @@ const Gallary: React.FC = (): JSX.Element => {
           return;
         }
         
-        console.log('🔄 Filter change detected');
-        debouncedApiCall('filter_change', 0); // Immediate for all filter changes
+        // Get fresh userInfo from context to avoid stale state in closures
+        const currentUserInfo = dynamicData.state.userInfo;
+        console.log('🔄 Gallery filter change - FRESH userInfo.filterPerPage:', currentUserInfo.filterPerPage, 'filterPageNumber:', currentUserInfo.filterPageNumber);
+        console.log('🔄 Component prop userInfo (for comparison):', userInfo.filterPerPage, userInfo.filterPageNumber);
+        console.log('🔄 Are they the same?', 
+          currentUserInfo.filterPerPage === userInfo.filterPerPage && 
+          currentUserInfo.filterPageNumber === userInfo.filterPageNumber
+        );
         
-      }, [userInfo.filterPerPage, userInfo.filterPageNumber, userInfo.filterSearchFilter, userInfo.filterSortField, userInfo.filterSortDirection]);
+        debouncedApiCall('filter_change', 0); 
+        
+      }, [userInfo.filterPerPage, userInfo.filterPageNumber, userInfo.filterSearchFilter, userInfo.filterSortField, userInfo.filterSortDirection, userInfo.filterUpdate]);
 
       // Effect for guidPreSelected changes (only after initial load)
       useEffect(() => {

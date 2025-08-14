@@ -141,6 +141,7 @@ const FilterSortModal = ({openModel, setOpen} : FilterSortModalProps) => {
                     className='text-gray-400  mt-5'
                     onChange={handleChange}
                     options={[
+                      { value: '100', label: '100' },
                       { value: '50', label: '50' },
                       { value: '25', label: '25' },
                       { value: '15', label: '15' },

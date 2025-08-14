@@ -105,14 +105,32 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
   });
 
   useEffect(() => {
-    setState((prevState) => ({
-      ...prevState,
-      userInfo: {
-        ...prevState.userInfo,
-        librarySessionId: cookies['Session'] || prevState.userInfo.librarySessionId,
-        libraryAccountKey: cookies['AccountGUID'] || prevState.userInfo.libraryAccountKey,
-      },
-    }));
+    console.log('🍪 DynamicDataProvider cookies useEffect triggered - this might be overriding our pagination state!');
+    console.log('🍪 Previous state:', {
+      filterPageNumber: state.userInfo.filterPageNumber,
+      filterPerPage: state.userInfo.filterPerPage,
+      libraryName: state.userInfo.libraryName
+    });
+    console.log('🍪 Cookies changed:', cookies);
+    
+    setState((prevState) => {
+      const newState = {
+        ...prevState,
+        userInfo: {
+          ...prevState.userInfo,
+          librarySessionId: cookies['Session'] || prevState.userInfo.librarySessionId,
+          libraryAccountKey: cookies['AccountGUID'] || prevState.userInfo.libraryAccountKey,
+        },
+      };
+      
+      console.log('🍪 New state being set:', {
+        filterPageNumber: newState.userInfo.filterPageNumber,
+        filterPerPage: newState.userInfo.filterPerPage,
+        libraryName: newState.userInfo.libraryName
+      });
+      
+      return newState;
+    });
   }, [cookies]);
 
   // define getters
@@ -130,6 +148,8 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
       setState((state: any) => ({ ...state, fileLocation }));
     },
     setUserInfoData: (userInfo: IUserInfo): void => {
+      console.log('🏪 DynamicDataProvider setUserInfoData - filterPerPage:', userInfo.filterPerPage, 'filterPageNumber:', userInfo.filterPageNumber);
+      console.trace('🏪 STACK TRACE - Who called setUserInfoData:');
       setState((state: any) => ({ ...state, userInfo }));
     },
    
