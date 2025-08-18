@@ -143,6 +143,57 @@ const Gallary: React.FC = (): JSX.Element => {
         onSuccess(data:any) {
           console.log('getAll images',data.data.images);
           console.log('referrerImages',referrerImages);
+          
+          // Check if we got empty results with large page size on non-first page
+          const currentUserInfo = dynamicData.state.userInfo;
+          const images = data.data.images || [];
+          const currentPage = parseInt(currentUserInfo.filterPageNumber);
+          const currentPageSize = parseInt(currentUserInfo.filterPerPage);
+          const isLargePageSize = currentPageSize >= 50;
+          const isNotFirstPage = currentPage > 1;
+          const hasEmptyResults = images.length === 0;
+          
+          console.log('🔍 Auto-redirect check:', {
+            imagesCount: images.length,
+            currentPage,
+            currentPageSize,
+            isLargePageSize,
+            isNotFirstPage,
+            hasEmptyResults
+          });
+          
+          // Auto-redirect if: large page size + not first page + empty results
+          if (isLargePageSize && isNotFirstPage && hasEmptyResults) {
+            console.log('🔄 Auto-redirecting: Large page size with empty results on non-first page');
+            
+            // Reset to page 1 with 50 per page
+            const resetUserInfo = {
+              ...currentUserInfo,
+              filterPageNumber: "1",
+              filterPerPage: "50", // Keep the same large page size but go to page 1
+              filterUpdate: currentUserInfo.filterUpdate + Math.random().toString(36).substr(2, 9)
+            };
+            
+            console.log('🔄 Resetting pagination to:', {
+              filterPageNumber: resetUserInfo.filterPageNumber,
+              filterPerPage: resetUserInfo.filterPerPage
+            });
+            
+            // Update the user info which will trigger a new API call
+            dynamicData.mutations.setUserInfoData(resetUserInfo);
+            
+            // Show user-friendly message
+            messageApi.open({
+              type: 'info',
+              content: `Not enough images on page ${currentPage}. Redirected to page 1 with ${currentPageSize} per page.`,
+              duration: 4,
+            });
+            
+            // Mark request as complete and return early (new request will be triggered by state update)
+            setIsRequestInProgress(false);
+            return;
+          }
+          
           const imgs = data.data.images.map((image: ImageType) =>
             (referrerImages?.length && referrerImages.includes(image.guid))
             ? { ...image, isSelected: true } : image
