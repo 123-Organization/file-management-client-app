@@ -28,6 +28,13 @@ interface ImageType {
   title?: string;
   file_size?: number;
 }
+
+// Helper function to check if file is PNG based on title/filename
+// (SVG files get converted to PNG by backend)
+const isPngFile = (title?: string) => {
+  if (!title) return false;
+  return title.toLowerCase().endsWith('.png');
+}
 /**
  * ****************************************************************** Function Components *******************************************************
  */
@@ -711,7 +718,20 @@ const Gallary: React.FC = (): JSX.Element => {
  */         
        
     return (
-        <div className="grid max-sm:grid-cols-1 max-xl:grid-cols-2 grid-cols-4 gap-8 p-8 max-md:pt-20 content-center">
+        <>
+          <style>{`
+            .png-transparency-bg {
+              background-image: 
+                linear-gradient(45deg, #e5e7eb 25%, transparent 25%), 
+                linear-gradient(135deg, #e5e7eb 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #e5e7eb 75%), 
+                linear-gradient(135deg, transparent 75%, #e5e7eb 75%);
+              background-size: 12px 12px;
+              background-position: 0 0, 6px 0, 6px -6px, 0px 6px;
+              background-color: #f9fafb;
+            }
+          `}</style>
+          <div className="grid max-sm:grid-cols-1 max-xl:grid-cols-2 grid-cols-4 gap-8 p-8 max-md:pt-20 content-center">
             {contextHolder}
             {
               isLoadingImg
@@ -740,8 +760,10 @@ const Gallary: React.FC = (): JSX.Element => {
                 ?
                    <>
                     {images.map(
-                      (image, i) => (            
-                            <div key={i}   className={`border rounded-lg shadow-lg   border-gray-100 ${image.isSelected || (referrerImages?.length && referrerImages.includes(image.guid)) ?'isSelectedImg':''} ${loadingThumbnails[image.guid!] ? 'opacity-60 cursor-not-allowed' : ''}`} >
+                      (image, i) => {
+                        const isImagePng = isPngFile(image.title);
+                        return (            
+                            <div key={i}   className={`border rounded-lg shadow-lg border-gray-100 ${image.isSelected || (referrerImages?.length && referrerImages.includes(image.guid)) ?'isSelectedImg':''} ${loadingThumbnails[image.guid!] ? 'opacity-60 cursor-not-allowed' : ''}`} >
                                 <div onClick={()=> handleSelect(i)}  className={`min-h-[300px] flex justify-center items-center ${loadingThumbnails[image.guid!] ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                                   <div>
                                   
@@ -754,12 +776,14 @@ const Gallary: React.FC = (): JSX.Element => {
                       </div>
                     </div>
                   ) : (
-                    <img 
-                                    className={`m-2 min-h-[200px] cursor-pointer max-w-[200px] object-contain`}
-                                    src={image.public_thumbnail_uri} 
-                                    alt={image.title || ''}
-                                    onError={() => checkAndLoadThumbnail(image)}
-                                  />
+                    <div className={`m-2 min-h-[200px] w-[200px] flex items-center justify-center ${isImagePng ? 'png-transparency-bg' : ''}`}>
+                      <img 
+                                      className={`cursor-pointer max-w-[200px] max-h-[200px] object-contain`}
+                                      src={image.public_thumbnail_uri} 
+                                      alt={image.title || ''}
+                                      onError={() => checkAndLoadThumbnail(image)}
+                                    />
+                    </div>
                                   )}
                                   </div>
                                 </div>                      
@@ -784,13 +808,15 @@ const Gallary: React.FC = (): JSX.Element => {
                                     </div>
                                 </div>
                             </div>
-                        )
+                        );
+                      }
                     )}
                     <EditGallaryModal onDeleteHandler={onDeleteHandler} isSuccess={!isLoadingImgDelete} openModel={open} setOpen={setOpen} imgData={imgData} isImageLoading={(imgData as any)?.guid ? (loadingThumbnails[(imgData as any).guid] || false) : false} />
                    </>
               : <Empty />
             }
-        </div>
+          </div>
+        </>
     )
 }
 

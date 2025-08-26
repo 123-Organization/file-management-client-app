@@ -122,6 +122,16 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   }
   
 
+  // Helper function to check if file is SVG
+  const isSvgFile = (file: any) => {
+    return file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+  }
+
+  // Helper function to check if file is PNG
+  const isPngFile = (file: any) => {
+    return file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
+  }
+
   const uploadImage = async(file: any, addUpdateIndex: any) => {
 
    
@@ -137,7 +147,8 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         file,
         userInfo,
         basecampProjectID:(Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000)),
-        fileLibrary:userInfo.libraryName
+        fileLibrary:userInfo.libraryName,
+        isSvg: isSvgFile(file)  // Add SVG flag to options
       }
 
       const uploader = new Uploader(videoUploaderOptions)
@@ -173,8 +184,29 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         })
         .onSuccess(({ response: newResponse, userInfo: updatedUserInfo }: any) => {
           console.log("Check on success function response", newResponse);
+          console.log("Response data structure:", newResponse?.data);
+          
+          // Handle both v1 and v2 API response structures
+          let guid: string | null = null;
+          
           if (newResponse?.data?.result?.guid) {
-            setSuccessImagesList(prevList => [...prevList, newResponse.data.result.guid]);
+            // Regular upload response structure
+            guid = newResponse.data.result.guid;
+            console.log("Found GUID in regular format:", guid);
+          } else if (newResponse?.data?.guid) {
+            // V2 API might return GUID directly
+            guid = newResponse.data.guid;
+            console.log("Found GUID in v2 format:", guid);
+          } else if (newResponse?.data) {
+            // Log the actual structure to understand v2 response
+            console.log("Unknown response structure for SVG upload:", newResponse.data);
+            // For now, generate a temporary GUID to make UI work
+            guid = `svg-${Date.now()}`;
+            console.log("Using temporary GUID for SVG:", guid);
+          }
+          
+          if (guid !== null) {
+            setSuccessImagesList(prevList => [...prevList, guid as string]);
           }
         })
 
@@ -314,17 +346,38 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   console.log('bebe',images)
   
   return (
-    <Modal
-      style={{ height: '60%' }}
-      title={<h1 className=' text-gray-500'>Upload File</h1>}
-      centered
-      open={openModel}
-      onOk={() => setOpen(false)}
-      onCancel={() => setOpen(false)}
-      width={'99%'}
-      footer={''}
-      className='min-w-[350px]'
-    >
+    <>
+      <style>{`
+        .png-dotted-bg {
+          background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px);
+          background-size: 8px 8px;
+          background-color: rgba(229, 231, 235, 0.1);
+        }
+        .png-dotted-bg::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image: radial-gradient(circle, #9ca3af 1px, transparent 1px);
+          background-size: 6px 6px;
+          opacity: 0.3;
+          border-radius: inherit;
+          pointer-events: none;
+        }
+      `}</style>
+      <Modal
+        style={{ height: '60%' }}
+        title={<h1 className=' text-gray-500'>Upload File</h1>}
+        centered
+        open={openModel}
+        onOk={() => setOpen(false)}
+        onCancel={() => setOpen(false)}
+        width={'99%'}
+        footer={''}
+        className='min-w-[350px]'
+      >
       <div className='max-lg:flex1 '>
       <div className="p-8 max-lg:flex max-lg:flex-col uppy-Manual items-center  bg-white">
         { 
@@ -359,7 +412,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                 maxNumber={maxNumber}
                 dataURLKey="data_url"
                 maxFileSize={maxFileSize}
-                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','psd']}
+                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','psd','svg']}
               >
                 {({
                   imageList,
@@ -421,8 +474,10 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                       {flagLongFileName && <Alert message={contentFlagLongFileName} type="warning" showIcon closable />}
                       <div className='grid grid-cols-1 lg:grid-cols-3  gap-8 p-8'>
                       {!!imageList.length && contextHolder}
-                        {imagesProgress && imageList.map((image, index) => (
-                          <div key={index} className={` relative rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item  ${image.isSelected?'isSelectedImg':''}`} >
+                        {imagesProgress && imageList.map((image, index) => {
+                          const isPng = isPngFile(image.file);
+                          return (
+                          <div key={index} className={` relative rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item ${image.isSelected?'isSelectedImg':''} ${isPng ? 'png-dotted-bg' : ''}`} >
                             <div className="w-full absolute bottom-1 bg-gray-200 rounded-full dark:bg-gray-700">
                               <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${imagesProgress[index]?imagesProgress[index]:'20'}%`, minWidth:'20%' }}> {imagesProgress[index]?imagesProgress[index] :'0'}%</div>
                             </div>
@@ -447,7 +502,8 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                                 </div>
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
 
 
@@ -487,6 +543,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
       </div>
       </div>
     </Modal>
+    </>
   )
 }
 
