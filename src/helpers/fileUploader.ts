@@ -269,12 +269,15 @@ export class Uploader {
     console.log('sendCompleteRequest() - fileKey:', this.fileKey);
     
     this.uploadedParts.sort((a, b) => parseFloat(a.PartNumber) - parseFloat(b.PartNumber));
-    if (this.fileId && (this.fileKey || !this.isSvg)) {
+    if (this.fileId) {
       console.log('sendCompleteRequest() - Conditions met, proceeding with complete upload');
-      const videoFinalizationMultiPartInput = {
+      
+      // TEMPORARY: Use the same payload structure for all uploads (v2 format)
+      // since we're using /complete-upload-v2 for everything due to /complete-upload being broken
+      let videoFinalizationMultiPartInput = {
         "params": {
           uploadId: this.fileId,
-          Key: this.fileKey,
+          Key: this.fileKey, // Will be undefined for regular uploads, but v2 API should handle it
           parts: this.uploadedParts,
           fileName: this.fileName,
           userInfo: this.userInfo,
@@ -289,7 +292,8 @@ export class Uploader {
       }
 
       // Use different API endpoint for SVG files
-      const apiEndpoint = this.isSvg ? "/complete-upload-v2" : "/complete-upload";
+      // TEMPORARY: Use v2 endpoint for ALL uploads since /complete-upload might be broken
+      const apiEndpoint = "/complete-upload-v2"; // this.isSvg ? "/complete-upload-v2" : "/complete-upload";
       console.log(`sendCompleteRequest() - Using API endpoint: ${apiEndpoint}`);
       console.log('sendCompleteRequest() - Calling complete-upload API with:', videoFinalizationMultiPartInput);
       
@@ -381,7 +385,7 @@ export class Uploader {
     console.log('upload() - fileKey:', this.fileKey);
     console.log('upload() - signedUrl:', part.signedUrl);
     return new Promise((resolve, reject) => {
-      if (this.fileId && (this.fileKey || !this.isSvg)) {
+      if (this.fileId) {
         console.log('upload() - Conditions met, proceeding with upload');
         // - 1 because PartNumber is an index starting from 1 and not 0
         const xhr = (this.activeConnections[part.PartNumber - 1] = new XMLHttpRequest())
