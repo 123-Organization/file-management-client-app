@@ -29,11 +29,12 @@ interface ImageType {
   file_size?: number;
 }
 
-// Helper function to check if file is PNG based on title/filename
-// (SVG files get converted to PNG by backend)
-const isPngFile = (title?: string) => {
+// Helper function to check if file is PNG or SVG based on title/filename
+// (SVG files get converted to PNG by backend but still show transparency)
+const isTransparentFile = (title?: string) => {
   if (!title) return false;
-  return title.toLowerCase().endsWith('.png');
+  const lowerTitle = title.toLowerCase();
+  return lowerTitle.endsWith('.png') || lowerTitle.endsWith('.svg');
 }
 /**
  * ****************************************************************** Function Components *******************************************************
@@ -761,7 +762,7 @@ const Gallary: React.FC = (): JSX.Element => {
                    <>
                     {images.map(
                       (image, i) => {
-                        const isImagePng = isPngFile(image.title);
+                        const isImageTransparent = isTransparentFile(image.title);
                         return (            
                             <div key={i}   className={`border rounded-lg shadow-lg border-gray-100 ${image.isSelected || (referrerImages?.length && referrerImages.includes(image.guid)) ?'isSelectedImg':''} ${loadingThumbnails[image.guid!] ? 'opacity-60 cursor-not-allowed' : ''}`} >
                                 <div onClick={()=> handleSelect(i)}  className={`min-h-[300px] flex justify-center items-center ${loadingThumbnails[image.guid!] ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
@@ -776,9 +777,9 @@ const Gallary: React.FC = (): JSX.Element => {
                       </div>
                     </div>
                   ) : (
-                    <div className={`m-2 min-h-[200px] w-[200px] flex items-center justify-center ${isImagePng ? 'png-transparency-bg' : ''}`}>
+                    <div className="m-2 min-h-[200px] w-[200px] flex items-center justify-center">
                       <img 
-                                      className={`cursor-pointer max-w-[200px] max-h-[200px] object-contain`}
+                                      className={`cursor-pointer max-w-[200px] max-h-[200px] object-contain ${isImageTransparent ? 'png-transparency-bg' : ''}`}
                                       src={image.public_thumbnail_uri} 
                                       alt={image.title || ''}
                                       onError={() => checkAndLoadThumbnail(image)}

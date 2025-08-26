@@ -18,10 +18,12 @@ interface EditGallaryModalProps {
   isImageLoading: boolean;
 }
 
-// Helper function to check if file is PNG based on title/filename
-const isPngFile = (title?: string) => {
+// Helper function to check if file is PNG or SVG based on title/filename
+// (SVG files get converted to PNG by backend but still show transparency)
+const isTransparentFile = (title?: string) => {
   if (!title) return false;
-  return title.toLowerCase().endsWith('.png');
+  const lowerTitle = title.toLowerCase();
+  return lowerTitle.endsWith('.png') || lowerTitle.endsWith('.svg');
 }
 
 const { TextArea } = Input;
@@ -34,8 +36,8 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
-  // Check if current image is PNG (converted from SVG)
-  const isImagePng = isPngFile(imgData?.title);
+  // Check if current image is PNG or SVG (transparent file)
+  const isImageTransparent = isTransparentFile(imgData?.title);
 
   const dynamicData: any = useDynamicData();
   const { userInfo } = dynamicData.state;
@@ -153,7 +155,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
             />
           )}
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
-            <div className={`lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 mr-6 md:mb-0 border rounded-lg shadow-lg border-gray-100 ${isImagePng ? 'png-transparency-bg' : ''}`}>
+            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 mr-6 md:mb-0 border rounded-lg shadow-lg border-gray-100 overflow-hidden">
               {!loading && (
                 isImageLoading ? (
                   <div className="min-h-[300px] flex items-center justify-center bg-gray-100">
@@ -163,7 +165,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
                     </div>
                   </div>
                 ) : (
-                  <img className="object-cover object-center rounded" alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
+                  <img className={`object-cover object-center rounded ${isImageTransparent ? 'png-transparency-bg' : ''}`} alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
                 )
               )}
             </div>

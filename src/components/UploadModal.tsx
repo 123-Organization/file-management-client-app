@@ -434,6 +434,12 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                       className="" htmlFor="uploadImage">
                         <UppyUpload />
                       </label>
+                      <div className="mt-20 text-center">
+                        <p className="text-sm text-gray-500 font-medium">Supported file types:</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          JPG, JPEG, PNG, BMP, TIF, TIFF, ZIP, PSD, SVG
+                        </p>
+                      </div>
                       &nbsp;
 
 
@@ -531,6 +537,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                 bg-center bg-origin-padding bg-cover
               ">
               <UppyUploadBox  setOpen={setOpen} />
+            
             </div>
           </div>
         </div> 
