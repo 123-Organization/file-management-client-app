@@ -18,6 +18,12 @@ interface EditGallaryModalProps {
   isImageLoading: boolean;
 }
 
+// Helper function to check if file is PNG based on title/filename
+const isPngFile = (title?: string) => {
+  if (!title) return false;
+  return title.toLowerCase().endsWith('.png');
+}
+
 const { TextArea } = Input;
 /**
  * ****************************************************************** Function Components *******************************************************
@@ -27,6 +33,9 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
   
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+
+  // Check if current image is PNG (converted from SVG)
+  const isImagePng = isPngFile(imgData?.title);
 
   const dynamicData: any = useDynamicData();
   const { userInfo } = dynamicData.state;
@@ -86,6 +95,18 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
  */    
   return (
     <>
+      <style>{`
+        .png-transparency-bg {
+          background-image: 
+            linear-gradient(45deg, #e5e7eb 25%, transparent 25%), 
+            linear-gradient(135deg, #e5e7eb 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #e5e7eb 75%), 
+            linear-gradient(135deg, transparent 75%, #e5e7eb 75%);
+          background-size: 12px 12px;
+          background-position: 0 0, 6px 0, 6px -6px, 0px 6px;
+          background-color: #f9fafb;
+        }
+      `}</style>
     {
      <Modal
       title={<h1 className=' text-gray-500'>Edit File Details</h1>}
@@ -132,7 +153,7 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
             />
           )}
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
-            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 mr-6 md:mb-0 border rounded-lg shadow-lg   border-gray-100">
+            <div className={`lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 mr-6 md:mb-0 border rounded-lg shadow-lg border-gray-100 ${isImagePng ? 'png-transparency-bg' : ''}`}>
               {!loading && (
                 isImageLoading ? (
                   <div className="min-h-[300px] flex items-center justify-center bg-gray-100">
