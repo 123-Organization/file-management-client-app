@@ -272,17 +272,33 @@ export class Uploader {
     if (this.fileId) {
       console.log('sendCompleteRequest() - Conditions met, proceeding with complete upload');
       
-      // TEMPORARY: Use the same payload structure for all uploads (v2 format)
-      // since we're using /complete-upload-v2 for everything due to /complete-upload being broken
-      let videoFinalizationMultiPartInput = {
-        "params": {
-          uploadId: this.fileId,
-          Key: this.fileKey, // Will be undefined for regular uploads, but v2 API should handle it
-          parts: this.uploadedParts,
-          fileName: this.fileName,
-          userInfo: this.userInfo,
-          fileSize: this.file.size,
-          fileLibrary: this.fileLibrary
+      // Create different payload structures for regular vs SVG uploads
+      let videoFinalizationMultiPartInput;
+      
+      if (this.isSvg) {
+        // SVG uploads use the full payload structure for /complete-upload-v2
+        videoFinalizationMultiPartInput = {
+          "params": {
+            uploadId: this.fileId,
+            Key: this.fileKey,
+            parts: this.uploadedParts,
+            fileName: this.fileName,
+            userInfo: this.userInfo,
+            fileSize: this.file.size,
+            fileLibrary: this.fileLibrary
+          }
+        }
+      } else {
+        // Regular uploads use the full payload structure for /complete-upload
+        videoFinalizationMultiPartInput = {
+          "params": {
+            uploadId: this.fileId,
+            parts: this.uploadedParts,
+            fileName: this.fileName,
+            fileSize: this.file.size,
+            fileLibrary: this.fileLibrary,
+            userInfo: this.userInfo
+          }
         }
       }
       
@@ -292,8 +308,7 @@ export class Uploader {
       }
 
       // Use different API endpoint for SVG files
-      // TEMPORARY: Use v2 endpoint for ALL uploads since /complete-upload might be broken
-      const apiEndpoint = "/complete-upload-v2"; // this.isSvg ? "/complete-upload-v2" : "/complete-upload";
+      const apiEndpoint = this.isSvg ? "/complete-upload-v2" : "/complete-upload";
       console.log(`sendCompleteRequest() - Using API endpoint: ${apiEndpoint}`);
       console.log('sendCompleteRequest() - Calling complete-upload API with:', videoFinalizationMultiPartInput);
       
