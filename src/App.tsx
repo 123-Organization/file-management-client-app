@@ -52,7 +52,6 @@ const App: React.FC = () => {
     //   return;
     // }
     let settings:ISettings | null = null;
-    console.log("received: ", event.data );
     if(typeof event.data === 'string'){
       settings = JSON.parse(event.data)['settings'];
       // settings = settings['settings'];

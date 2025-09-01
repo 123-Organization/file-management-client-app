@@ -105,11 +105,9 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
       companionUrl: `${SERVER_BASE_URL}`,
       allowedMetaFields: []
     })
-    .use(GoogleDrive, {
-      companionUrl: `${SERVER_BASE_URL}`,
-    })
     .use(Dropbox, {
       companionUrl: `${SERVER_BASE_URL}`,
+      companionAllowedHosts: ['dropbox.com','www.dropbox.com'],
     })
     .use(Box, {
       companionUrl: `${SERVER_BASE_URL}`,
@@ -330,10 +328,26 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
               
               removeUppy();
               removeArtzip();
+              
 
             }}
             disableLocalFiles={true}  
-            disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} />
+            disableInformer={false} uppy={uppy}  plugins={['GoogleDrive','Dropbox','Box']} 
+            locale={{
+              strings: {
+                uploading: 'Importing images...',
+                uploadComplete: 'Import complete',
+                uploadFailed: 'Import failed',
+                uploadPaused: 'Import paused',
+                uploadXFiles: {
+                  0: 'Import %{smart_count} file',
+                  1: 'Import %{smart_count} files'
+                }
+                
+              }
+               
+            }}/>
+           
         </>
         : <div><Spin tip={<div className='whitespace-nowrap -ml-3'>Uploading images...</div>}><div className="content " /></Spin></div>
     }

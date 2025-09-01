@@ -1,5 +1,5 @@
 import React, { useState, Dispatch, SetStateAction, FC  } from 'react'
-import { Button, Form, Input, message, Modal, Spin } from 'antd';
+import { Button, Form, Input, message, Modal, Spin, Alert } from 'antd';
 import { formatFileSize } from '../helpers/fileHelper';
 import { putImages } from '../api/gallaryApi';
 import { useMutation } from '@tanstack/react-query';
@@ -15,6 +15,15 @@ interface EditGallaryModalProps {
   imgData: any;
   onDeleteHandler: Function
   isSuccess: boolean;
+  isImageLoading: boolean;
+}
+
+// Helper function to check if file is PNG or SVG based on title/filename
+// (SVG files get converted to PNG by backend but still show transparency)
+const isTransparentFile = (title?: string) => {
+  if (!title) return false;
+  const lowerTitle = title.toLowerCase();
+  return lowerTitle.endsWith('.png') || lowerTitle.endsWith('.svg');
 }
 
 const { TextArea } = Input;
@@ -22,10 +31,13 @@ const { TextArea } = Input;
  * ****************************************************************** Function Components *******************************************************
  */
 
-const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgData, onDeleteHandler, isSuccess} ) : JSX.Element => {
+const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgData, onDeleteHandler, isSuccess, isImageLoading} ) : JSX.Element => {
   
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+
+  // Check if current image is PNG or SVG (transparent file)
+  const isImageTransparent = isTransparentFile(imgData?.title);
 
   const dynamicData: any = useDynamicData();
   const { userInfo } = dynamicData.state;
@@ -85,6 +97,18 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
  */    
   return (
     <>
+      <style>{`
+        .png-transparency-bg {
+          background-image: 
+            linear-gradient(45deg, #e5e7eb 25%, transparent 25%), 
+            linear-gradient(135deg, #e5e7eb 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #e5e7eb 75%), 
+            linear-gradient(135deg, transparent 75%, #e5e7eb 75%);
+          background-size: 12px 12px;
+          background-position: 0 0, 6px 0, 6px -6px, 0px 6px;
+          background-color: #f9fafb;
+        }
+      `}</style>
     {
      <Modal
       title={<h1 className=' text-gray-500'>Edit File Details</h1>}
@@ -121,12 +145,29 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
       <div>
         <section className="text-gray-600 body-font">
           {contextHolder}
+          {isImageLoading && (
+            <Alert
+              message="File is being prepared"
+              description="The file thumbnail is still being processed. You can edit the file details normally, but the preview may not be fully available yet."
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
           <div className="container mx-auto flex px-5 py-0 md:flex-row flex-col items-center">
-            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 mr-6 md:mb-0 border rounded-lg shadow-lg   border-gray-100">
-              {
-              !loading &&
-              <img className="object-cover object-center rounded" alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
-              }
+            <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 mr-6 md:mb-0 border rounded-lg shadow-lg border-gray-100 overflow-hidden">
+              {!loading && (
+                isImageLoading ? (
+                  <div className="min-h-[300px] flex items-center justify-center bg-gray-100">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto mb-2"></div>
+                      <span className="text-sm text-gray-500">Preparing File Preview...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <img className={`object-cover object-center rounded ${isImageTransparent ? 'png-transparency-bg' : ''}`} alt="hero" src={ imgData.public_preview_uri ? imgData.public_preview_uri : 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg'} />
+                )
+              )}
             </div>
             <div className="lg:w-1/2 md:w-1/2 bg-white flex flex-col md:ml-auto w-full md:py-8 mt-8 md:mt-0">
               <h2 className="text-gray-400 text-base leading-7 mb-1 font-semibold title-font">

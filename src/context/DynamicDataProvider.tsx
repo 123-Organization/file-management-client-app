@@ -54,8 +54,8 @@ const fileLocation: IFileLocation = {
 
 const userInfo: IUserInfo = {
   "libraryName": "temporary",
-  "librarySessionId": "81de5dba-0300-4988-a1cb-df97dfa4e372",
-  "libraryAccountKey": "81de5dba-0300-4988-a1cb-df97dfa4e372",
+  "librarySessionId": "",
+  "libraryAccountKey": "",
   "librarySiteId": "2",
   "filterSearchFilter": "",
   "filterPageNumber": "1",
@@ -85,16 +85,53 @@ const initialState = {
 
 
 
+
+
 export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = ({ children }) => {
   const [cookies] = useCookies(['Session', 'AccountGUID']);
-  console.log('cookies',cookies)
+  
+  
 
-  if(cookies['Session'] || cookies['AccountGUID'] ){
-    userInfo.librarySessionId = cookies['Session'];
-    userInfo.libraryAccountKey = cookies['AccountGUID'];
-  }
-  // init state
-  const [state, setState] = useState(initialState);
+  const [state, setState] = useState(() => {
+    return {
+      referrer,
+      fileLocation,
+      userInfo: {
+        ...userInfo,
+        librarySessionId: cookies['Session'] || userInfo.librarySessionId,
+        libraryAccountKey: cookies['AccountGUID'] || userInfo.libraryAccountKey,
+      }
+    };
+  });
+
+  useEffect(() => {
+    console.log('🍪 DynamicDataProvider cookies useEffect triggered - this might be overriding our pagination state!');
+    console.log('🍪 Previous state:', {
+      filterPageNumber: state.userInfo.filterPageNumber,
+      filterPerPage: state.userInfo.filterPerPage,
+      libraryName: state.userInfo.libraryName
+    });
+    console.log('🍪 Cookies changed:', cookies);
+    
+    setState((prevState) => {
+      const newState = {
+        ...prevState,
+        userInfo: {
+          ...prevState.userInfo,
+          librarySessionId: cookies['Session'] || prevState.userInfo.librarySessionId,
+          libraryAccountKey: cookies['AccountGUID'] || prevState.userInfo.libraryAccountKey,
+        },
+      };
+      
+      console.log('🍪 New state being set:', {
+        filterPageNumber: newState.userInfo.filterPageNumber,
+        filterPerPage: newState.userInfo.filterPerPage,
+        libraryName: newState.userInfo.libraryName
+      });
+      
+      return newState;
+    });
+  }, [cookies]);
 
   // define getters
   const getters = {
@@ -111,6 +148,8 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
       setState((state: any) => ({ ...state, fileLocation }));
     },
     setUserInfoData: (userInfo: IUserInfo): void => {
+      console.log('🏪 DynamicDataProvider setUserInfoData - filterPerPage:', userInfo.filterPerPage, 'filterPageNumber:', userInfo.filterPageNumber);
+      console.trace('🏪 STACK TRACE - Who called setUserInfoData:');
       setState((state: any) => ({ ...state, userInfo }));
     },
    

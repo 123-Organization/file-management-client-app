@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { message, PaginationProps, Spin } from 'antd';
 import { Pagination } from 'antd';
 import { useDynamicData } from '../context/DynamicDataProvider';
@@ -13,7 +13,8 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const { userInfo, referrer, fileLocation } = dynamicData.state;
     const [messageApi, contextHolder] = message.useMessage();
     const [current, setCurrent] = useState(1);
-    const [pageSize, setPageSize] = useState(12);
+    const [pageSize, setPageSize] = useState(parseInt(userInfo.filterPerPage) || 12);
+    const isChangingPageSizeRef = useRef(false);
 
     
     const {
@@ -43,15 +44,43 @@ const BottomIcon: React.FC = (): JSX.Element => {
     }
     
     const onChange: PaginationProps['onChange']|any = (filterPageNumber:number) => {
-        console.log('Page: ', filterPageNumber);
-    
-        let userInfoObj = {...userInfo,filterPageNumber};
-    
-        let isUpdated = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
-        console.log('isUpdated',isUpdated,userInfo,userInfoObj)
-    
-        isUpdated && dynamicData.mutations.setUserInfoData(userInfoObj);
-        setCurrent(filterPageNumber)
+        console.log('🔢🔢🔢 onChange called with filterPageNumber:', filterPageNumber);
+        console.log('🔢 isChangingPageSize REF value:', isChangingPageSizeRef.current);
+        console.log('🔢 Current userInfo before onChange:', {
+            filterPageNumber: userInfo.filterPageNumber,
+            filterPerPage: userInfo.filterPerPage
+        });
+        
+        // If we're in the middle of changing page size, ignore the onChange event
+        if (isChangingPageSizeRef.current) {
+            console.log('🔢 ✅ IGNORING onChange because we are changing page size');
+            setCurrent(filterPageNumber);
+            return;
+        }
+        
+        console.log('🔢 ❌ NOT IGNORING onChange - processing normally');
+        
+        // Get the most recent userInfo from context to avoid stale state
+        const currentUserInfo = dynamicData.state.userInfo;
+        console.log('🔢 Fresh currentUserInfo:', {
+            filterPageNumber: currentUserInfo.filterPageNumber,
+            filterPerPage: currentUserInfo.filterPerPage
+        });
+        
+        let userInfoObj = {...currentUserInfo, filterPageNumber: filterPageNumber.toString()};
+        let isUpdated = JSON.stringify(currentUserInfo) !== JSON.stringify(userInfoObj);
+        
+        console.log('🔢 userInfoObj to be set:', {
+            filterPageNumber: userInfoObj.filterPageNumber,
+            filterPerPage: userInfoObj.filterPerPage
+        });
+        
+        if (isUpdated) {
+            console.log('🔢 Calling setUserInfoData from onChange...');
+            dynamicData.mutations.setUserInfoData(userInfoObj);
+        }
+        
+        setCurrent(filterPageNumber);
       };
 
     const onDeleteHandler = () => {
@@ -75,6 +104,14 @@ const BottomIcon: React.FC = (): JSX.Element => {
     }  
     
     console.log('fileLocation',fileLocation)
+    console.log('🎯 BottomIcon RENDER - Pagination props:', {
+        current: current,
+        pageSize: pageSize,
+        total: referrer.filterCount,
+        showSizeChanger: true,
+        pageSizeOptions: [2, 4, 6, 8, 10, 12, 15, 25, 50, 100]
+    });
+    
     useEffect(() => {
         console.log('userInfo.filterPageNumber',userInfo.filterPageNumber)
         // onChange(userInfo.filterPageNumber);
@@ -83,9 +120,13 @@ const BottomIcon: React.FC = (): JSX.Element => {
       },[userInfo.filterPageNumber]);
 
       useEffect(() => {
-        console.log('userInfo.filterPerPage',userInfo.filterPerPage)
-        // onChange(userInfo.filterPageNumber);
-        // setPageNumber(userInfo.filterPageNumber)
+        console.log('📊 BottomIcon useEffect - userInfo.filterPerPage changed to:', userInfo.filterPerPage)
+        console.log('📊 Full userInfo in useEffect:', {
+            filterPageNumber: userInfo.filterPageNumber,
+            filterPerPage: userInfo.filterPerPage,
+            libraryName: userInfo.libraryName
+        })
+        console.log('📊 Setting pageSize state to:', +userInfo.filterPerPage)
         setPageSize(+userInfo.filterPerPage)
       },[userInfo.filterPerPage]);
         
@@ -122,9 +163,67 @@ const BottomIcon: React.FC = (): JSX.Element => {
                 </div>
                 <div className='flex w-full justify-end'>
                     <Pagination 
-                        simple className=' mt-5 mr-3 ' 
-                        // defaultCurrent={current}  
+                        className=' mt-5 mr-3 ' 
+                        showSizeChanger={true}
+                        showQuickJumper={false}
+                        pageSizeOptions={[2, 4, 6, 8, 10, 12, 15, 25, 50, 100]}
                         onChange={onChange}
+                        onShowSizeChange={(current, size) => {
+                            console.log('🔥🔥🔥 CRITICAL: onShowSizeChange DEFINITELY CALLED! 🔥🔥🔥');
+                            console.log('🔥 FIRST LOG: onShowSizeChange handler entry point');
+                            console.log('🔥 onShowSizeChange called - size:', size, 'current:', current);
+                            console.log('🔥 Type of size:', typeof size, 'Type of current:', typeof current);
+                            console.log('🔥 userInfo before change:', {
+                                filterPageNumber: userInfo.filterPageNumber,
+                                filterPerPage: userInfo.filterPerPage
+                            });
+                            
+                            try {
+                                // Set ref flag to prevent onChange from interfering
+                                console.log('🔥 Setting isChangingPageSize REF to true');
+                                isChangingPageSizeRef.current = true;
+                                
+                                // Force a unique update by adding timestamp to ensure React detects the change
+                                const userInfoObj = {
+                                    ...userInfo, 
+                                    filterPerPage: size.toString(),
+                                    filterUpdate: userInfo.filterUpdate + Math.random().toString(36).substr(2, 9)
+                                };
+                                console.log('🔥 BottomIcon onShowSizeChange - userInfoObj:', {
+                                    filterPageNumber: userInfoObj.filterPageNumber,
+                                    filterPerPage: userInfoObj.filterPerPage,
+                                    libraryName: userInfoObj.libraryName
+                                });
+                                
+                                console.log('🔥 About to call setUserInfoData...');
+                                console.log('🔥 userInfoObj being passed to setUserInfoData:', JSON.stringify(userInfoObj, null, 2));
+                                dynamicData.mutations.setUserInfoData(userInfoObj);
+                                console.log('🔥 setUserInfoData called successfully');
+                                
+                                // Check if the state was actually updated
+                                setTimeout(() => {
+                                    const updatedUserInfo = dynamicData.state.userInfo;
+                                    console.log('🔥 VERIFICATION - Updated state after setUserInfoData:', {
+                                        filterPageNumber: updatedUserInfo.filterPageNumber,
+                                        filterPerPage: updatedUserInfo.filterPerPage
+                                    });
+                                }, 50);
+                                
+                                console.log('🔥 About to call setPageSize...');
+                                setPageSize(size);
+                                console.log('🔥 setPageSize called successfully');
+                                
+                                // Clear the ref flag after a delay to allow onChange to work normally for actual page navigation
+                                setTimeout(() => {
+                                    console.log('🔥 Clearing isChangingPageSize REF to false');
+                                    isChangingPageSizeRef.current = false;
+                                }, 100);
+                                
+                            } catch (error) {
+                                console.error('🔥 ERROR in onShowSizeChange:', error);
+                                isChangingPageSizeRef.current = false; // Clear flag on error
+                            }
+                        }}
                         current={current} 
                         pageSize={pageSize} 
                         total={referrer.filterCount} 
