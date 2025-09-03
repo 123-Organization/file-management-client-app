@@ -5,7 +5,7 @@ const prod = {
 }
 
 const dev = {
-  ENVIRONMENT : "STAGE",
+  ENVIRONMENT : "STAGE", 
   // SERVER_BASE_URL : "https://app-filemanager.finerworks.com/api/",
   // COMPANION_BASE_URL : "https://companion-app-filemanagement.finerworks.com",
   SERVER_BASE_URL : "https://prod3-api.finerworks.com/api/",

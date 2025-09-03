@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { Typography, Checkbox, Modal, Button, message, Alert, Spin } from 'antd';
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
 import tiffDefault from "../assets/images/tiff_default.png"
@@ -9,13 +9,15 @@ import {
 import { useDynamicData } from '../context/DynamicDataProvider';
 import { flushSync } from 'react-dom';
 import { Uploader } from '../helpers/fileUploader';
-import { makeUniqueFileName, osName, sumTo } from '../helpers/fileHelper';
+import { makeUniqueFileName, osName } from '../helpers/fileHelper';
+import { PDFProcessor, isPdfFile } from '../helpers/pdfProcessor';
+import { PDFFileUploader } from '../helpers/pdfFileUploader';
 import UppyUploadBox from './UppyUploadBox';
 
 import config  from "../config/configs";
 import { sendEvent } from '../helpers/GA4Events';
 const contentFlagLongFileName:string = 'File name is too long. Please shorten the filename and try again.'
-const { Title, Text } = Typography;
+// const { Title, Text } = Typography;
 let OsName = osName();
 
 interface UploadModalProps {
@@ -45,6 +47,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   const [loading, setLoading] = useState(false);
   const [flagLongFileName, setFlagLongFileName] = useState<boolean>(false);
   const [uploadErrors, setUploadErrors] = useState<any>(null);
+  const [pdfUploadInput, setPdfUploadInput] = useState<HTMLInputElement | null>(null);
   const handleOk = () => {
     setLoading(true);
     setTimeout(() => {
@@ -81,8 +84,13 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   }
 
   const onChange = async(imageList: any, addUpdateIndex: any) => {
+    console.log('onChange called with imageList:', imageList);
+    
+    // Clear any existing upload errors when new files are selected
+    setUploadErrors(null);
     
     imageList = imageList.filter((img:any, i:number) => {
+      console.log('Processing file:', img.file.name, 'type:', img.file.type);
       
       if(img.file.name.length > config.MAX_CHARACTER_FILENAME) {
         console.log('file error',img)
@@ -104,11 +112,14 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
       setImagesProgress([...new Array(maxNumber)].fill(0,0,(imageList.length)));
     }
     setUploadImageModal(imageList,true);
-    console.log('imageList....',imageList)
+    console.log('imageList after filtering....',imageList)
     if(imageListModal) { console.log('change event aborted'); return true; }
     
     //@ts-ignore
-    const uploadPromises = imageList.map((img, i) => uploadImage(img?.file,i));
+    const uploadPromises = imageList.map((img, i) => {
+      console.log('Creating upload promise for:', img?.file?.name, 'type:', img?.file?.type);
+      return uploadImage(img?.file,i);
+    });
 
     await Promise.allSettled(uploadPromises)
       .then((results) => {
@@ -132,12 +143,100 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     return file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
   }
 
-  const uploadImage = async(file: any, addUpdateIndex: any) => {
+  // Helper function to check if file is PDF
+  const isPdfFileType = (file: any) => {
+    return isPdfFile(file);
+  }
 
+  const uploadPdfFile = async(file: any, addUpdateIndex: any) => {
+    try {
+      console.log('uploadPdfFile called - Processing PDF file:', file.name, 'size:', file.size, 'type:', file.type);
+      
+      // Process PDF and extract pages
+      const pdfProcessor = new PDFProcessor(
+        file,
+        userInfo,
+        (Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000)).toString(),
+        userInfo.libraryName
+      );
+      
+      console.log('PDFProcessor created, starting page extraction...');
+      
+      const pages = await pdfProcessor.extractPages();
+      console.log(`PDF processed: ${pages.length} pages extracted`);
+      
+      // Create PDF uploader
+      const pdfUploader = new PDFFileUploader();
+      
+      // Set up progress tracking
+      pdfUploader
+        .onProgress(({ percentage, currentPage, totalPages }) => {
+          console.log(`PDF Upload Progress: ${percentage}% (Page ${currentPage}/${totalPages})`);
+          imagesProgress[addUpdateIndex] = percentage;
+          flushImagesProgress(imagesProgress);
+          setImageListEvent(true);
+        })
+        .onError((error) => {
+          console.error('PDF upload error:', error);
+          let errorMessage = 'PDF upload failed';
+          if (error?.message) {
+            errorMessage = error.message;
+          }
+          messageApi.open({
+            type: 'error',
+            content: errorMessage,
+            duration: 5
+          });
+        })
+        .onSuccess(({ totalPages }) => {
+          console.log(`PDF upload successful: ${totalPages} pages uploaded`);
+          
+          // Set progress to 100% for completion
+          imagesProgress[addUpdateIndex] = 100;
+          flushImagesProgress(imagesProgress);
+          setImageListEvent(true);
+          
+          // For PDF uploads, add only one GUID to match the single file in images array
+          const pdfGuid = `pdf-complete-${Date.now()}`;
+          setSuccessImagesList(prevList => [...prevList, pdfGuid]);
+          
+          // Trigger the file upload completed event
+          fileManagerAppFileUploadedEvent();
+          setImageListEventLoad(true);
+          
+          messageApi.open({
+            type: 'success',
+            content: `PDF uploaded successfully: ${totalPages} pages processed`,
+            duration: 5
+          });
+        });
+      
+      // Start PDF upload
+      await pdfUploader.uploadPDFPages(pages);
+      
+    } catch (error) {
+      console.error('PDF processing error:', error);
+      messageApi.open({
+        type: 'error',
+        content: `Failed to process PDF: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        duration: 5
+      });
+    }
+  }
+
+  const uploadImage = async(file: any, addUpdateIndex: any) => {
+    console.log('uploadImage called with file:', file?.name, 'type:', file?.type);
    
     if(imageListModal) { console.log('change event aborted') }
     if (file) {
-      console.log(file);
+      console.log('File details:', file);
+      console.log('Is PDF file?', isPdfFileType(file));
+      
+      // Handle PDF files separately
+      if (isPdfFileType(file)) {
+        console.log('Processing as PDF file...');
+        return await uploadPdfFile(file, addUpdateIndex);
+      }
       
       let percentage: any = 0
 
@@ -274,8 +373,19 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
 
   const onError = (errors: ErrorsType) => {
     // data for submit
-    console.log(onError, errors);
+    console.log('onError called with errors:', errors);
     setUploadErrors(errors);
+    
+    // Log specific error types
+    if (errors?.acceptType) {
+      console.log('Accept type error - file type not allowed');
+    }
+    if (errors?.maxFileSize) {
+      console.log('Max file size error');
+    }
+    if (errors?.maxNumber) {
+      console.log('Max number error');
+    }
     // setImageListModal(true)
   };
 
@@ -285,6 +395,47 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
       'upload_complete': 'true'
     };
     sendEvent(userInfo.GAID,eventName,eventParams);
+  }
+
+  // Custom PDF file handler
+  const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      console.log('PDF file selected:', file.name, file.type);
+      
+      if (isPdfFileType(file)) {
+        console.log('Valid PDF file detected, starting upload...');
+        
+        // Create a mock image list entry for PDF
+        const mockImageList = [{
+          file: file,
+          data_url: null
+        }];
+        
+        // Simulate the upload process
+        setUploadImageModal(mockImageList, true);
+        setImagesProgress([0]); // Initialize progress for 1 file
+        
+        // Start PDF upload
+        uploadPdfFile(file, 0);
+      } else {
+        messageApi.open({
+          type: 'error',
+          content: 'Please select a valid PDF file',
+          duration: 5
+        });
+      }
+    }
+    
+    // Reset the input value to allow selecting the same file again
+    event.target.value = '';
+  }
+
+  const triggerPdfUpload = () => {
+    if (pdfUploadInput) {
+      pdfUploadInput.click();
+    }
   }
 
   const onImageRemoveAllHandler = async() => {
@@ -437,8 +588,26 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                       <div className="mt-20 text-center">
                         <p className="text-sm text-gray-500 font-medium">Supported file types:</p>
                         <p className="text-xs text-gray-400 mt-1">
-                          JPG, JPEG, PNG, BMP, TIF, TIFF, SVG
+                          JPG, JPEG, PNG, BMP, TIF, TIFF, SVG, PDF
                         </p>
+                        
+                        {/* PDF Upload Button */}
+                        <div className="mt-4">
+                          <button
+                            type="button"
+                            onClick={triggerPdfUpload}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                          >
+                            Upload PDF File
+                          </button>
+                          <input
+                            type="file"
+                            accept=".pdf,application/pdf"
+                            onChange={handlePdfUpload}
+                            ref={(input) => setPdfUploadInput(input)}
+                            style={{ display: 'none' }}
+                          />
+                        </div>
                       </div>
                       &nbsp;
 
@@ -546,7 +715,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         <Checkbox   
           checked={componentDisabled}
           onChange={(e) => setComponentDisabled(e.target.checked)} 
-        className='xl:pl-4 pb-10 xl:pt-4 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a href={'http://'+userInfo.domain+userInfo.terms_of_service_url} target="_blank" className='underline'>terms of service </a></Checkbox>
+        className='xl:pl-4 pb-10 xl:pt-4 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a href={'http://'+userInfo.domain+userInfo.terms_of_service_url} target="_blank" rel="noreferrer" className='underline'>terms of service </a></Checkbox>
       </div>
       </div>
     </Modal>
