@@ -12,6 +12,8 @@ import { Uploader } from '../helpers/fileUploader';
 import { makeUniqueFileName, osName } from '../helpers/fileHelper';
 import { PDFProcessor, isPdfFile } from '../helpers/pdfProcessor';
 import { PDFFileUploader } from '../helpers/pdfFileUploader';
+import { EPSConverter, isEpsFile } from '../helpers/epsConverter';
+import { SVGConverter, isSvgFile as isSvgFileHelper } from '../helpers/svgConverter';
 import UppyUploadBox from './UppyUploadBox';
 
 import config  from "../config/configs";
@@ -135,7 +137,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
 
   // Helper function to check if file is SVG
   const isSvgFile = (file: any) => {
-    return file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+    return isSvgFileHelper(file);
   }
 
   // Helper function to check if file is PNG
@@ -146,6 +148,49 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   // Helper function to check if file is PDF
   const isPdfFileType = (file: any) => {
     return isPdfFile(file);
+  }
+
+  // Helper function to check if file is EPS
+  const isEpsFileType = (file: any) => {
+    return isEpsFile(file);
+  }
+
+  const uploadSvgFile = async(file: any, addUpdateIndex: any) => {
+    try {
+      console.log('uploadSvgFile called - Converting SVG to PDF:', file.name, 'size:', file.size, 'type:', file.type);
+      
+      // Show initial conversion progress
+      imagesProgress[addUpdateIndex] = 10;
+      flushImagesProgress(imagesProgress);
+      setImageListEvent(true);
+      
+      // Convert SVG to PDF
+      const svgConverter = new SVGConverter();
+      const conversionResult = await svgConverter.convertToPDF(file);
+      
+      console.log('SVG converted to PDF:', conversionResult.fileName);
+      
+      // Update progress after conversion
+      imagesProgress[addUpdateIndex] = 30;
+      flushImagesProgress(imagesProgress);
+      setImageListEvent(true);
+      
+      // Create a File object from the PDF blob
+      const pdfFile = new File([conversionResult.pdfBlob], conversionResult.fileName, {
+        type: 'application/pdf'
+      });
+      
+      // Use the existing PDF upload flow
+      await uploadPdfFile(pdfFile, addUpdateIndex);
+      
+    } catch (error) {
+      console.error('SVG conversion error:', error);
+      messageApi.open({
+        type: 'error',
+        content: `Failed to convert SVG: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        duration: 5
+      });
+    }
   }
 
   const uploadPdfFile = async(file: any, addUpdateIndex: any) => {
@@ -224,6 +269,80 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     }
   }
 
+  const uploadRegularFile = async(file: any, addUpdateIndex: any) => {
+    // This function handles regular file upload (including EPS files until backend conversion is ready)
+    let percentage: any = 0
+
+    const videoUploaderOptions = {
+      fileName: makeUniqueFileName(file.name),
+      fileType: file.type,
+      file,
+      userInfo,
+      basecampProjectID:(Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000)),
+      fileLibrary:userInfo.libraryName,
+      isSvg: isSvgFile(file)  // Add SVG flag to options
+    }
+
+    const uploader = new Uploader(videoUploaderOptions)
+    uploaders[addUpdateIndex] = uploader;
+    setUploaders(uploaders);
+
+    await uploader
+      .onProgress(({ percentage: newPercentage }: any) => {
+        // to avoid the same percentage to be logged twice
+        setImageListEvent(false)
+        if (newPercentage !== percentage) {
+          imagesProgress[addUpdateIndex] = percentage = newPercentage
+          console.log('percentage', `${percentage}%`)
+          flushImagesProgress(imagesProgress);
+          setImageListEvent(true)
+        } 
+      })
+      .onError((error: any) => {
+        console.error('error file upload', error)
+        let errorMessage = 'File upload failed';
+        if (error?.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        messageApi.open({
+          type: 'error',
+          content: errorMessage,
+          duration: 5
+        });
+      })
+      .onSuccess(({ response: newResponse, userInfo: updatedUserInfo }: any) => {
+        console.log("Check on success function response", newResponse);
+        console.log("Response data structure:", newResponse?.data);
+        
+        // Handle both v1 and v2 API response structures
+        let guid: string | null = null;
+        
+        if (newResponse?.data?.result?.guid) {
+          // Regular upload response structure
+          guid = newResponse.data.result.guid;
+          console.log("Found GUID in regular format:", guid);
+        } else if (newResponse?.data?.guid) {
+          // V2 API might return GUID directly
+          guid = newResponse.data.guid;
+          console.log("Found GUID in v2 format:", guid);
+        } else if (newResponse?.data) {
+          // Log the actual structure to understand v2 response
+          console.log("Unknown response structure for file upload:", newResponse.data);
+          // For now, generate a temporary GUID to make UI work
+          guid = `file-${Date.now()}`;
+          console.log("Using temporary GUID for file:", guid);
+        }
+        
+        if (guid !== null) {
+          setSuccessImagesList(prevList => [...prevList, guid as string]);
+        }
+      })
+
+    return await uploader.start()
+  }
+
   const uploadImage = async(file: any, addUpdateIndex: any) => {
     console.log('uploadImage called with file:', file?.name, 'type:', file?.type);
    
@@ -231,6 +350,22 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     if (file) {
       console.log('File details:', file);
       console.log('Is PDF file?', isPdfFileType(file));
+      console.log('Is EPS file?', isEpsFileType(file));
+      console.log('Is SVG file?', isSvgFile(file));
+      
+      // Handle SVG files - convert to PDF and use PDF flow
+      if (isSvgFile(file)) {
+        console.log('Processing as SVG file - converting to PDF...');
+        return await uploadSvgFile(file, addUpdateIndex);
+      }
+      
+      // Handle EPS files - upload directly, let backend convert
+      if (isEpsFileType(file)) {
+        console.log('Processing as EPS file - uploading directly...');
+        // For now, upload EPS as regular file until backend adds EPS conversion
+        // TODO: Implement server-side EPS to PDF conversion
+        return await uploadRegularFile(file, addUpdateIndex);
+      }
       
       // Handle PDF files separately
       if (isPdfFileType(file)) {
@@ -397,17 +532,21 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     sendEvent(userInfo.GAID,eventName,eventParams);
   }
 
-  // Custom PDF file handler
+  // Custom PDF/EPS/SVG file handler
   const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      console.log('PDF file selected:', file.name, file.type);
+      console.log('File selected:', file.name, file.type);
       
-      if (isPdfFileType(file)) {
-        console.log('Valid PDF file detected, starting upload...');
+      if (isPdfFileType(file) || isEpsFileType(file) || isSvgFile(file)) {
+        let fileType = 'PDF';
+        if (isEpsFileType(file)) fileType = 'EPS';
+        if (isSvgFile(file)) fileType = 'SVG';
         
-        // Create a mock image list entry for PDF
+        console.log(`Valid ${fileType} file detected, starting upload...`);
+        
+        // Create a mock image list entry for PDF/EPS/SVG
         const mockImageList = [{
           file: file,
           data_url: null
@@ -417,12 +556,19 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         setUploadImageModal(mockImageList, true);
         setImagesProgress([0]); // Initialize progress for 1 file
         
-        // Start PDF upload
-        uploadPdfFile(file, 0);
+        // Start upload based on file type
+        if (isSvgFile(file)) {
+          uploadSvgFile(file, 0);
+        } else if (isEpsFileType(file)) {
+          // Upload EPS as regular file until backend conversion is ready
+          uploadRegularFile(file, 0);
+        } else {
+          uploadPdfFile(file, 0);
+        }
       } else {
         messageApi.open({
           type: 'error',
-          content: 'Please select a valid PDF file',
+          content: 'Please select a valid PDF, EPS, or SVG file',
           duration: 5
         });
       }
@@ -563,7 +709,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                 maxNumber={maxNumber}
                 dataURLKey="data_url"
                 maxFileSize={maxFileSize}
-                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','psd','svg']}
+                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','psd','svg','eps']}
               >
                 {({
                   imageList,
@@ -588,21 +734,21 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                       <div className="mt-20 text-center">
                         <p className="text-sm text-gray-500 font-medium">Supported file types:</p>
                         <p className="text-xs text-gray-400 mt-1">
-                          JPG, JPEG, PNG, BMP, TIF, TIFF, SVG, PDF
+                          JPG, JPEG, PNG, BMP, TIF, TIFF, SVG, PDF, EPS
                         </p>
                         
-                        {/* PDF Upload Button */}
+                        {/* PDF/SVG/EPS Upload Button */}
                         <div className="mt-4">
                           <button
                             type="button"
                             onClick={triggerPdfUpload}
                             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
                           >
-                            Upload PDF File
+                            Upload PDF/SVG/EPS File
                           </button>
                           <input
                             type="file"
-                            accept=".pdf,application/pdf"
+                            accept=".pdf,.svg,.eps,application/pdf,image/svg+xml,application/postscript"
                             onChange={handlePdfUpload}
                             ref={(input) => setPdfUploadInput(input)}
                             style={{ display: 'none' }}
