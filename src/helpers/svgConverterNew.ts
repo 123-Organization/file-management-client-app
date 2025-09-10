@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { SVGVectorConverter } from './svgVectorConverter';
 
 export interface SVGConversionResult {
   pdfBlob: Blob;
@@ -33,10 +34,31 @@ export class SVGConverter {
       const dimensions = this.parseSVGDimensions(svgContent);
       console.log(`📐 Parsed dimensions: ${dimensions.width} x ${dimensions.height} points`);
       
-      // Try Method 1: Direct SVG rendering to canvas and then PDF
+      // Try Method 1: Vector-to-Vector conversion (preserves vectors)
+      try {
+        console.log('🎯 Attempting vector-to-vector conversion...');
+        const vectorConverter = new SVGVectorConverter();
+        const vectorResult = await vectorConverter.convertToPDF(file);
+        console.log('✅ Successfully converted SVG to PDF using Vector-to-Vector method');
+        console.log(`📦 Output file size: ${(vectorResult.convertedSize / 1024).toFixed(2)} KB`);
+        
+        // Test PDF validity
+        await this.testPdfValidity(vectorResult.pdfBlob);
+        
+        return {
+          pdfBlob: vectorResult.pdfBlob,
+          fileName: vectorResult.fileName,
+          originalSize: vectorResult.originalSize,
+          convertedSize: vectorResult.convertedSize
+        };
+      } catch (vectorError) {
+        console.warn('⚠️ Vector-to-Vector method failed, trying DOM+Canvas method:', vectorError);
+      }
+      
+      // Try Method 2: Direct SVG rendering to canvas and then PDF (raster fallback)
       try {
         const result = await this.convertSvgViaDOMAndCanvas(svgContent, dimensions, file.name, file.size);
-        console.log('✅ Successfully converted SVG to PDF using DOM + Canvas method');
+        console.log('✅ Successfully converted SVG to PDF using DOM + Canvas method (raster)');
         console.log(`📦 Output file size: ${(result.convertedSize / 1024).toFixed(2)} KB`);
         
         // Test PDF validity
@@ -47,9 +69,9 @@ export class SVGConverter {
         console.warn('⚠️ DOM+Canvas method failed, trying image-based method:', domError);
         
         try {
-          // Fallback Method 2: Convert SVG to image first, then to PDF
+          // Fallback Method 3: Convert SVG to image first, then to PDF
           const result = await this.convertSvgViaImageToCanvas(svgContent, dimensions, file.name, file.size);
-          console.log('✅ Successfully converted SVG to PDF using Image + Canvas method');
+          console.log('✅ Successfully converted SVG to PDF using Image + Canvas method (raster)');
           console.log(`📦 Output file size: ${(result.convertedSize / 1024).toFixed(2)} KB`);
           
           // Test PDF validity

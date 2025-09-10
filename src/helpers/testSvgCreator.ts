@@ -226,6 +226,60 @@ showpage
     
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+
+  /**
+   * Create a vector test SVG that showcases vector preservation
+   */
+  static createVectorTestSVG(): string {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+      <!-- Background -->
+      <rect x="0" y="0" width="400" height="400" fill="#f8f9fa"/>
+      
+      <!-- Title -->
+      <text x="200" y="30" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#333">Vector Preservation Test</text>
+      
+      <!-- Basic shapes with precise vectors -->
+      <rect x="50" y="60" width="120" height="80" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+      <circle cx="300" cy="100" r="40" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+      
+      <!-- Simple test shapes for fill debugging -->
+      <rect x="50" y="150" width="60" height="40" fill="red" stroke="black" stroke-width="1"/>
+      <circle cx="150" cy="170" r="20" fill="blue" stroke="none"/>
+      
+      <!-- Complex path (should stay vector) -->
+      <path d="M 50 200 Q 200 150 350 200 T 350 280" stroke="#d32f2f" stroke-width="3" fill="none"/>
+      
+      <!-- Multiple lines (should be sharp) -->
+      <g stroke="#388e3c" stroke-width="1">
+        <line x1="50" y1="320" x2="150" y2="320"/>
+        <line x1="160" y1="320" x2="260" y2="320"/>
+        <line x1="270" y1="320" x2="350" y2="320"/>
+      </g>
+      
+      <!-- Polygon with sharp edges -->
+      <polygon points="200,250 180,280 220,280" fill="#7b1fa2" stroke="#4a148c" stroke-width="1"/>
+      
+      <!-- Text that should remain crisp -->
+      <text x="200" y="360" text-anchor="middle" font-family="Arial" font-size="12" fill="#666">
+        This text should be crisp at any zoom level
+      </text>
+      
+      <!-- Ellipse -->
+      <ellipse cx="100" cy="280" rx="30" ry="20" fill="#c8e6c9" stroke="#2e7d32" stroke-width="1"/>
+      
+      <!-- Fine details (1px lines) -->
+      <g stroke="#999" stroke-width="0.5">
+        <line x1="300" y1="250" x2="350" y2="250"/>
+        <line x1="300" y1="260" x2="350" y2="260"/>
+        <line x1="300" y1="270" x2="350" y2="270"/>
+      </g>
+      
+      <!-- Note -->
+      <text x="200" y="390" text-anchor="middle" font-family="Arial" font-size="10" fill="#999">
+        Zoom in to check if vectors are preserved (no pixelation)
+      </text>
+    </svg>`;
+  }
 }
 
 // Helper functions for console testing
@@ -240,9 +294,14 @@ showpage
   const complexSVG = TestSVGCreator.createComplexSVG();
   TestSVGCreator.downloadTestSVG(complexSVG, 'complex-test.svg');
   
+  // Vector test SVG (tests true vector preservation)
+  const vectorSVG = TestSVGCreator.createVectorTestSVG();
+  TestSVGCreator.downloadTestSVG(vectorSVG, 'vector-test.svg');
+  
   console.log('✅ Test SVG files downloaded!');
   console.log('   📁 simple-test.svg - Should use VECTOR conversion');
   console.log('   📁 complex-test.svg - Should use RASTER conversion');
+  console.log('   📁 vector-test.svg - TRUE VECTOR test (check for crisp lines when zoomed)');
 };
 
 (window as any).createTestEPS = () => {
@@ -272,5 +331,5 @@ console.log('   📁 createTestSVGs() - Generate test SVG files');
 console.log('   📁 createTestEPS() - Generate test EPS files');
 console.log('   📁 createAllTestFiles() - Generate both SVG and EPS test files');
 console.log('   ⚡ window.skipPdfConfirmation = true - Auto-continue uploads (skip confirmation)');
-console.log('   🛑 window.skipPdfConfirmation = false - Show confirmation dialog (default)');
+console.log('   💾 window.downloadPdfPages = true - Download PDF pages before upload (for testing)');
 

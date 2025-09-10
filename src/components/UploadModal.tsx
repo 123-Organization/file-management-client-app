@@ -307,8 +307,8 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         lastModified: pdfFile.lastModified
       });
       
-      // Use the existing PDF upload flow
-      await uploadPdfFile(pdfFile, addUpdateIndex);
+      // Upload the converted PDF directly (not as extracted PNG pages)
+        await uploadConvertedPdfFile(pdfFile, addUpdateIndex);
       
     } catch (error) {
       console.error('❌ EPS conversion error:', error);
@@ -405,8 +405,8 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         lastModified: pdfFile.lastModified
       });
       
-      // Use the existing PDF upload flow
-      await uploadPdfFile(pdfFile, addUpdateIndex);
+      // Upload the converted PDF directly (not as extracted PNG pages)
+        await uploadConvertedPdfFile(pdfFile, addUpdateIndex);
       
     } catch (error) {
       console.error('❌ SVG conversion error:', error);
@@ -415,6 +415,60 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         content: `Failed to convert SVG: ${error instanceof Error ? error.message : 'Unknown error'}`,
         duration: 8
       });
+    }
+  }
+
+  // Upload converted PDF file directly (for SVG/EPS conversions)
+  const uploadConvertedPdfFile = async (file: File, addUpdateIndex: number) => {
+    try {
+      console.log('📤 Uploading converted PDF directly:', file.name);
+      
+      // Get user info from localStorage
+      const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
+      const libraryAccountKey = localStorage.getItem('libraryAccountKey') || '';
+      
+      // Use the regular file uploader for the PDF blob
+      const uploaderOptions = {
+        file: file,
+        fileName: file.name,
+        fileType: file.type,
+        basecampProjectID: Math.floor(Math.random() * 100000).toString(),
+        fileLibrary: 'temporary',
+        userInfo: userInfo,
+        isSvg: false,
+        onProgressFn: (progress: number) => {
+          console.log(`📊 PDF Upload Progress: ${progress}%`);
+          imagesProgress[addUpdateIndex] = 30 + (progress * 0.7); // 30% base + 70% for upload
+          flushImagesProgress(imagesProgress);
+          setImageListEvent(true);
+        }
+      };
+
+      const uploader = new Uploader(uploaderOptions);
+      
+      await uploader.initialize();
+      
+      console.log('✅ Converted PDF uploaded successfully');
+      
+      // Final progress update
+      imagesProgress[addUpdateIndex] = 100;
+      flushImagesProgress(imagesProgress);
+      setImageListEvent(true);
+      
+    } catch (error) {
+      console.error('❌ Failed to upload converted PDF:', error);
+      messageApi.open({
+        type: 'error',
+        content: `Failed to upload converted PDF: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        duration: 8
+      });
+      
+      // Reset progress on error
+      imagesProgress[addUpdateIndex] = 0;
+      flushImagesProgress(imagesProgress);
+      setImageListEvent(true);
+      
+      throw error;
     }
   }
 
@@ -434,6 +488,28 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
       
       const pages = await pdfProcessor.extractPages();
       console.log(`PDF processed: ${pages.length} pages extracted`);
+      
+      // Show confirmation dialog after pages are downloaded
+      const userConfirmed = await showPdfConfirmationDialog(
+        `${file.name} - ${pages.length} individual PDF pages downloaded`
+      );
+      
+      if (!userConfirmed) {
+        console.log('❌ User cancelled PDF upload after reviewing downloaded pages');
+        messageApi.open({
+          type: 'info',
+          content: 'PDF upload cancelled. Downloaded files are available in your Downloads folder.',
+          duration: 5
+        });
+        
+        // Reset progress
+        imagesProgress[addUpdateIndex] = 0;
+        flushImagesProgress(imagesProgress);
+        setImageListEvent(true);
+        return;
+      }
+      
+      console.log('✅ User confirmed PDF upload, proceeding...');
       
       // Create PDF uploader
       const pdfUploader = new PDFFileUploader();

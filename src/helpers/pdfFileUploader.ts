@@ -36,7 +36,7 @@ export class PDFFileUploader {
       for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
         const page = pages[pageIndex];
         const uploadResponse = uploadResponses[pageIndex];
-        const file = new File([page.imageBlob], page.fileName, { type: 'image/png' });
+        const file = new File([page.imageBlob], page.fileName, { type: 'application/pdf' });
         const numberOfParts = Math.ceil(file.size / this.chunkSize);
         
         for (let partNumber = 1; partNumber <= numberOfParts; partNumber++) {
@@ -68,9 +68,25 @@ export class PDFFileUploader {
       console.log(`Received ${allUrlResponses.length} presigned URLs`);
 
       // Step 4: Upload all files using the presigned URLs
-      const uploadPromises = pages.map((page, pageIndex) => 
-        this.uploadSinglePageWithUrls(page, uploadResponses[pageIndex], pageIndex, pages.length, allUrlResponses, pagePartMap)
-      );
+      console.log(`📤 Starting upload of ${pages.length} PDF pages...`);
+      
+      const uploadPromises = pages.map(async (page, pageIndex) => {
+        // Debug: Verify what we're uploading for each page
+        const pageBytes = await page.imageBlob.slice(0, 10).arrayBuffer();
+        const pageHeader = new TextDecoder().decode(pageBytes);
+        const isRealPdf = pageHeader.startsWith('%PDF-');
+        
+        console.log(`📤 Uploading page ${page.pageNumber}/${page.totalPages}: ${page.fileName}`);
+        console.log(`   📊 Size: ${page.imageBlob.size} bytes`);
+        console.log(`   📋 Type: ${page.imageBlob.type}`);
+        console.log(`   ✅ Real PDF: ${isRealPdf ? 'YES' : 'NO'} (header: ${pageHeader.substring(0, 5)})`);
+        
+        if (!isRealPdf) {
+          console.error(`❌ ALERT: Uploading non-PDF data for page ${page.pageNumber}!`);
+        }
+        
+        return this.uploadSinglePageWithUrls(page, uploadResponses[pageIndex], pageIndex, pages.length, allUrlResponses, pagePartMap);
+      });
 
       await Promise.allSettled(uploadPromises);
       
@@ -218,7 +234,7 @@ export class PDFFileUploader {
       };
 
       xhr.open('PUT', presignedUrl);
-      xhr.setRequestHeader('Content-Type', 'image/png');
+      xhr.setRequestHeader('Content-Type', 'application/pdf');
       xhr.send(chunk);
     });
   }
