@@ -74,12 +74,8 @@ export class PDFProcessor {
           console.error(`❌ Page ${pageNum} is NOT a real PDF! Header: ${pdfHeader}`);
         }
         
-        // Download each page for verification before upload
-        console.log(`💾 Downloading page ${pageNum} for verification...`);
-        this.downloadPdfPage(pagePdfBlob, pageFileName, pageNum);
-        
-        // Small delay between downloads to avoid browser blocking
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Download functionality removed - proceeding directly to upload
+        // this.downloadPdfPage(pagePdfBlob, pageFileName, pageNum);
         
         pages.push({
           fileName: pageFileName,

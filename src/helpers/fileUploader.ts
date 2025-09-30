@@ -2,7 +2,7 @@ import axios from "axios"
 import config  from "../config/configs";
 
 const SERVER_BASE_URL = config.SERVER_BASE_URL;
-const IMAGE_PROCESSOR_BASE_URL = "http://lightsail.image.processor.finerworks.com/api";
+const IMAGE_PROCESSOR_BASE_URL = "https://lightsail.image.processor.finerworks.com/api";
 
 // initializing axios
 const api = axios.create({
@@ -36,6 +36,7 @@ export class Uploader {
   fileId: null | string
   fileKey: null | string
   isSvg: boolean
+  isEps: boolean
   onProgressFn: (err: any) => void
   onErrorFn: (err: any) => void
   onSuccessFn: (err: any) => void
@@ -55,6 +56,7 @@ export class Uploader {
     this.basecampProjectID = options.basecampProjectID
     this.fileLibrary = options.fileLibrary
     this.isSvg = options.isSvg || false
+    this.isEps = options.isEps || false
     this.progressCache = {}
     this.completeResponse = {}
     this.activeConnections = {}
@@ -308,8 +310,14 @@ export class Uploader {
         return
       }
 
-      // Use different API endpoint for SVG files
-      const apiEndpoint = this.isSvg ? "/complete-upload-v2" : "/complete-upload";
+      // Use different API endpoint for SVG and EPS files
+      let apiEndpoint = "/complete-upload"; // Default for regular files
+      if (this.isSvg) {
+        apiEndpoint = "/complete-upload-v2";
+      } else if (this.isEps) {
+        apiEndpoint = "/complete-upload-v2-eps";
+      }
+      
       console.log(`sendCompleteRequest() - Using API endpoint: ${apiEndpoint}`);
       console.log('sendCompleteRequest() - Calling complete-upload API with:', videoFinalizationMultiPartInput);
       
