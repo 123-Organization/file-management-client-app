@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export const backendUrl = process.env.BASE_URL;
+const IMAGE_PROCESSOR_BASE_URL = "http://lightsail.image.processor.finerworks.com/api";
 //In main file 
 
 //in my code startUpload was called by another file with useImperativeHandle(ref, () => ({
@@ -100,8 +101,8 @@ try {
             })
     })
 
-    // CompleteMultipartUpload in the backend server
-    const completeUploadResp = await axios.post(`${backendUrl}/complete-upload`, {
+    // CompleteMultipartUpload in the backend server - use new image processor URL
+    const completeUploadResp = await axios.post(`${IMAGE_PROCESSOR_BASE_URL}/complete-upload`, {
             params: {
                     fileName,
                     parts: uploadPartsArray,

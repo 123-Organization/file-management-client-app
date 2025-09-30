@@ -2,6 +2,7 @@ import axios from "axios"
 import config  from "../config/configs";
 
 const SERVER_BASE_URL = config.SERVER_BASE_URL;
+const IMAGE_PROCESSOR_BASE_URL = "http://lightsail.image.processor.finerworks.com/api";
 
 // initializing axios
 const api = axios.create({
@@ -312,10 +313,14 @@ export class Uploader {
       console.log(`sendCompleteRequest() - Using API endpoint: ${apiEndpoint}`);
       console.log('sendCompleteRequest() - Calling complete-upload API with:', videoFinalizationMultiPartInput);
       
-      const res = await api.request({
-        url: apiEndpoint,
+      // Use the new image processor URL for complete upload endpoints
+      const res = await axios.request({
+        url: `${IMAGE_PROCESSOR_BASE_URL}${apiEndpoint}`,
         method: "POST",
         data: videoFinalizationMultiPartInput,
+        params: {
+          libraryAccountKey: localStorage.getItem('libraryAccountKey')
+        }
       })
 
       console.log('sendCompleteRequest() - Complete upload API response:', res.data);

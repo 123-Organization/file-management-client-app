@@ -2,7 +2,7 @@ import axios from "axios";
 import { PDFPageInfo } from './pdfProcessor';
 
 // PDF-specific API endpoints
-const PDF_API_BASE_URL = "https://r1eaau08q3.execute-api.us-east-1.amazonaws.com/Prod/api";
+const PDF_API_BASE_URL = "http://lightsail.image.processor.finerworks.com/api";
 
 export interface PDFUploadRequest {
   fileName: string;

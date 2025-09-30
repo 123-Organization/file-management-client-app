@@ -13,7 +13,7 @@ import { makeUniqueFileName, osName } from '../helpers/fileHelper';
 import { PDFProcessor, isPdfFile } from '../helpers/pdfProcessor';
 import { PDFFileUploader } from '../helpers/pdfFileUploader';
 import { EPSConverter, isEpsFile } from '../helpers/epsConverterNew';
-import { SVGConverter, isSvgFile as isSvgFileHelper } from '../helpers/svgConverterNew';
+import { isSvgFile as isSvgFileHelper } from '../helpers/svgConverterNew';
 import '../helpers/testSvgCreator'; // Load test helper functions
 import UppyUploadBox from './UppyUploadBox';
 
@@ -320,103 +320,104 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     }
   }
 
-  const uploadSvgFile = async(file: any, addUpdateIndex: any) => {
-    try {
-      console.log('🚀 uploadSvgFile called - Converting SVG to PDF:', file.name, 'size:', file.size, 'type:', file.type);
+  // NOTE: SVG files now upload directly without conversion - this function is no longer used
+  // const uploadSvgFile = async(file: any, addUpdateIndex: any) => {
+  //   try {
+  //     console.log('🚀 uploadSvgFile called - Converting SVG to PDF:', file.name, 'size:', file.size, 'type:', file.type);
       
-      // Show initial conversion progress
-      imagesProgress[addUpdateIndex] = 10;
-      flushImagesProgress(imagesProgress);
-      setImageListEvent(true);
+  //     // Show initial conversion progress
+  //     imagesProgress[addUpdateIndex] = 10;
+  //     flushImagesProgress(imagesProgress);
+  //     setImageListEvent(true);
+  //     
+  //     // Show conversion start message
+  //     messageApi.open({
+  //       type: 'info',
+  //       content: `Converting SVG file: ${file.name}`,
+  //       duration: 3
+  //     });
+  //     
+  //     // Convert SVG to PDF
+  //     const svgConverter = new SVGConverter();
+  //     const startTime = Date.now();
+  //     const conversionResult = await svgConverter.convertToPDF(file);
+  //     const conversionTime = Date.now() - startTime;
+  //     
+  //     console.log('📊 SVG Conversion Results:');
+  //     console.log(`   ✅ Converted to: ${conversionResult.fileName}`);
+  //     console.log(`   ⏱️ Conversion time: ${conversionTime}ms`);
+  //     console.log(`   📏 Original size: ${(conversionResult.originalSize / 1024).toFixed(2)} KB`);
+  //     console.log(`   📦 PDF size: ${(conversionResult.convertedSize / 1024).toFixed(2)} KB`);
+  //     console.log(`   🔄 Size change: ${conversionResult.convertedSize > conversionResult.originalSize ? '+' : ''}${(((conversionResult.convertedSize - conversionResult.originalSize) / conversionResult.originalSize) * 100).toFixed(1)}%`);
+  //     
+  //     // Download converted PDF locally for inspection
+  //     downloadConvertedPdf(conversionResult.pdfBlob, conversionResult.fileName);
+  //     
+  //     // Show conversion success message with download info
+  //     messageApi.open({
+  //       type: 'success',
+  //       content: `SVG converted to PDF successfully! (${conversionTime}ms) - Downloaded to check quality`,
+  //       duration: 8
+  //     });
+  //     
+  //     // Add a small delay to allow user to check the downloaded file
+  //     console.log('⏳ Pausing 3 seconds to allow PDF inspection...');
+  //     console.log('💡 Check your Downloads folder and open the PDF to verify quality');
+  //     await new Promise(resolve => setTimeout(resolve, 3000));
+  //     
+  //     // Optional: Add user confirmation dialog (can be disabled via console)
+  //     // Set window.skipPdfConfirmation = true to bypass this dialog for testing
+  //     const skipConfirmation = (window as any).skipPdfConfirmation === true;
+  //     
+  //     if (!skipConfirmation) {
+  //       const shouldContinue = await showPdfConfirmationDialog(conversionResult.fileName);
+  //       if (!shouldContinue) {
+  //         console.log('❌ User cancelled upload after PDF inspection');
+  //         messageApi.open({
+  //           type: 'info',
+  //           content: 'Upload cancelled - PDF downloaded for inspection',
+  //           duration: 4
+  //         });
+  //         return;
+  //       }
+  //     } else {
+  //       console.log('⚡ Skipping PDF confirmation dialog (auto-continue enabled)');
+  //       messageApi.open({
+  //         type: 'info',
+  //         content: 'Auto-continuing upload (confirmation disabled)',
+  //         duration: 2
+  //       });
+  //     }
+  //     
+  //     // Update progress after conversion and pause
+  //     imagesProgress[addUpdateIndex] = 30;
+  //     flushImagesProgress(imagesProgress);
+  //     setImageListEvent(true);
+  //     
+  //     // Create a File object from the PDF blob
+  //     const pdfFile = new File([conversionResult.pdfBlob], conversionResult.fileName, {
+  //       type: 'application/pdf'
+  //     });
+  //     
+  //     console.log('📄 Created PDF File object:', {
+  //       name: pdfFile.name,
+  //       size: pdfFile.size,
+  //       type: pdfFile.type,
+  //       lastModified: pdfFile.lastModified
+  //     });
+  //     
+  //     // Upload the converted PDF directly (not as extracted PNG pages)
+  //       await uploadConvertedPdfFile(pdfFile, addUpdateIndex);
       
-      // Show conversion start message
-      messageApi.open({
-        type: 'info',
-        content: `Converting SVG file: ${file.name}`,
-        duration: 3
-      });
-      
-      // Convert SVG to PDF
-      const svgConverter = new SVGConverter();
-      const startTime = Date.now();
-      const conversionResult = await svgConverter.convertToPDF(file);
-      const conversionTime = Date.now() - startTime;
-      
-      console.log('📊 SVG Conversion Results:');
-      console.log(`   ✅ Converted to: ${conversionResult.fileName}`);
-      console.log(`   ⏱️ Conversion time: ${conversionTime}ms`);
-      console.log(`   📏 Original size: ${(conversionResult.originalSize / 1024).toFixed(2)} KB`);
-      console.log(`   📦 PDF size: ${(conversionResult.convertedSize / 1024).toFixed(2)} KB`);
-      console.log(`   🔄 Size change: ${conversionResult.convertedSize > conversionResult.originalSize ? '+' : ''}${(((conversionResult.convertedSize - conversionResult.originalSize) / conversionResult.originalSize) * 100).toFixed(1)}%`);
-      
-      // Download converted PDF locally for inspection
-      downloadConvertedPdf(conversionResult.pdfBlob, conversionResult.fileName);
-      
-      // Show conversion success message with download info
-      messageApi.open({
-        type: 'success',
-        content: `SVG converted to PDF successfully! (${conversionTime}ms) - Downloaded to check quality`,
-        duration: 8
-      });
-      
-      // Add a small delay to allow user to check the downloaded file
-      console.log('⏳ Pausing 3 seconds to allow PDF inspection...');
-      console.log('💡 Check your Downloads folder and open the PDF to verify quality');
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Optional: Add user confirmation dialog (can be disabled via console)
-      // Set window.skipPdfConfirmation = true to bypass this dialog for testing
-      const skipConfirmation = (window as any).skipPdfConfirmation === true;
-      
-      if (!skipConfirmation) {
-        const shouldContinue = await showPdfConfirmationDialog(conversionResult.fileName);
-        if (!shouldContinue) {
-          console.log('❌ User cancelled upload after PDF inspection');
-          messageApi.open({
-            type: 'info',
-            content: 'Upload cancelled - PDF downloaded for inspection',
-            duration: 4
-          });
-          return;
-        }
-      } else {
-        console.log('⚡ Skipping PDF confirmation dialog (auto-continue enabled)');
-        messageApi.open({
-          type: 'info',
-          content: 'Auto-continuing upload (confirmation disabled)',
-          duration: 2
-        });
-      }
-      
-      // Update progress after conversion and pause
-      imagesProgress[addUpdateIndex] = 30;
-      flushImagesProgress(imagesProgress);
-      setImageListEvent(true);
-      
-      // Create a File object from the PDF blob
-      const pdfFile = new File([conversionResult.pdfBlob], conversionResult.fileName, {
-        type: 'application/pdf'
-      });
-      
-      console.log('📄 Created PDF File object:', {
-        name: pdfFile.name,
-        size: pdfFile.size,
-        type: pdfFile.type,
-        lastModified: pdfFile.lastModified
-      });
-      
-      // Upload the converted PDF directly (not as extracted PNG pages)
-        await uploadConvertedPdfFile(pdfFile, addUpdateIndex);
-      
-    } catch (error) {
-      console.error('❌ SVG conversion error:', error);
-      messageApi.open({
-        type: 'error',
-        content: `Failed to convert SVG: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        duration: 8
-      });
-    }
-  }
+  //   } catch (error) {
+  //     console.error('❌ SVG conversion error:', error);
+  //     messageApi.open({
+  //       type: 'error',
+  //       content: `Failed to convert SVG: ${error instanceof Error ? error.message : 'Unknown error'}`,
+  //       duration: 8
+  //     });
+  //   }
+  // }
 
   // Upload converted PDF file directly (for SVG/EPS conversions)
   const uploadConvertedPdfFile = async (file: File, addUpdateIndex: number) => {
@@ -654,10 +655,10 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
       console.log('Is EPS file?', isEpsFileType(file));
       console.log('Is SVG file?', isSvgFile(file));
       
-      // Handle SVG files - convert to PDF and use PDF flow
+      // Handle SVG files - upload directly without conversion
       if (isSvgFile(file)) {
-        console.log('Processing as SVG file - converting to PDF...');
-        return await uploadSvgFile(file, addUpdateIndex);
+        console.log('Processing as SVG file - uploading directly...');
+        return await uploadRegularFile(file, addUpdateIndex);
       }
       
       // Handle EPS files - convert to PDF first, then upload
@@ -857,7 +858,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         
         // Start upload based on file type
         if (isSvgFile(file)) {
-          uploadSvgFile(file, 0);
+          uploadRegularFile(file, 0);
         } else if (isEpsFileType(file)) {
           // Convert EPS to PDF first, then upload
           uploadEpsFile(file, 0);
