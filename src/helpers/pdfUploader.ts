@@ -1,8 +1,9 @@
 import axios from "axios";
 import { PDFPageInfo } from './pdfProcessor';
+import config from "../config/configs";
 
 // PDF-specific API endpoints
-const PDF_API_BASE_URL = "http://lightsail.image.processor.finerworks.com/api";
+const PDF_API_BASE_URL = "https://lightsail.image.processor.finerworks.com/api";
 
 export interface PDFUploadRequest {
   fileName: string;
@@ -41,7 +42,7 @@ export interface PDFUploadUrlResponse {
 export class PDFUploaderAPI {
   
   /**
-   * Start PDF upload - Send array of PDF page info to get upload IDs back
+   * Start PDF upload - Send individual GET requests for each PDF page (like SVG vector upload)
    */
   static async startUploadPDF(pages: PDFPageInfo[]): Promise<PDFStartUploadResponse> {
     try {
