@@ -86,7 +86,7 @@ const UppyUploadBox = ({ setOpen }: UppyUploadProps) => {
     restrictions:{
       maxFileSize: (1024*1024*500*20),
       maxNumberOfFiles: 20,
-      allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.tiff','.zip','.psd','.svg'],
+      allowedFileTypes : ['.jpg', '.jpeg', '.png', '.bmp','.tif','.tiff','.zip','.svg'],
       
     },
     onBeforeFileAdded: (currentFile, files) => {

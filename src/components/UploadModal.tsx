@@ -932,7 +932,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                 maxNumber={maxNumber}
                 dataURLKey="data_url"
                 maxFileSize={maxFileSize}
-                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','psd','svg','eps']}
+                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','svg','eps']}
               >
                 {({
                   imageList,
