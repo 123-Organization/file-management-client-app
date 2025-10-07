@@ -1,8 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { Typography, Checkbox, Modal, Button, message, Alert, Spin } from 'antd';
 import ImageUploading, { ErrorsType } from 'react-images-uploading';
-import tiffDefault from "../assets/images/tiff_default.png"
-
 import {
   StopOutlined
 } from '@ant-design/icons';
@@ -16,9 +14,66 @@ import { isEpsFile } from '../helpers/epsConverterNew';
 import { isSvgFile as isSvgFileHelper } from '../helpers/svgConverterNew';
 import '../helpers/testSvgCreator'; // Load test helper functions
 import UppyUploadBox from './UppyUploadBox';
-
 import config  from "../config/configs";
 import { sendEvent } from '../helpers/GA4Events';
+import tiffDefault from "../assets/images/tiff_default.png"
+
+// File type icons for non-image files
+const FileTypeIcon = ({ fileType, fileName }: { fileType: string, fileName: string }) => {
+  const getFileIcon = () => {
+    const extension = fileName.toLowerCase().split('.').pop();
+    
+    if (extension === 'pdf' || fileType === 'application/pdf') {
+      return (
+        <div className="flex flex-col items-center justify-center h-full w-full bg-red-50 border-2 border-red-200 rounded-lg aspect-square">
+          <div className="text-red-600 text-4xl mb-2">📄</div>
+          <div className="text-red-600 font-semibold text-sm">PDF</div>
+          <div className="text-gray-500 text-xs mt-1 px-2 text-center truncate max-w-full">
+            {fileName}
+          </div>
+        </div>
+      );
+    }
+    
+    if (extension === 'eps' || fileType === 'application/postscript') {
+      return (
+        <div className="flex flex-col items-center justify-center h-full w-full bg-purple-50 border-2 border-purple-200 rounded-lg aspect-square">
+          <div className="text-purple-600 text-4xl mb-2">🖼️</div>
+          <div className="text-purple-600 font-semibold text-sm">EPS</div>
+          <div className="text-gray-500 text-xs mt-1 px-2 text-center truncate max-w-full">
+            {fileName}
+          </div>
+        </div>
+      );
+    }
+    
+    if (extension === 'svg' || fileType === 'image/svg+xml') {
+      return (
+        <div className="flex flex-col items-center justify-center h-full w-full bg-green-50 border-2 border-green-200 rounded-lg aspect-square">
+          <div className="text-green-600 text-4xl mb-2">🖼️</div>
+          <div className="text-green-600 font-semibold text-sm">SVG</div>
+          <div className="text-gray-500 text-xs mt-1 px-2 text-center truncate max-w-full">
+            {fileName}
+          </div>
+        </div>
+      );
+    }
+    
+    // Default fallback for other file types
+    return (
+      <div className="flex flex-col items-center justify-center h-full w-full bg-gray-50 border-2 border-gray-200 rounded-lg aspect-square">
+        <div className="text-gray-600 text-4xl mb-2">📁</div>
+        <div className="text-gray-600 font-semibold text-sm">FILE</div>
+        <div className="text-gray-500 text-xs mt-1 px-2 text-center truncate max-w-full">
+          {fileName}
+        </div>
+      </div>
+    );
+  };
+
+  return getFileIcon();
+};
+
 const contentFlagLongFileName:string = 'File name is too long. Please shorten the filename and try again.'
 // const { Title, Text } = Typography;
 let OsName = osName();
@@ -139,6 +194,55 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   // Helper function to check if file is SVG
   const isSvgFile = (file: any) => {
     return isSvgFileHelper(file);
+  }
+
+  // Helper function to get proper src for image display
+  const getSrcForImage = (image: any) => {
+    console.log('🔍 getSrcForImage called for:', image.file?.name);
+    console.log('   File type:', image.file?.type);
+    console.log('   Has data_url:', !!image['data_url']);
+    console.log('   Is SVG:', isSvgFile(image.file));
+    
+    // Handle TIFF files
+    if (image['data_url'] && image['data_url'].includes("image/tif")) {
+      console.log('   → Using TIFF default');
+      return tiffDefault;
+    }
+    
+    // Handle SVG files - use object URL for reliable display
+    if (isSvgFile(image.file) && image.file) {
+      console.log('   → Creating object URL for SVG');
+      // For SVG files, use URL.createObjectURL for reliable display
+      try {
+        const objectUrl = URL.createObjectURL(image.file);
+        console.log('   → SVG object URL created:', objectUrl);
+        return objectUrl;
+      } catch (error) {
+        console.error('   → Error creating SVG object URL:', error);
+        // Fallback to data_url if available
+        return image['data_url'] || '';
+      }
+    }
+    
+    // Default case for other image types
+    console.log('   → Using data_url');
+    return image['data_url'] || '';
+  }
+
+  // Helper function to check if file needs a custom icon (non-displayable files)
+  const needsCustomIcon = (file: any) => {
+    if (!file) return false;
+    
+    const fileName = file.name || '';
+    const fileType = file.type || '';
+    const extension = fileName.toLowerCase().split('.').pop();
+    
+    // Files that can't be displayed as images and need custom icons
+    // SVG removed from this list since browsers can display SVG files
+    return (
+      extension === 'pdf' || fileType === 'application/pdf' ||
+      extension === 'eps' || fileType === 'application/postscript'
+    );
   }
 
   // Helper function to check if file is PNG
@@ -886,9 +990,18 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
           border-radius: inherit;
           pointer-events: none;
         }
+        
+        .svg-preview-bg {
+          background-color: #f8f9fa;
+        }
+        
+        .svg-preview-bg img {
+          background-color: white;
+          border: 1px solid #e9ecef;
+        }
       `}</style>
       <Modal
-        style={{ height: '60%' }}
+        style={{ height: '80%' }}
         title={<h1 className=' text-gray-500'>Upload File</h1>}
         centered
         open={openModel}
@@ -1021,11 +1134,53 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                         {imagesProgress && imageList.map((image, index) => {
                           const isPng = isPngFile(image.file);
                           return (
-                          <div key={index} className={` relative rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item ${image.isSelected?'isSelectedImg':''} ${isPng ? 'png-dotted-bg' : ''}`} >
+                          <div key={index} className={` relative rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item ${image.isSelected?'isSelectedImg':''} ${isPng ? 'png-dotted-bg' : ''} ${isSvgFile(image.file) ? 'svg-preview-bg' : ''}`} >
                             <div className="w-full absolute bottom-1 bg-gray-200 rounded-full dark:bg-gray-700">
                               <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${imagesProgress[index]?imagesProgress[index]:'20'}%`, minWidth:'20%' }}> {imagesProgress[index]?imagesProgress[index] :'0'}%</div>
                             </div>
-                            <img className='h-[70%] cursor-pointer w-full rounded-lg' src={(image['data_url'] &&  image['data_url'].includes("image/tif")) ? tiffDefault : image['data_url']} alt="" width="100" />
+                            {needsCustomIcon(image.file) ? (
+                              <div className='h-[70%] cursor-pointer w-full rounded-lg'>
+                                <FileTypeIcon 
+                                  fileType={image.file?.type || ''} 
+                                  fileName={image.file?.name || 'Unknown File'} 
+                                />
+                              </div>
+                            ) : (
+                              <img 
+                                className='h-[70%] cursor-pointer w-full rounded-lg object-contain' 
+                                src={getSrcForImage(image)} 
+                                alt={image.file?.name || ''} 
+                                width="100"
+                                style={{
+                                  // Ensure SVG files display properly
+                                  backgroundColor: isSvgFile(image.file) ? 'white' : 'transparent'
+                                }}
+                                onError={(e) => {
+                                  console.log('🚨 Image load error for:', image.file?.name);
+                                  console.log('   File type:', image.file?.type);
+                                  console.log('   Image src:', getSrcForImage(image));
+                                  console.log('   Has data_url:', !!image['data_url']);
+                                  console.log('   Is SVG:', isSvgFile(image.file));
+                                  
+                                  // Fallback to file icon if image fails to load
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `
+                                      <div class="flex flex-col items-center justify-center h-full w-full bg-gray-50 border-2 border-gray-200 rounded-lg">
+                                        <div class="text-gray-600 text-4xl mb-2">🖼️</div>
+                                        <div class="text-gray-600 font-semibold text-sm">SVG</div>
+                                        <div class="text-gray-500 text-xs mt-1 px-2 text-center truncate max-w-full">
+                                          ${image.file?.name || 'Unknown File'}
+                                        </div>
+                                        <div class="text-red-500 text-xs mt-1">Preview failed</div>
+                                      </div>
+                                    `;
+                                  }
+                                }}
+                              />
+                            )}
                             <div className='flex relative w-full flex-col'>
                                 <div className='text-sm pt-10 mb-2'>{ image['file'] ? image['file']['name'] : '' } </div>
                                 <div>
