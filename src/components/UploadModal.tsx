@@ -12,7 +12,6 @@ import { PDFProcessor, isPdfFile } from '../helpers/pdfProcessor';
 import { PDFFileUploader } from '../helpers/pdfFileUploader';
 import { isEpsFile } from '../helpers/epsConverterNew';
 import { isSvgFile as isSvgFileHelper } from '../helpers/svgConverterNew';
-import '../helpers/testSvgCreator'; // Load test helper functions
 import UppyUploadBox from './UppyUploadBox';
 import config  from "../config/configs";
 import { sendEvent } from '../helpers/GA4Events';
@@ -105,7 +104,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   const [loading, setLoading] = useState(false);
   const [flagLongFileName, setFlagLongFileName] = useState<boolean>(false);
   const [uploadErrors, setUploadErrors] = useState<any>(null);
-  const [pdfUploadInput, setPdfUploadInput] = useState<HTMLInputElement | null>(null);
+  const [unifiedInput, setUnifiedInput] = useState<HTMLInputElement | null>(null);
   const handleOk = () => {
     setLoading(true);
     setTimeout(() => {
@@ -196,36 +195,120 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     return isSvgFileHelper(file);
   }
 
+  // Helper function to strip hash values from filenames
+  const stripHashFromFilename = (filename: string): string => {
+    console.log(`🔧 Original filename: ${filename}`);
+    
+    // Get file extension
+    const lastDotIndex = filename.lastIndexOf('.');
+    const extension = lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '';
+    const nameWithoutExt = lastDotIndex !== -1 ? filename.substring(0, lastDotIndex) : filename;
+    
+    console.log(`   📄 Name without extension: ${nameWithoutExt}`);
+    console.log(`   📄 Extension: ${extension}`);
+    
+    let cleanName = nameWithoutExt;
+    
+    // LEADING HASH PATTERNS (new patterns for hashes at the beginning):
+    // 1. Leading hash with double underscore: "H176002157927998856__Heat Sub Sample" -> "Heat Sub Sample"
+    cleanName = cleanName.replace(/^[A-Z0-9]+__/, '');
+    
+    // 2. Leading hash with single underscore: "H176002157927998856_Heat Sub Sample" -> "Heat Sub Sample"  
+    cleanName = cleanName.replace(/^[A-Z0-9]+_/, '');
+    
+    // 3. Leading hash with dash: "H176002157927998856-Heat Sub Sample" -> "Heat Sub Sample"
+    cleanName = cleanName.replace(/^[A-Z0-9]+-/, '');
+    
+    // 4. Leading alphanumeric hash (10+ chars): "abc123def456Heat Sub Sample" -> "Heat Sub Sample"
+    cleanName = cleanName.replace(/^[a-zA-Z0-9]{10,}([A-Z][a-z])/, '$1');
+    
+    // TRAILING HASH PATTERNS (existing patterns):
+    // Remove UUID-like patterns (8-4-4-4-12 format)
+    cleanName = cleanName.replace(/-[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, '');
+    
+    // Remove timestamp-like patterns (14+ digits)
+    cleanName = cleanName.replace(/-\d{14,}$/, '');
+    
+    // Remove hash patterns with dash (6+ alphanumeric characters)
+    cleanName = cleanName.replace(/-[a-zA-Z0-9]{6,}$/, '');
+    
+    // Remove hash patterns with underscore (6+ alphanumeric characters)
+    cleanName = cleanName.replace(/_[a-zA-Z0-9]{6,}$/, '');
+    
+    // Remove hash in parentheses
+    cleanName = cleanName.replace(/\([a-zA-Z0-9]{6,}\)$/, '');
+    
+    // Remove hash in brackets
+    cleanName = cleanName.replace(/\[[a-zA-Z0-9]{6,}\]$/, '');
+    
+    // CLEANUP:
+    // Remove # characters (as specifically requested)
+    cleanName = cleanName.replace(/#/g, '');
+    
+    // Remove multiple consecutive dashes/underscores and trim
+    cleanName = cleanName.replace(/[-_]+$/, '').replace(/^[-_]+/, '').trim();
+    
+    // Remove extra spaces
+    cleanName = cleanName.replace(/\s+/g, ' ').trim();
+    
+    // If name becomes empty, use a default
+    if (!cleanName) {
+      cleanName = 'file';
+    }
+    
+    const cleanFilename = cleanName + extension;
+    console.log(`   ✨ Clean filename: ${cleanFilename}`);
+    
+    return cleanFilename;
+  };
+
+  // Test function for hash stripping (can be called from console)
+  const testHashStripping = () => {
+    const testFilenames = [
+      'H176002157927998856__Heat Sub Sample #3.jpg', // Your specific case
+      'ABC123456789__Document Name.pdf',
+      'H12345__File Name #2.png',
+      'document-abc123.pdf',
+      'image_hash456.jpg',
+      'file(xyz789).png',
+      'report[def123].docx',
+      'photo-12345678-1234-1234-1234-123456789abc.jpg',
+      'data-20231009123456.csv',
+      'normal-file.txt',
+      'file-with-multiple-dashes.pdf',
+      'file_with_underscores.jpg'
+    ];
+    
+    console.log('🧪 Testing hash stripping:');
+    testFilenames.forEach(filename => {
+      const cleaned = stripHashFromFilename(filename);
+      console.log(`   ${filename} → ${cleaned}`);
+    });
+  };
+
+  // Make test function available globally for console testing
+  (window as any).testHashStripping = testHashStripping;
+
   // Helper function to get proper src for image display
   const getSrcForImage = (image: any) => {
-    console.log('🔍 getSrcForImage called for:', image.file?.name);
-    console.log('   File type:', image.file?.type);
-    console.log('   Has data_url:', !!image['data_url']);
-    console.log('   Is SVG:', isSvgFile(image.file));
-    
     // Handle TIFF files
     if (image['data_url'] && image['data_url'].includes("image/tif")) {
-      console.log('   → Using TIFF default');
       return tiffDefault;
     }
     
     // Handle SVG files - use object URL for reliable display
     if (isSvgFile(image.file) && image.file) {
-      console.log('   → Creating object URL for SVG');
       // For SVG files, use URL.createObjectURL for reliable display
       try {
-        const objectUrl = URL.createObjectURL(image.file);
-        console.log('   → SVG object URL created:', objectUrl);
-        return objectUrl;
+        return URL.createObjectURL(image.file);
       } catch (error) {
-        console.error('   → Error creating SVG object URL:', error);
+        console.error('Error creating SVG object URL:', error);
         // Fallback to data_url if available
         return image['data_url'] || '';
       }
     }
     
     // Default case for other image types
-    console.log('   → Using data_url');
     return image['data_url'] || '';
   }
 
@@ -252,7 +335,24 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
 
   // Helper function to check if file is PDF
   const isPdfFileType = (file: any) => {
-    return isPdfFile(file);
+    if (!file) return false;
+    const fileName = file.name || '';
+    const fileType = file.type || '';
+    
+    // Check both MIME type and file extension
+    const isPdfByType = fileType === 'application/pdf' || 
+                       fileType === 'application/x-pdf' || 
+                       fileType === 'application/acrobat' ||
+                       fileType === 'text/pdf';
+    const isPdfByExtension = fileName.toLowerCase().endsWith('.pdf');
+    
+    console.log(`🔍 PDF Check for ${fileName}:`);
+    console.log(`   MIME type: ${fileType}`);
+    console.log(`   Is PDF by type: ${isPdfByType}`);
+    console.log(`   Is PDF by extension: ${isPdfByExtension}`);
+    console.log(`   Original isPdfFile result: ${isPdfFile(file)}`);
+    
+    return isPdfByType || isPdfByExtension;
   }
 
   // Helper function to check if file is EPS
@@ -468,6 +568,10 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     try {
       console.log('📤 Uploading converted PDF directly:', file.name);
       
+      // Strip hash from filename before uploading
+      const cleanFileName = stripHashFromFilename(file.name);
+      console.log('Clean converted PDF filename:', cleanFileName);
+      
       // Get user info from localStorage
       const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
       const libraryAccountKey = localStorage.getItem('libraryAccountKey') || '';
@@ -475,7 +579,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
       // Use the regular file uploader for the PDF blob
       const uploaderOptions = {
         file: file,
-        fileName: file.name,
+        fileName: cleanFileName,
         fileType: file.type,
         basecampProjectID: Math.floor(Math.random() * 100000).toString(),
         fileLibrary: 'temporary',
@@ -522,9 +626,16 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     try {
       console.log('uploadPdfFile called - Processing PDF file:', file.name, 'size:', file.size, 'type:', file.type);
       
+      // Strip hash from filename before processing
+      const cleanFileName = stripHashFromFilename(file.name);
+      console.log('Clean PDF filename:', cleanFileName);
+      
+      // Create a new file object with clean filename
+      const cleanFile = new File([file], cleanFileName, { type: file.type });
+      
       // Process PDF and extract pages
       const pdfProcessor = new PDFProcessor(
-        file,
+        cleanFile,
         userInfo,
         (Math.floor(Math.random() * 100000) + Math.floor(Math.random() * 100000)).toString(),
         userInfo.libraryName
@@ -600,8 +711,16 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     // This function handles regular file upload (including EPS files until backend conversion is ready)
     let percentage: any = 0
 
+    const cleanFileName = stripHashFromFilename(file.name);
+    const uniqueFileName = makeUniqueFileName(cleanFileName);
+    
+    console.log('🔧 Regular file processing:');
+    console.log('   Original:', file.name);
+    console.log('   Clean:', cleanFileName);
+    console.log('   Unique:', uniqueFileName);
+    
     const videoUploaderOptions = {
-      fileName: makeUniqueFileName(file.name),
+      fileName: uniqueFileName,
       fileType: file.type,
       file,
       userInfo,
@@ -701,8 +820,16 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
       
       let percentage: any = 0
 
+     const cleanFileName = stripHashFromFilename(file.name);
+     const uniqueFileName = makeUniqueFileName(cleanFileName);
+     
+     console.log('🔧 Filename processing:');
+     console.log('   Original:', file.name);
+     console.log('   Clean:', cleanFileName);
+     console.log('   Unique:', uniqueFileName);
+
      const videoUploaderOptions = {
-        fileName: makeUniqueFileName(file.name),
+        fileName: uniqueFileName,
         fileType: file.type,
         file,
         userInfo,
@@ -859,57 +986,6 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     sendEvent(userInfo.GAID,eventName,eventParams);
   }
 
-  // Custom PDF/EPS/SVG file handler
-  const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      console.log('File selected:', file.name, file.type);
-      
-      if (isPdfFileType(file) || isEpsFileType(file) || isSvgFile(file)) {
-        let fileType = 'PDF';
-        if (isEpsFileType(file)) fileType = 'EPS';
-        if (isSvgFile(file)) fileType = 'SVG';
-        
-        console.log(`Valid ${fileType} file detected, starting upload...`);
-        
-        // Create a mock image list entry for PDF/EPS/SVG
-        const mockImageList = [{
-          file: file,
-          data_url: null
-        }];
-        
-        // Simulate the upload process
-        setUploadImageModal(mockImageList, true);
-        setImagesProgress([0]); // Initialize progress for 1 file
-        
-        // Start upload based on file type
-        if (isSvgFile(file)) {
-          uploadRegularFile(file, 0);
-        } else if (isEpsFileType(file)) {
-          // Upload EPS file directly
-          uploadRegularFile(file, 0);
-        } else {
-          uploadPdfFile(file, 0);
-        }
-      } else {
-        messageApi.open({
-          type: 'error',
-          content: 'Please select a valid PDF, EPS, or SVG file',
-          duration: 5
-        });
-      }
-    }
-    
-    // Reset the input value to allow selecting the same file again
-    event.target.value = '';
-  }
-
-  const triggerPdfUpload = () => {
-    if (pdfUploadInput) {
-      pdfUploadInput.click();
-    }
-  }
 
   const onImageRemoveAllHandler = async() => {
 
@@ -919,6 +995,142 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
      await Promise.allSettled(abortUploadPromises)
      //@ts-ignore
        .then((results) => results.forEach((result) => console.log(result.status)))
+  }
+
+  // Unified handler for all file types (images, PDF, EPS, SVG)
+  const handleUnifiedUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('🎯 handleUnifiedUpload called!');
+    const files = event.target.files;
+    console.log('📁 Files from event:', files);
+    console.log('📊 Number of files:', files ? files.length : 0);
+    
+    if (files && files.length > 0) {
+      console.log('🔍 Files selected:', Array.from(files).map(f => `${f.name} (${f.type})`));
+      
+      // Debug each file type
+      Array.from(files).forEach(file => {
+        console.log(`📄 File: ${file.name}`);
+        console.log(`   Type: ${file.type}`);
+        console.log(`   Size: ${file.size} bytes`);
+        console.log(`   Is PDF (type check): ${isPdfFileType(file)}`);
+        console.log(`   Is EPS (type check): ${isEpsFileType(file)}`);
+        console.log(`   Is SVG (type check): ${isSvgFile(file)}`);
+      });
+      
+      // Clear any existing upload errors
+      setUploadErrors(null);
+      
+      // Filter files by name length and supported types
+      const validFiles = Array.from(files).filter(file => {
+        // Check file name length
+        if (file.name.length > config.MAX_CHARACTER_FILENAME) {
+          console.log('File name too long:', file.name);
+          if (!flagLongFileName) setFlagLongFileName(true);
+          return false;
+        }
+        
+        // Check if file type is supported
+        console.log(`🔍 Checking file support for: ${file.name}`);
+        const isPdf = isPdfFileType(file);
+        const isEps = isEpsFileType(file);
+        const isSvg = isSvgFile(file);
+        const isImage = file.type.startsWith('image/');
+        
+        console.log(`   📄 Is PDF: ${isPdf}`);
+        console.log(`   📄 Is EPS: ${isEps}`);
+        console.log(`   📄 Is SVG: ${isSvg}`);
+        console.log(`   📄 Is Image: ${isImage}`);
+        
+        const isSupported = isPdf || isEps || isSvg || isImage;
+        console.log(`   📄 Overall supported: ${isSupported}`);
+        
+        if (!isSupported) {
+          console.log(`❌ Unsupported file type: ${file.name} (${file.type})`);
+          messageApi.error(`Unsupported file type: ${file.name}. Please select images, SVG, PDF, or EPS files.`);
+          return false;
+        }
+        
+        console.log(`✅ Supported file: ${file.name} (${file.type})`);
+        return true;
+      });
+      
+      if (flagLongFileName) {
+        setTimeout(() => setFlagLongFileName(false), 10000);
+      }
+      
+      if (validFiles.length === 0) return;
+      
+      // Create image list entries for all files
+      const imageList = await Promise.all(validFiles.map(async (file) => {
+        // Generate data_url for regular images (not PDF, EPS, or SVG)
+        let data_url = null;
+        
+        if (file.type.startsWith('image/') && !isSvgFile(file)) {
+          try {
+            console.log(`📸 Generating thumbnail for image: ${file.name}`);
+            data_url = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve(e.target?.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+            console.log(`✅ Thumbnail generated for: ${file.name}`);
+          } catch (error) {
+            console.error(`❌ Failed to generate thumbnail for ${file.name}:`, error);
+          }
+        }
+        
+        return {
+          file: file,
+          data_url: data_url
+        };
+      }));
+      
+      // Set up progress tracking - always reset for new uploads
+      console.log('🔄 Setting up progress tracking for', validFiles.length, 'files');
+      setImagesProgress(new Array(validFiles.length).fill(0));
+      
+      console.log('📋 Setting up image modal with imageList:', imageList);
+      console.log('📋 ImageList details:', imageList.map(img => ({
+        fileName: img.file?.name,
+        fileType: img.file?.type,
+        hasDataUrl: !!img.data_url,
+        dataUrlLength: img.data_url?.length || 0
+      })));
+      
+      setUploadImageModal(imageList, true);
+      console.log('✅ Image modal set up, processing files...');
+      
+      if (imageListModal) {
+        console.log('Upload modal already open, aborting');
+        return;
+      }
+      
+      // Process each file
+      const uploadPromises = validFiles.map((file, index) => {
+        console.log(`🚀 Creating upload promise for: ${file.name} (${file.type})`);
+        console.log(`   File index: ${index}`);
+        console.log(`   Is PDF: ${isPdfFileType(file)}`);
+        console.log(`   Is EPS: ${isEpsFileType(file)}`);
+        console.log(`   Is SVG: ${isSvgFile(file)}`);
+        return uploadImage(file, index);
+      });
+      
+      Promise.allSettled(uploadPromises)
+        .then((results) => {
+          results.forEach((result) => console.log('Upload result:', result.status));
+          console.log('All uploads completed');
+        });
+    } else {
+      console.log('❌ No files selected or files is null');
+      if (files) {
+        console.log('📊 Files array exists but length is:', files.length);
+      }
+    }
+    
+    // Reset the input value to allow selecting the same file again
+    console.log('🔄 Resetting input value...');
+    event.target.value = '';
   }
 
   const onImageRemoveHandler = async(index: number) => {
@@ -1040,12 +1252,12 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
               {imagesProgress && <ImageUploading
                 multiple
                 value={images}
-                onChange={onChange}
+                onChange={() => {}} // Disabled - using custom handler
                 onError={onError}
                 maxNumber={maxNumber}
                 dataURLKey="data_url"
                 maxFileSize={maxFileSize}
-                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','svg','eps']}
+                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','eps','pdf']} // Keep for compatibility
               >
                 {({
                   imageList,
@@ -1060,36 +1272,57 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                   // write your building UI
                   <div className="upload__image-wrapper text-center w-full">
 
-                    <label
+                    <div className="relative">
+                      {/* Custom file input that accepts all types */}
+                      <input
+                        type="file"
+                        multiple
+                        accept="*"
+                        onChange={handleUnifiedUpload}
+                        ref={(input) => setUnifiedInput(input)}
+                        style={{ display: 'none' }}
+                        id="unified-upload"
+                      />
+                      <div
+                        onClick={() => {
+                          console.log('🖱️ Upload button clicked');
+                          console.log('🔗 unifiedInput ref:', unifiedInput);
+                          if (unifiedInput) {
+                            console.log('📂 Triggering file input click...');
+                            unifiedInput.click();
+                          } else {
+                            console.error('❌ unifiedInput ref is null!');
+                          }
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('Files dropped');
+                          const files = e.dataTransfer.files;
+                          if (files && files.length > 0 && unifiedInput) {
+                            // Simulate file selection by creating a new event
+                            const event = {
+                              target: { files: files, value: '' }
+                            } as React.ChangeEvent<HTMLInputElement>;
+                            handleUnifiedUpload(event);
+                          }
+                        }}
                       style={isDragging ? { color: 'red' } : undefined}
-                      onClick={onImageUpload}
-                      {...dragProps}
-                      className="" htmlFor="uploadImage">
+                        className="cursor-pointer">
                         <UppyUpload />
-                      </label>
+                      </div>
+                    </div>
                       <div className="mt-20 text-center">
                         <p className="text-sm text-gray-500 font-medium">Supported file types:</p>
                         <p className="text-xs text-gray-400 mt-1">
                           JPG, JPEG, PNG, BMP, TIF, TIFF, SVG, PDF, EPS
                         </p>
                         
-                        {/* PDF/SVG/EPS Upload Button */}
-                        <div className="mt-4">
-                          <button
-                            type="button"
-                            onClick={triggerPdfUpload}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                          >
-                            Upload PDF/SVG/EPS File
-                          </button>
-                          <input
-                            type="file"
-                            accept=".pdf,.svg,.eps,application/pdf,image/svg+xml,application/postscript"
-                            onChange={handlePdfUpload}
-                            ref={(input) => setPdfUploadInput(input)}
-                            style={{ display: 'none' }}
-                          />
-                        </div>
+                        
                       </div>
                       &nbsp;
 
@@ -1156,25 +1389,21 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                                   backgroundColor: isSvgFile(image.file) ? 'white' : 'transparent'
                                 }}
                                 onError={(e) => {
-                                  console.log('🚨 Image load error for:', image.file?.name);
-                                  console.log('   File type:', image.file?.type);
-                                  console.log('   Image src:', getSrcForImage(image));
-                                  console.log('   Has data_url:', !!image['data_url']);
-                                  console.log('   Is SVG:', isSvgFile(image.file));
-                                  
                                   // Fallback to file icon if image fails to load
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
                                   const parent = target.parentElement;
                                   if (parent) {
+                                    const fileType = image.file && isSvgFile(image.file) ? 'SVG' : 
+                                                   image.file && isEpsFile(image.file) ? 'EPS' : 'IMAGE';
                                     parent.innerHTML = `
                                       <div class="flex flex-col items-center justify-center h-full w-full bg-gray-50 border-2 border-gray-200 rounded-lg">
                                         <div class="text-gray-600 text-4xl mb-2">🖼️</div>
-                                        <div class="text-gray-600 font-semibold text-sm">SVG</div>
+                                        <div class="text-gray-600 font-semibold text-sm">${fileType}</div>
                                         <div class="text-gray-500 text-xs mt-1 px-2 text-center truncate max-w-full">
                                           ${image.file?.name || 'Unknown File'}
                                         </div>
-                                        <div class="text-red-500 text-xs mt-1">Preview failed</div>
+                                        <div class="text-red-500 text-xs mt-1">Preview unavailable</div>
                                       </div>
                                     `;
                                   }
