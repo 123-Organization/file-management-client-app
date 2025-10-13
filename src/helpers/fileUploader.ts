@@ -3,6 +3,7 @@ import config  from "../config/configs";
 
 const SERVER_BASE_URL = config.SERVER_BASE_URL;
 const IMAGE_PROCESSOR_BASE_URL = "https://lightsail.image.processor.finerworks.com/api";
+const IMAGE_COMPLETE_UPLOAD_BASE_URL = "https://prod3-api.finerworks.com/api";
 
 // initializing axios
 const api = axios.create({
@@ -310,20 +311,25 @@ export class Uploader {
         return
       }
 
-      // Use different API endpoint for SVG and EPS files
+      // Use different API endpoint and base URL for different file types
       let apiEndpoint = "/complete-upload"; // Default for regular files
+      let baseUrl = IMAGE_COMPLETE_UPLOAD_BASE_URL; // New domain for regular images
+      
       if (this.isSvg) {
         apiEndpoint = "/complete-upload-v2";
+        baseUrl = IMAGE_PROCESSOR_BASE_URL; // Keep original domain for SVG
       } else if (this.isEps) {
         apiEndpoint = "/complete-upload-v2-eps";
+        baseUrl = IMAGE_PROCESSOR_BASE_URL; // Keep original domain for EPS
       }
       
       console.log(`sendCompleteRequest() - Using API endpoint: ${apiEndpoint}`);
+      console.log(`sendCompleteRequest() - Using base URL: ${baseUrl}`);
       console.log('sendCompleteRequest() - Calling complete-upload API with:', videoFinalizationMultiPartInput);
       
-      // Use the new image processor URL for complete upload endpoints
+      // Use appropriate base URL based on file type
       const res = await axios.request({
-        url: `${IMAGE_PROCESSOR_BASE_URL}${apiEndpoint}`,
+        url: `${baseUrl}${apiEndpoint}`,
         method: "POST",
         data: videoFinalizationMultiPartInput,
         params: {
