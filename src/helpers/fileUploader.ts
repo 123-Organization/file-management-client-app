@@ -1,9 +1,63 @@
 import axios from "axios"
 import config  from "../config/configs";
 
+// Retry configuration for image processor server
+const RETRY_CONFIG = {
+  maxRetries: 1,
+  retryDelay: 60000, // 1 minute in milliseconds
+  retryMessage: "Server is rebooting. Processing your upload, please wait..."
+};
+
+// Retry function for image processor server requests
+async function retryImageProcessorRequest(
+  requestFn: () => Promise<any>,
+  onRetryMessage?: (message: string) => void
+): Promise<any> {
+  let lastError: any;
+  
+  for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      lastError = error;
+      
+      // Check if this is a server error (5xx) or network error
+      const isServerError = axios.isAxiosError(error) && 
+        ((error.response?.status && error.response.status >= 500) || 
+         error.code === 'ECONNREFUSED' || 
+         error.code === 'ETIMEDOUT' ||
+         error.message.includes('Network Error'));
+      
+      if (isServerError && attempt < RETRY_CONFIG.maxRetries) {
+        // Show retry message to user
+        if (onRetryMessage) {
+          onRetryMessage(RETRY_CONFIG.retryMessage);
+        }
+        
+        console.log(`Image processor server error on attempt ${attempt + 1}. Retrying in ${RETRY_CONFIG.retryDelay / 1000} seconds...`);
+        
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, RETRY_CONFIG.retryDelay));
+        
+        // Clear retry message
+        if (onRetryMessage) {
+          onRetryMessage("");
+        }
+        
+        continue;
+      }
+      
+      // If not a server error or max retries reached, throw the error
+      throw error;
+    }
+  }
+  
+  throw lastError;
+}
+
 const SERVER_BASE_URL = config.SERVER_BASE_URL;
 const IMAGE_PROCESSOR_BASE_URL = "https://lightsail.image.processor.finerworks.com/api";
-const IMAGE_COMPLETE_UPLOAD_BASE_URL = "https://prod3-api.finerworks.com/api";
+const IMAGE_COMPLETE_UPLOAD_BASE_URL = "https://file.finerworks.com/api";
 
 // initializing axios
 const api = axios.create({
@@ -41,6 +95,7 @@ export class Uploader {
   onProgressFn: (err: any) => void
   onErrorFn: (err: any) => void
   onSuccessFn: (err: any) => void
+  onRetryMessageFn: (message: string) => void
   constructor(options: any) {
     // this must be bigger than or equal to 5MB,
     // otherwise AWS will respond with:
@@ -68,6 +123,7 @@ export class Uploader {
     this.onProgressFn = () => {}
     this.onErrorFn = () => {}
     this.onSuccessFn = () => {}
+    this.onRetryMessageFn = () => {}
   }
 
  
@@ -277,7 +333,17 @@ export class Uploader {
       console.log('sendCompleteRequest() - Conditions met, proceeding with complete upload');
       
       // Create different payload structures for regular vs SVG uploads
-      let videoFinalizationMultiPartInput;
+      let videoFinalizationMultiPartInput: {
+        params: {
+          uploadId: string;
+          Key?: string | null;
+          parts: any[];
+          fileName: string;
+          userInfo: object;
+          fileSize: number;
+          fileLibrary: string;
+        }
+      };
       
       if (this.isSvg) {
         // SVG uploads use the full payload structure for /complete-upload-v2
@@ -327,15 +393,25 @@ export class Uploader {
       console.log(`sendCompleteRequest() - Using base URL: ${baseUrl}`);
       console.log('sendCompleteRequest() - Calling complete-upload API with:', videoFinalizationMultiPartInput);
       
-      // Use appropriate base URL based on file type
-      const res = await axios.request({
+      // Create the request function
+      const makeRequest = () => axios.request({
         url: `${baseUrl}${apiEndpoint}`,
         method: "POST",
         data: videoFinalizationMultiPartInput,
         params: {
           libraryAccountKey: localStorage.getItem('libraryAccountKey')
         }
-      })
+      });
+      
+      // Use retry logic for image processor server requests
+      let res;
+      if (baseUrl === IMAGE_PROCESSOR_BASE_URL) {
+        console.log('sendCompleteRequest() - Using retry logic for image processor server');
+        res = await retryImageProcessorRequest(makeRequest, this.onRetryMessageFn);
+      } else {
+        console.log('sendCompleteRequest() - Direct request for non-image processor server');
+        res = await makeRequest();
+      }
 
       console.log('sendCompleteRequest() - Complete upload API response:', res.data);
 
@@ -490,6 +566,11 @@ export class Uploader {
 
   onError(onError: any) {
     this.onErrorFn = onError
+    return this
+  }
+
+  onRetryMessage(onRetryMessage: (message: string) => void) {
+    this.onRetryMessageFn = onRetryMessage
     return this
   }
 
