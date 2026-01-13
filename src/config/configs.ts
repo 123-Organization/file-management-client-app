@@ -1,7 +1,7 @@
 const prod = {
   ENVIRONMENT : "PROD",
-  // SERVER_BASE_URL : "https://prod3-api.finerworks.com/api/",
-  SERVER_BASE_URL : "https://file.finerworks.com/api/",
+  SERVER_BASE_URL : "https://prod3-api.finerworks.com/api/",
+  // SERVER_BASE_URL : "https://file.finerworks.com/api/",
   COMPANION_BASE_URL : "https://prod-companion-app-filemanagement.finerworks.com",
 }
 
@@ -9,7 +9,8 @@ const dev = {
   ENVIRONMENT : "STAGE", 
   // SERVER_BASE_URL : "https://app-filemanager.finerworks.com/api/",
   // COMPANION_BASE_URL : "https://companion-app-filemanagement.finerworks.com",
-  SERVER_BASE_URL : "https://file.finerworks.com/api/",
+  // SERVER_BASE_URL : "https://file.finerworks.com/api/",
+  SERVER_BASE_URL : "https://prod3-api.finerworks.com/api/",
   
   COMPANION_BASE_URL : "https://prod-companion-app-filemanagement.finerworks.com",
 }
