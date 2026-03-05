@@ -1,4 +1,4 @@
-import React, { useState, Dispatch, SetStateAction, FC  } from 'react'
+import React, { useState, useEffect, Dispatch, SetStateAction, FC  } from 'react'
 import { Button, Form, Input, message, Modal, Spin, Alert } from 'antd';
 import { formatFileSize } from '../helpers/fileHelper';
 import { putImages } from '../api/gallaryApi';
@@ -67,10 +67,12 @@ const EditGallaryModal: FC<EditGallaryModalProps> = ({openModel, setOpen, imgDat
   };
   const date = new Date(imgData.date_added)
   const datetime = date.toLocaleString('en-US',options) 
-  form.setFieldsValue({
-    title: imgData.title,
-    description: imgData.description
-  })
+  useEffect(() => {
+    form.setFieldsValue({
+      title: imgData.title,
+      description: imgData.description
+    });
+  }, [imgData]);
   const filesize = formatFileSize(imgData.file_size)
   const handleOk = async() => {
     try {
