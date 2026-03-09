@@ -57,7 +57,7 @@ async function retryImageProcessorRequest(
 
 const SERVER_BASE_URL = config.SERVER_BASE_URL;
 const IMAGE_PROCESSOR_BASE_URL = "https://lightsail.image.processor.finerworks.com/api";
-const IMAGE_COMPLETE_UPLOAD_BASE_URL = "https://file.finerworks.com/api";
+const IMAGE_COMPLETE_UPLOAD_BASE_URL = "https://prod3-api.finerworks.com/api";
 
 // initializing axios
 const api = axios.create({

@@ -53,7 +53,7 @@ const fileLocation: IFileLocation = {
 
 
 const userInfo: IUserInfo = {
-  "libraryName": "temporary",
+  "libraryName": "inventory",
   "librarySessionId": "",
   "libraryAccountKey": "",
   "librarySiteId": "2",

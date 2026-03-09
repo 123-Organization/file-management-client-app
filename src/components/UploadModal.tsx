@@ -105,6 +105,7 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
   const [flagLongFileName, setFlagLongFileName] = useState<boolean>(false);
   const [uploadErrors, setUploadErrors] = useState<any>(null);
   const [unifiedInput, setUnifiedInput] = useState<HTMLInputElement | null>(null);
+  const [retryMessage, setRetryMessage] = useState<string>("");
   const handleOk = () => {
     setLoading(true);
     setTimeout(() => {
@@ -745,6 +746,17 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
           setImageListEvent(true)
         } 
       })
+      .onRetryMessage((message: string) => {
+        console.log('Retry message:', message);
+        setRetryMessage(message);
+        if (message) {
+          messageApi.open({
+            type: 'info',
+            content: message,
+            duration: 0 // Keep message visible until cleared
+          });
+        }
+      })
       .onError((error: any) => {
         console.error('error file upload', error)
         let errorMessage = 'File upload failed';
@@ -853,6 +865,17 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
             flushImagesProgress(imagesProgress);
             setImageListEvent(true)
           } 
+        })
+        .onRetryMessage((message: string) => {
+          console.log('Retry message:', message);
+          setRetryMessage(message);
+          if (message) {
+            messageApi.open({
+              type: 'info',
+              content: message,
+              duration: 0 // Keep message visible until cleared
+            });
+          }
         })
         .onError((error: any) => {
           console.error('error file upload', error)

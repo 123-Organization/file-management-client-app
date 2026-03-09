@@ -161,14 +161,7 @@ const Gallary: React.FC = (): JSX.Element => {
           const isNotFirstPage = currentPage > 1;
           const hasEmptyResults = images.length === 0;
           
-          console.log('🔍 Auto-redirect check:', {
-            imagesCount: images.length,
-            currentPage,
-            currentPageSize,
-            isLargePageSize,
-            isNotFirstPage,
-            hasEmptyResults
-          });
+          
           
           // Auto-redirect if: large page size + not first page + empty results
           if (isLargePageSize && isNotFirstPage && hasEmptyResults) {
