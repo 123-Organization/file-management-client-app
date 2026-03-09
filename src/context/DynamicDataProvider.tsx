@@ -51,7 +51,7 @@ const fileLocation: IFileLocation = {
   "selected": IFileLocationType.Inventory
 };
 
-
+//sync
 const userInfo: IUserInfo = {
   "libraryName": "inventory",
   "librarySessionId": "",
