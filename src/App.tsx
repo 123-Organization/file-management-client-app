@@ -54,9 +54,11 @@ const App: React.FC = () => {
     let settings:ISettings | null = null;
     if(typeof event.data === 'string'){
       settings = JSON.parse(event.data)['settings'];
+      console.log('settings',settings);
       // settings = settings['settings'];
     } else if(typeof event.data === 'object'){
       settings = event.data['settings'];
+      console.log('settings',settings);
     }
 
     if(settings && settings['libraries']){
