@@ -48,7 +48,7 @@ const referrer: IFileUpload = {
 };
 
 const fileLocation: IFileLocation = {
-  "selected": IFileLocationType.Inventory
+  "selected": "inventory"
 };
 
 
