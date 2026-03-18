@@ -2,6 +2,53 @@
   text-align: center;
 }
 
+/* =========================================
+   GLOBAL DESIGN TOKENS
+   ========================================= */
+:root {
+  --color-bg: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-border: #e5e7eb;
+  --color-border-hover: #d1d5db;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-accent: #374151;
+  --color-accent-hover: #1f2937;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
+
+/* Ant Design layout overrides */
+.ant-layout {
+  background: var(--color-bg) !important;
+}
+.ant-layout-header {
+  height: 64px !important;
+  line-height: 64px !important;
+  background: var(--color-surface) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 0 16px !important;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.ant-layout-content {
+  background: var(--color-bg) !important;
+}
+.ant-layout-footer {
+  background: var(--color-surface) !important;
+  border-top: 1px solid var(--color-border) !important;
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.05) !important;
+  padding: 0 !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 100 !important;
+}
+
 .App-logo {
   max-width: 125px;
   max-height: 125px;

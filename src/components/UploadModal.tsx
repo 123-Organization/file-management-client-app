@@ -1198,15 +1198,86 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
     console.log('isUpdated',isUpdated)
 
     isUpdated && dynamicData.mutations.setReferrerData(referrerObj);
-
-
   };
 
   console.log('bebe',images)
-  
+
   return (
     <>
       <style>{`
+        .upload-drop-zone {
+          border: 2px dashed #d1d5db;
+          border-radius: 14px;
+          background: #fafafa;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 24px 32px;
+          cursor: pointer;
+          transition: border-color 0.2s ease, background 0.2s ease;
+          position: relative;
+          min-height: 220px;
+          text-align: center;
+          user-select: none;
+        }
+        .upload-drop-zone:hover,
+        .upload-drop-zone.dragging {
+          border-color: #9ca3af;
+          background: #f3f4f6;
+        }
+        .upload-drop-zone-icon {
+          width: 52px; height: 52px;
+          border-radius: 12px;
+          background: #f3f4f6;
+          border: 1px solid #e5e7eb;
+          display: flex; align-items: center; justify-content: center;
+          margin-bottom: 14px;
+        }
+        .upload-drop-zone h3 {
+          font-size: 15px; font-weight: 600; color: #111827; margin: 0 0 4px;
+        }
+        .upload-drop-zone p {
+          font-size: 13px; color: #6b7280; margin: 0 0 18px;
+        }
+        .upload-browse-btn {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 8px 20px; border-radius: 8px;
+          font-size: 13px; font-weight: 600;
+          color: #ffffff; background: #1f2937;
+          border: none; cursor: pointer;
+          transition: background 0.15s ease, box-shadow 0.15s ease;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        }
+        .upload-browse-btn:hover {
+          background: #111827;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+        }
+        .upload-type-badges {
+          display: flex; flex-wrap: wrap; gap: 6px;
+          justify-content: center; margin-top: 20px;
+        }
+        .upload-type-badge {
+          font-size: 11px; font-weight: 600; color: #6b7280;
+          background: #f3f4f6; border: 1px solid #e5e7eb;
+          border-radius: 20px; padding: 3px 10px;
+          letter-spacing: 0.03em;
+        }
+        .upload-more-sources {
+          margin-top: 12px; text-align: center;
+        }
+        .upload-more-sources-toggle {
+          font-size: 12px; color: #9ca3af; background: none; border: none;
+          cursor: pointer; padding: 4px 8px; border-radius: 6px;
+          transition: color 0.15s;
+          display: inline-flex; align-items: center; gap: 4px;
+        }
+        .upload-more-sources-toggle:hover { color: #6b7280; }
+        .upload-tos-row {
+          padding: 14px 4px 4px;
+          border-top: 1px solid #f3f4f6;
+          margin-top: 8px;
+        }
         .png-dotted-bg {
           background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px);
           background-size: 8px 8px;
@@ -1215,143 +1286,177 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
         .png-dotted-bg::before {
           content: '';
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
+          top: 0; left: 0; right: 0; bottom: 0;
           background-image: radial-gradient(circle, #9ca3af 1px, transparent 1px);
           background-size: 6px 6px;
           opacity: 0.3;
           border-radius: inherit;
           pointer-events: none;
         }
-        
-        .svg-preview-bg {
-          background-color: #f8f9fa;
-        }
-        
-        .svg-preview-bg img {
-          background-color: white;
-          border: 1px solid #e9ecef;
-        }
+        .svg-preview-bg { background-color: #f8f9fa; }
+        .svg-preview-bg img { background-color: white; border: 1px solid #e9ecef; }
       `}</style>
+
       <Modal
-        style={{ height: '80%' }}
-        title={<h1 className=' text-gray-500'>Upload File</h1>}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '8px',
+              background: '#f3f4f6', border: '1px solid #e5e7eb',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 15V4M12 4L8.5 7.5M12 4L15.5 7.5" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20 16.5C21.1 15.7 22 14.5 22 13C22 10.5 20 8.5 17.5 8.5C17 8.5 16.5 8.6 16.1 8.7C15.4 6.5 13.3 5 11 5C8 5 5.5 7.5 5.5 10.5C5.5 11 5.6 11.5 5.7 11.9C4.2 12.6 3.1 14 3.1 15.7C3.1 18 5.1 20 7.5 20H18.5" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: '15px', fontWeight: 700, color: '#111827', lineHeight: 1.2 }}>Upload Files</div>
+              <div style={{ fontSize: '12px', fontWeight: 400, color: '#9ca3af', marginTop: '1px' }}>JPG · PNG · SVG · PDF · EPS · TIFF</div>
+            </div>
+          </div>
+        }
         centered
         open={openModel}
         onOk={() => setOpen(false)}
         onCancel={() => setOpen(false)}
-        width={'99%'}
+        width={'min(90vw, 720px)'}
         footer={''}
         className='min-w-[350px]'
+        styles={{ header: { background: '#fafafa', borderBottom: '1px solid #e5e7eb', padding: '14px 20px' } }}
       >
-      <div className='max-lg:flex1 '>
-      <div className="p-8 max-lg:flex max-lg:flex-col uppy-Manual items-center  bg-white">
-        { 
-          !componentDisabled
-          ? <>
-            <div className='flex whitespace-pre max-lg:absolute max-lg:left-8 justify-items-start lg:p-10 '>
-              <Spin tip="Please check below terms to proceed..." ><></></Spin>
-            </div>
-          </>
-          :<div className="w-full disabled  relative lg:grid grid-cols-1 lg:grid-cols-31 lg:border rounded-lg">
-            <div
-              className="first-flex-div lg:rounded-l-lg p-4 flex flex-col justify-center items-center border-0  border-gray-300 ">
-              {uploadErrors && <div className='text-red-500 font-medium'>
-                  {uploadErrors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}<br /></span>}
-                  {uploadErrors.acceptType && <span>Your selected file type is not allow<br /></span>}
-                  {uploadErrors.maxFileSize && <span>Selected file size exceed maxFileSize ({humanFileSize(maxFileSize)})<br /></span>}
-                  {uploadErrors.resolution && <span>Selected file is not match your desired resolution<br /></span>}
-                </div>
-              }
-              {flagLongFileName && <Alert message={contentFlagLongFileName} type="warning" showIcon closable />} 
-              {/* <label className="cursor-pointer hover:opacity-80 inline-flex items-center 
-              shadow-md my-4 px-8 py-4 bg-green-400 text-gray-50 border border-transparent
-              rounded-md font-semibold text-base  hover:bg-green-300 active:bg-green-300 focus:outline-none 
-            focus:border-green-200 focus:ring ring-green-200 disabled:opacity-25 transition ease-in-out duration-150" htmlFor="uploadImage">
-               */}
-              {/* <input id="uploadImage" className="text-sm cursor-pointer w-36 hidden" type="file" /> */}
-              {imagesProgress && <ImageUploading
+        {contextHolder}
+
+        {!componentDisabled ? (
+          <div style={{ padding: '32px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Spin tip="Please check the terms below to proceed..." ><></></Spin>
+          </div>
+        ) : (
+          <div style={{ padding: '20px 20px 8px' }}>
+
+            {/* Alerts */}
+            {flagLongFileName && (
+              <div style={{ marginBottom: '12px' }}>
+                <Alert message={contentFlagLongFileName} type="warning" showIcon closable />
+              </div>
+            )}
+            {uploadErrors && (
+              <div className='text-red-500 font-medium' style={{ marginBottom: '12px', fontSize: '13px' }}>
+                {uploadErrors.maxNumber && <span>Number of selected files exceeds the maximum ({maxNumber})<br /></span>}
+                {uploadErrors.acceptType && <span>This file type is not allowed<br /></span>}
+                {uploadErrors.maxFileSize && <span>Selected file exceeds the size limit ({humanFileSize(maxFileSize)})<br /></span>}
+                {uploadErrors.resolution && <span>Selected file does not match the required resolution<br /></span>}
+              </div>
+            )}
+
+            {/* Main upload area driven by ImageUploading */}
+            {imagesProgress && (
+              <ImageUploading
                 multiple
                 value={images}
-                onChange={() => {}} // Disabled - using custom handler
+                onChange={() => {}}
                 onError={onError}
                 maxNumber={maxNumber}
                 dataURLKey="data_url"
                 maxFileSize={maxFileSize}
-                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','eps','pdf']} // Keep for compatibility
+                acceptType={['jpg','jpeg', 'bmp', 'png', 'tif', 'tiff','zip','eps','pdf']}
               >
                 {({
                   imageList,
-                  onImageUpload,
                   onImageRemoveAll,
-                  onImageUpdate,
                   onImageRemove,
                   isDragging,
-                  dragProps,
                   errors
                 }) => (
-                  // write your building UI
-                  <div className="upload__image-wrapper text-center w-full">
+                  <div>
+                    {/* Hidden unified file input */}
+                    <input
+                      type="file"
+                      multiple
+                      accept="*"
+                      onChange={handleUnifiedUpload}
+                      ref={(input) => setUnifiedInput(input)}
+                      style={{ display: 'none' }}
+                      id="unified-upload"
+                    />
 
-                    <div className="relative">
-                      {/* Custom file input that accepts all types */}
-                      <input
-                        type="file"
-                        multiple
-                        accept="*"
-                        onChange={handleUnifiedUpload}
-                        ref={(input) => setUnifiedInput(input)}
-                        style={{ display: 'none' }}
-                        id="unified-upload"
-                      />
-                      <div
-                        onClick={() => {
-                          console.log('🖱️ Upload button clicked');
-                          console.log('🔗 unifiedInput ref:', unifiedInput);
-                          if (unifiedInput) {
-                            console.log('📂 Triggering file input click...');
-                            unifiedInput.click();
-                          } else {
-                            console.error('❌ unifiedInput ref is null!');
-                          }
-                        }}
-                        onDragOver={(e) => {
-                          e.preventDefault();
+                    {/* Drag-and-drop zone */}
+                    <div
+                      className={`upload-drop-zone${isDragging ? ' dragging' : ''}`}
+                      onClick={() => {
+                        if (unifiedInput) unifiedInput.click();
+                      }}
+                      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onDrop={(e) => {
+                        e.preventDefault(); e.stopPropagation();
+                        const files = e.dataTransfer.files;
+                        if (files && files.length > 0 && unifiedInput) {
+                          const event = {
+                            target: { files: files, value: '' }
+                          } as React.ChangeEvent<HTMLInputElement>;
+                          handleUnifiedUpload(event);
+                        }
+                      }}
+                    >
+                      <div className="upload-drop-zone-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 15V4M12 4L8.5 7.5M12 4L15.5 7.5" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M20 16.5C21.1 15.7 22 14.5 22 13C22 10.5 20 8.5 17.5 8.5C17 8.5 16.5 8.6 16.1 8.7C15.4 6.5 13.3 5 11 5C8 5 5.5 7.5 5.5 10.5C5.5 11 5.6 11.5 5.7 11.9C4.2 12.6 3.1 14 3.1 15.7C3.1 18 5.1 20 7.5 20H18.5" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <h3>Drag & drop files here</h3>
+                      <p>or click below to browse your device</p>
+                      <button
+                        type="button"
+                        className="upload-browse-btn"
+                        onClick={(e) => {
                           e.stopPropagation();
+                          if (unifiedInput) unifiedInput.click();
                         }}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          console.log('Files dropped');
-                          const files = e.dataTransfer.files;
-                          if (files && files.length > 0 && unifiedInput) {
-                            // Simulate file selection by creating a new event
-                            const event = {
-                              target: { files: files, value: '' }
-                            } as React.ChangeEvent<HTMLInputElement>;
-                            handleUnifiedUpload(event);
-                          }
-                        }}
-                      style={isDragging ? { color: 'red' } : undefined}
-                        className="cursor-pointer">
-                        <UppyUpload />
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Browse Files
+                      </button>
+
+                      <div className="upload-type-badges">
+                        {['JPG', 'PNG', 'TIFF', 'SVG', 'PDF', 'EPS', 'BMP'].map(t => (
+                          <span key={t} className="upload-type-badge">{t}</span>
+                        ))}
                       </div>
                     </div>
-                      <div className="mt-20 text-center">
-                        <p className="text-sm text-gray-500 font-medium">Supported file types:</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          JPG, JPEG, PNG, BMP, TIF, TIFF, SVG, PDF, EPS
-                        </p>
-                        
-                        
+
+                    {/* More sources (UppyUploadBox) */}
+                    <div className="upload-more-sources">
+                      <details style={{ textAlign: 'center' }}>
+                        <summary className="upload-more-sources-toggle" style={{ listStyle: 'none', outline: 'none' }}>
+                          <svg width="12" height="12" fill="none" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 1v18M1 10h18"/>
+                          </svg>
+                          More upload sources
+                        </summary>
+                        <div style={{ marginTop: '12px', padding: '12px', background: '#fafafa', borderRadius: '10px', border: '1px solid #f0f0f0' }}>
+                          <UppyUploadBox setOpen={setOpen} />
+                        </div>
+                      </details>
+                    </div>
+
+                    {/* Error display */}
+                    {errors && (
+                      <div className='text-red-500 font-medium' style={{ marginTop: '10px', fontSize: '13px' }}>
+                        {errors.maxNumber && <span>Number of selected files exceeds the maximum ({maxNumber})</span>}
+                        {errors.acceptType && <span>This file type is not allowed</span>}
+                        {errors.maxFileSize && <span>Selected file exceeds the size limit ({humanFileSize(maxFileSize)})</span>}
+                        {errors.resolution && <span>File does not match the required resolution</span>}
                       </div>
-                      &nbsp;
+                    )}
 
-
+                    {/* Upload progress modal (inner) */}
                     <Modal
-                      title={<h1 className=' text-gray-500'>Uploaded Image List</h1>}
+                      title={<h1 className=' text-gray-500'>Uploaded File List</h1>}
                       centered
                       open={imageListModal}
                       onOk={() => setImageListModal(false)}
@@ -1360,7 +1465,6 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                       className="sm:h-screen"
                       width={'70%'}
                       footer={[
-                        // images?.length>=1 &&
                         imageListEventLoad 
                         ? <Button className='border-none mr-20'>
                             <Spin className='' tip="Uploading..." ><></></Spin>
@@ -1368,133 +1472,97 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                         : <Button key="submit" className='py-2 bg-orange-500' size={'large'} type="primary" loading={loading} onClick={() => {
                           onImageRemoveAllHandler();
                           handleOk();
-                          onImageRemoveAll();
+                          onImageRemove(0);
                           window.location.reload();
                         }}>
                           Cancel All
                         </Button>,
                         !!images.length && <div className='absolute left-0 text-gray-400 ml-5 font-bold '>{images.length} Files Uploading ...</div>
-
                       ]}
                     >
-                      {/* {
-                      !!images?.length && 
-                      <>
-                        <br /><br />
-                        <button className='fw-sky-btn' onClick={onImageRemoveAll}>Remove all images</button>
-                      </>
-                      } */}
                       {flagLongFileName && <Alert message={contentFlagLongFileName} type="warning" showIcon closable />}
-                      <div className='grid grid-cols-1 lg:grid-cols-3  gap-8 p-8'>
-                      {!!imageList.length && contextHolder}
+                      <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 p-8'>
+                        {!!imageList.length && contextHolder}
                         {imagesProgress && imageList.map((image, index) => {
                           const isPng = isPngFile(image.file);
                           return (
-                          <div key={index} className={` relative rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item ${image.isSelected?'isSelectedImg':''} ${isPng ? 'png-dotted-bg' : ''} ${isSvgFile(image.file) ? 'svg-preview-bg' : ''}`} >
-                            <div className="w-full absolute bottom-1 bg-gray-200 rounded-full dark:bg-gray-700">
-                              <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{width: `${imagesProgress[index]?imagesProgress[index]:'20'}%`, minWidth:'20%' }}> {imagesProgress[index]?imagesProgress[index] :'0'}%</div>
-                            </div>
-                            {needsCustomIcon(image.file) ? (
-                              <div className='h-[70%] cursor-pointer w-full rounded-lg'>
-                                <FileTypeIcon 
-                                  fileType={image.file?.type || ''} 
-                                  fileName={image.file?.name || 'Unknown File'} 
-                                />
+                            <div key={index} className={`relative rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 image-item ${image.isSelected ? 'isSelectedImg' : ''} ${isPng ? 'png-dotted-bg' : ''} ${isSvgFile(image.file) ? 'svg-preview-bg' : ''}`}>
+                              <div className="w-full absolute bottom-1 bg-gray-200 rounded-full dark:bg-gray-700">
+                                <div className="bg-blue-400 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{ width: `${imagesProgress[index] ? imagesProgress[index] : '20'}%`, minWidth: '20%' }}> {imagesProgress[index] ? imagesProgress[index] : '0'}%</div>
                               </div>
-                            ) : (
-                              <img 
-                                className='h-[70%] cursor-pointer w-full rounded-lg object-contain' 
-                                src={getSrcForImage(image)} 
-                                alt={image.file?.name || ''} 
-                                width="100"
-                                style={{
-                                  // Ensure SVG files display properly
-                                  backgroundColor: isSvgFile(image.file) ? 'white' : 'transparent'
-                                }}
-                                onError={(e) => {
-                                  // Fallback to file icon if image fails to load
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const parent = target.parentElement;
-                                  if (parent) {
-                                    const fileType = image.file && isSvgFile(image.file) ? 'SVG' : 
-                                                   image.file && isEpsFile(image.file) ? 'EPS' : 'IMAGE';
-                                    parent.innerHTML = `
-                                      <div class="flex flex-col items-center justify-center h-full w-full bg-gray-50 border-2 border-gray-200 rounded-lg">
-                                        <div class="text-gray-600 text-4xl mb-2">🖼️</div>
-                                        <div class="text-gray-600 font-semibold text-sm">${fileType}</div>
-                                        <div class="text-gray-500 text-xs mt-1 px-2 text-center truncate max-w-full">
-                                          ${image.file?.name || 'Unknown File'}
-                                        </div>
-                                        <div class="text-red-500 text-xs mt-1">Preview unavailable</div>
-                                      </div>
-                                    `;
-                                  }
-                                }}
-                              />
-                            )}
-                            <div className='flex relative w-full flex-col'>
-                                <div className='text-sm pt-10 mb-2'>{ image['file'] ? image['file']['name'] : '' } </div>
-                                <div>
-
-                                <StopOutlined 
-                                  className="image-item__btn-wrapper absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500"
-                                onClick={async() => {
-                                    await onImageRemoveHandler(index);
-                                    onImageRemove(index);
-
-                                }}   />
-                                {/* <svg onClick={() => {
-                                    onImageRemove(index)
-                                    
-                                }}  className="image-item__btn-wrapper absolute cursor-pointer right-0 bottom-0  w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h2v5m-2 0h4M9.408 5.5h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                </svg> */}
+                              {needsCustomIcon(image.file) ? (
+                                <div className='h-[70%] cursor-pointer w-full rounded-lg'>
+                                  <FileTypeIcon
+                                    fileType={image.file?.type || ''}
+                                    fileName={image.file?.name || 'Unknown File'}
+                                  />
                                 </div>
+                              ) : (
+                                <img
+                                  className='h-[70%] cursor-pointer w-full rounded-lg object-contain'
+                                  src={getSrcForImage(image)}
+                                  alt={image.file?.name || ''}
+                                  width="100"
+                                  style={{ backgroundColor: isSvgFile(image.file) ? 'white' : 'transparent' }}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      const fileType = image.file && isSvgFile(image.file) ? 'SVG' :
+                                                       image.file && isEpsFile(image.file) ? 'EPS' : 'IMAGE';
+                                      parent.innerHTML = `
+                                        <div class="flex flex-col items-center justify-center h-full w-full bg-gray-50 border-2 border-gray-200 rounded-lg">
+                                          <div class="text-gray-600 text-4xl mb-2">🖼️</div>
+                                          <div class="text-gray-600 font-semibold text-sm">${fileType}</div>
+                                          <div class="text-gray-500 text-xs mt-1 px-2 text-center truncate max-w-full">
+                                            ${image.file?.name || 'Unknown File'}
+                                          </div>
+                                          <div class="text-red-500 text-xs mt-1">Preview unavailable</div>
+                                        </div>
+                                      `;
+                                    }
+                                  }}
+                                />
+                              )}
+                              <div className='flex relative w-full flex-col'>
+                                <div className='text-sm pt-10 mb-2'>{image['file'] ? image['file']['name'] : ''}</div>
+                                <div>
+                                  <StopOutlined
+                                    className="image-item__btn-wrapper absolute cursor-pointer right-0 bottom-0 w-5 h-5 mb-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500"
+                                    onClick={async () => {
+                                      await onImageRemoveHandler(index);
+                                      onImageRemove(index);
+                                    }}
+                                  />
+                                </div>
+                              </div>
                             </div>
-                          </div>
                           );
                         })}
-                      </div>
-
-
-                      <div>
-                        {errors && <div className='text-red-500 font-medium'>
-                          {errors.maxNumber && <span>Number of selected images exceed maxNumber {maxNumber}</span>}
-                          {errors.acceptType && <span>Your selected file type is not allow</span>}
-                          {errors.maxFileSize && <span>Selected file size exceed maxFileSize ({humanFileSize(maxFileSize)})</span>}
-                          {errors.resolution && <span>Selected file is not match your desired resolution</span>}
-                        </div>
-                        }
                       </div>
                     </Modal>
                   </div>
                 )}
               </ImageUploading>
-            }
-        </div> 
-         <div className="p-8 flex justify-center items-center col-span-2  bg-white">
-           <div className="w-full  relative grid grid-cols-1   rounded-lg">
-            <div
-              className="
-                second-flex-div  flex flex-col relative order-first md:order-last h-28 md:h-auto 
-                justify-center items-center  border-gray-400 col-span-2 m-2 rounded-lg bg-no-repeat 
-                bg-center bg-origin-padding bg-cover
-              ">
-              <UppyUploadBox  setOpen={setOpen} />
-            
-            </div>
+            )}
           </div>
-        </div> 
+        )}
+
+        {/* Terms of Service */}
+        <div className="upload-tos-row" style={{ padding: '12px 20px 16px' }}>
+          <Checkbox
+            checked={componentDisabled}
+            onChange={(e) => setComponentDisabled(e.target.checked)}
+            style={{ fontSize: '13px', color: '#6b7280' }}
+          >
+            I acknowledge I am permitted to print the images I am submitting. See our{' '}
+            <a href={'http://' + userInfo.domain + userInfo.terms_of_service_url} target="_blank" rel="noreferrer" className='underline'>
+              terms of service
+            </a>
+          </Checkbox>
         </div>
-        }
-        <Checkbox   
-          checked={componentDisabled}
-          onChange={(e) => setComponentDisabled(e.target.checked)} 
-        className='xl:pl-4 pb-10 xl:pt-4 max-lg:pt-80  text-gray-400 ' style={{ fontSize: '16px' }}>I acknowledgement I am permitted to print the images I am submitting. See our <a href={'http://'+userInfo.domain+userInfo.terms_of_service_url} target="_blank" rel="noreferrer" className='underline'>terms of service </a></Checkbox>
-      </div>
-      </div>
-    </Modal>
+      </Modal>
     </>
   )
 }

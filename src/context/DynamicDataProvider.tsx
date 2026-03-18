@@ -80,7 +80,8 @@ const userInfo: IUserInfo = {
 const initialState = {
   referrer,
   fileLocation,
-  userInfo
+  userInfo,
+  openUpload: false
  }
 
 
@@ -100,7 +101,8 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
         ...userInfo,
         librarySessionId: cookies['Session'] || userInfo.librarySessionId,
         libraryAccountKey: cookies['AccountGUID'] || userInfo.libraryAccountKey,
-      }
+      },
+      openUpload: false
     };
   });
 
@@ -152,7 +154,9 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
       console.trace('🏪 STACK TRACE - Who called setUserInfoData:');
       setState((state: any) => ({ ...state, userInfo }));
     },
-   
+    setOpenUpload: (openUpload: boolean): void => {
+      setState((state: any) => ({ ...state, openUpload }));
+    },
 
   };
 

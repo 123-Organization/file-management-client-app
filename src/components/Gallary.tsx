@@ -807,7 +807,114 @@ const Gallary: React.FC = (): JSX.Element => {
                     )}
                     <EditGallaryModal onDeleteHandler={onDeleteHandler} isSuccess={!isLoadingImgDelete} openModel={open} setOpen={setOpen} imgData={imgData} isImageLoading={(imgData as any)?.guid ? (loadingThumbnails[(imgData as any).guid] || false) : false} />
                    </>
-              : <Empty />
+              : (
+                <>
+                  <style>{`
+                    .empty-upload-zone {
+                      grid-column: 1 / -1;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      width: 100%;
+                      min-height: calc(100vh - 120px);
+                      cursor: pointer;
+                      background: #f8f9fa;
+                      border-radius: 12px;
+                      transition: background 0.2s ease;
+                    }
+                    .empty-upload-zone:hover {
+                      background: #f1f3f5;
+                    }
+                    .empty-upload-zone:hover .upload-inner-card {
+                      border-color: #9ca3af;
+                      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+                      transform: translateY(-3px);
+                    }
+                    .upload-inner-card {
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      gap: 20px;
+                      padding: 56px 72px;
+                      border-radius: 20px;
+                      background: #ffffff;
+                      border: 2px dashed #d1d5db;
+                      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+                      transition: all 0.25s ease;
+                      max-width: 520px;
+                      width: 90%;
+                    }
+                    .upload-icon-ring {
+                      width: 80px;
+                      height: 80px;
+                      border-radius: 50%;
+                      background: #f3f4f6;
+                      border: 2px solid #e5e7eb;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      transition: all 0.2s ease;
+                    }
+                    .empty-upload-zone:hover .upload-icon-ring {
+                      background: #e5e7eb;
+                      border-color: #d1d5db;
+                    }
+                    .upload-add-btn {
+                      padding: 10px 28px;
+                      background: #1f2937;
+                      border-radius: 999px;
+                      color: white;
+                      font-size: 13px;
+                      font-weight: 600;
+                      letter-spacing: 0.4px;
+                      transition: background 0.2s ease;
+                    }
+                    .empty-upload-zone:hover .upload-add-btn {
+                      background: #111827;
+                    }
+                    .upload-divider {
+                      display: flex;
+                      align-items: center;
+                      gap: 12px;
+                      width: 100%;
+                    }
+                    .upload-divider::before,
+                    .upload-divider::after {
+                      content: '';
+                      flex: 1;
+                      height: 1px;
+                      background: #e5e7eb;
+                    }
+                  `}</style>
+                  <div
+                    className="empty-upload-zone"
+                    onClick={() => dynamicData.mutations.setOpenUpload(true)}
+                  >
+                    <div className="upload-inner-card">
+                      <div className="upload-icon-ring">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 15V4M12 4L8.5 7.5M12 4L15.5 7.5" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M20.5 16.5C21.6 15.7 22.5 14.5 22.5 13C22.5 10.5 20.5 8.5 18 8.5C17.5 8.5 17 8.6 16.6 8.7C15.9 6.5 13.8 5 11.5 5C8.5 5 6 7.5 6 10.5C6 11 6.1 11.5 6.2 11.9C4.7 12.6 3.6 14 3.6 15.7C3.6 18 5.6 20 8 20H19C19.2 20 19.4 20 19.5 20" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <p style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#111827', letterSpacing: '-0.3px' }}>
+                          No images yet
+                        </p>
+                        <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280', lineHeight: 1.6 }}>
+                          Drop files here or click to browse<br />and upload your images
+                        </p>
+                      </div>
+                      <div className="upload-add-btn">+ Upload Image</div>
+                      <div className="upload-divider">
+                        <span style={{ fontSize: '11px', color: '#9ca3af', whiteSpace: 'nowrap' }}>
+                          JPG &nbsp;·&nbsp; PNG &nbsp;·&nbsp; SVG &nbsp;·&nbsp; PDF &nbsp;·&nbsp; EPS &nbsp;·&nbsp; TIFF
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )
             }
           </div>
         </>

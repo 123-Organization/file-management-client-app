@@ -43,7 +43,16 @@ const HeaderIcon: React.FC = (): JSX.Element => {
     const navigate = useNavigate();
 
     const dynamicData: any = useDynamicData();
-    const { referrer, fileLocation, userInfo } = dynamicData.state;
+    const { referrer, fileLocation, userInfo, openUpload: contextOpenUpload } = dynamicData.state;
+
+    // Sync local upload state with context signal from Gallery
+    useEffect(() => {
+      if (contextOpenUpload) {
+        setOpenUpload(true);
+        dynamicData.mutations.setOpenUpload(false);
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [contextOpenUpload]);
 
     const {
         mutate: printImagesDataFn,
@@ -156,85 +165,173 @@ const HeaderIcon: React.FC = (): JSX.Element => {
 
     useEffect(() => {
         console.log('referrer.filterCount',referrer.filterCount)
-        referrer.filterCount==0  && setOpenUpload(true)
     },[referrer.filterCount]);
 
 /**
  * ****************************************************************** JSX  ***************************************************************************
  */
     return (
-        <div className='flex w-full'>
-            <div className=" fixed left-0 z-50 w-full top-0 h-18 bg-white pt-3 pb-3  mb-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
-                <div className="grid max-md:grid-cols-4 max-md:grid-rows-2 max-w-[700px] grid-cols-7 font-medium">
-                    <div className='flex flex-col items-center'>
-                        {
-                            !logo 
-                            ?    <Skeleton.Avatar className='pt-2' active={active} size={size} shape={avatarShape} />
-                            // <div className='p-5'><Spin tip={<div className='whitespace-nowrap -pt-10'></div>}><div className="content " /></Spin></div>
-                            : <img  src={logo} onClick={()=>{ window.location.reload() }} className="App-logo-icon cursor-pointer flex flex-col " alt="logo" />    
-                        }    
-                    </div>
-                    {/* <button onClick={()=>{ navigate('/') }} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                        <svg  className="w-5 h-5 mb-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
-                        </svg>
-                        <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Home</span>
-                    </button> */}
-                    <button  onClick={()=>{ navigate('/thumbnail') }} type="button" className=" md:hidden inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                        <svg className="w-5 h-5 mb-2 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6M9 8h6m-6 3h6M4.996 5h.01m-.01 3h.01m-.01 3h.01M2 1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
-                        </svg>
-                        <span className="text-sm text-gray-500 whitespace-nowrap dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">
-                        {/* Gallary */}
-                        <Dropdown  menu={menuProps}>
-                            <Space>
-                               My Libraries
-                            </Space>
-                        </Dropdown>
-                        </span>
-                    </button>
-                    { 
-                        location.pathname==='/thumbnail' 
-                        ?
-                            <>
-                                <button  onClick={() => setOpenUpload(true)}  data-tooltip-target="tooltip-document" type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                                    <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M.188 5H5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707c-.358.362-.617.81-.753 1.3C.148 5.011.166 5 .188 5ZM14 8a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm2 7h-1v1a1 1 0 0 1-2 0v-1h-1a1 1 0 0 1 0-2h1v-1a1 1 0 0 1 2 0v1h1a1 1 0 0 1 0 2Z" />
-                                        <path d="M6 14a7.969 7.969 0 0 1 10-7.737V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H.188A.909.909 0 0 1 0 6.962V18a1.969 1.969 0 0 0 1.933 2h6.793A7.976 7.976 0 0 1 6 14Z" />
-                                    </svg>
-                                    {/* <span className="sr-only">New document</span> */}
-                                    <span className="text-sm text-gray-500 whitespace-nowrap dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">New File</span>
-                                </button>
-                                <div id="tooltip-document" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                                    New document
-                                    <div className="tooltip-arrow" data-popper-arrow></div>
-                                </div>
-                                <button onClick={() => setOpenFilter(true)} type="button" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                                <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 17V1m0 0L1 4m3-3 3 3m4-3h6l-6 6h6m-7 10 3.5-7 3.5 7m-6.125-2H16"/>
-            </svg>
-                                    <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap group-hover:text-blue-600 dark:group-hover:text-blue-500">Filter & Sort</span>
-                                </button>
-                            </>
-                        : <></>
-                    }
-                    { 
-                        referrer.hasSelected &&
-                        <div onClick={createPrints} className='fw-sky-btn absolute max-md:row-1 max-md:col-span-4 max-md:relative'>
+        <>
+          <style>{`
+            .header-bar {
+              display: flex;
+              align-items: center;
+              width: 100%;
+              height: 64px;
+              gap: 6px;
+            }
 
-                            <Spin spinning={spinLoader}  size="small">
-                            <button type="button"  className="  
-                                 ">{userInfo.button_text}</button>
-                            </Spin>
-                        </div>
-                    }
-                </div>
+            /* Logo section */
+            .header-logo-wrap {
+              display: flex;
+              align-items: center;
+              padding-right: 18px;
+              margin-right: 4px;
+              border-right: 1px solid #e5e7eb;
+              height: 36px;
+              flex-shrink: 0;
+            }
+
+            /* Grouped nav pill container */
+            .header-nav-group {
+              display: inline-flex;
+              align-items: center;
+              gap: 2px;
+              background: #f3f4f6;
+              border: 1px solid #e5e7eb;
+              border-radius: 10px;
+              padding: 3px;
+            }
+
+            /* Individual nav button inside the group */
+            .header-nav-btn {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              padding: 6px 13px;
+              border-radius: 8px;
+              font-size: 13px;
+              font-weight: 500;
+              color: #4b5563;
+              background: transparent;
+              border: none;
+              cursor: pointer;
+              transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+              white-space: nowrap;
+              line-height: 1;
+            }
+            .header-nav-btn:hover {
+              background: #ffffff;
+              color: #111827;
+              box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            }
+            .header-nav-btn svg {
+              flex-shrink: 0;
+              color: #6b7280;
+              transition: color 0.15s ease;
+            }
+            .header-nav-btn:hover svg {
+              color: #374151;
+            }
+
+            /* Standalone nav button (library switcher on mobile) */
+            .header-nav-btn-standalone {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              padding: 7px 13px;
+              border-radius: 8px;
+              font-size: 13px;
+              font-weight: 500;
+              color: #4b5563;
+              background: transparent;
+              border: none;
+              cursor: pointer;
+              transition: background 0.15s ease, color 0.15s ease;
+              white-space: nowrap;
+            }
+            .header-nav-btn-standalone:hover {
+              background: #f3f4f6;
+              color: #111827;
+            }
+
+            /* Create prints CTA — compact, fits the 64px header */
+            .header-create-btn {
+              display: inline-flex;
+              align-items: center;
+              gap: 5px;
+              padding: 6px 14px;
+              border-radius: 8px;
+              font-size: 12.5px;
+              font-weight: 600;
+              color: #ffffff;
+              background: #1f2937;
+              border: none;
+              cursor: pointer;
+              transition: background 0.15s ease, box-shadow 0.15s ease;
+              white-space: nowrap;
+              box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+              letter-spacing: 0.01em;
+              max-height: 34px;
+            }
+            .header-create-btn:hover {
+              background: #111827;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            }
+          `}</style>
+
+          <div className="header-bar">
+            {/* Logo */}
+            <div className="header-logo-wrap">
+              {!logo
+                ? <Skeleton.Avatar active={active} size="default" shape={avatarShape} />
+                : <img src={logo} onClick={() => window.location.reload()} className="App-logo-icon cursor-pointer" alt="logo" />
+              }
             </div>
 
-            <FilterSortModal openModel={openFilter} setOpen={setOpenFilter} />
-            <UploadModal openModel={openUpload} setOpen={setOpenUpload} />
+            {/* Mobile library switcher */}
+            <button onClick={() => navigate('/thumbnail')} type="button" className="header-nav-btn-standalone md:hidden">
+              <svg width="15" height="15" fill="none" viewBox="0 0 20 16" xmlns="http://www.w3.org/2000/svg">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5h6M9 8h6m-6 3h6M4.996 5h.01m-.01 3h.01m-.01 3h.01M2 1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
+              </svg>
+              <Dropdown menu={menuProps}><Space>My Libraries</Space></Dropdown>
+            </button>
 
-        </div>
+            {/* Grouped toolbar actions */}
+            {location.pathname === '/thumbnail' && (
+              <div className="header-nav-group">
+                <button onClick={() => setOpenUpload(true)} type="button" className="header-nav-btn">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 15V4M12 4L8.5 7.5M12 4L15.5 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M20 16.5C21.1 15.7 22 14.5 22 13C22 10.5 20 8.5 17.5 8.5C17 8.5 16.5 8.6 16.1 8.7C15.4 6.5 13.3 5 11 5C8 5 5.5 7.5 5.5 10.5C5.5 11 5.6 11.5 5.7 11.9C4.2 12.6 3.1 14 3.1 15.7C3.1 18 5.1 20 7.5 20H18.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Upload
+                </button>
+                <button onClick={() => setOpenFilter(true)} type="button" className="header-nav-btn">
+                  <svg width="15" height="15" fill="none" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 17V1m0 0L1 4m3-3 3 3m4-3h6l-6 6h6m-7 10 3.5-7 3.5 7m-6.125-2H16"/>
+                  </svg>
+                  Filter & Sort
+                </button>
+              </div>
+            )}
+
+            {/* Spacer */}
+            <div style={{ flex: 1 }} />
+
+            {/* Create prints CTA */}
+            {referrer.hasSelected && (
+              <button onClick={createPrints} className="header-create-btn">
+                <Spin spinning={spinLoader} size="small">
+                  <span>{userInfo.button_text}</span>
+                </Spin>
+              </button>
+            )}
+          </div>
+
+          <FilterSortModal openModel={openFilter} setOpen={setOpenFilter} />
+          <UploadModal openModel={openUpload} setOpen={setOpenUpload} />
+        </>
     )
 }
 

@@ -131,107 +131,139 @@ const BottomIcon: React.FC = (): JSX.Element => {
       },[userInfo.filterPerPage]);
         
     return (
-        isLoadingImgDelete 
+        isLoadingImgDelete
         ? <div className='pt-5 pb-2'>
             <Spin tip="Deleting files..." ><></></Spin>
           </div>
-        :<div className='flex'>
-            <div></div>
-            <div className="flex fixed bottom-0 left-0  w-full h-16 bg-white  border-b mt-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600">
-                <div className="grid h-full max-w-lg grid-cols-2 font-medium basis-1/2">
-                    {
-                        referrer.hasSelected &&
-                        <>
-                            {
-                            fileLocation.selected==='inventory' && 
-                                <button  onClick={onDownloadHandler}  type="button" className="max-md:ml-4 inline-flex flex-col items-center ml-20 justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                                    <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 19">
-                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 15h.01M4 12H2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-3M9.5 1v10.93m4-3.93-4 4-4-4" />
-                                    </svg>
-                                    <span className="max-md:whitespace-normal text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Download Selected</span>
-                                </button>
-                            }
-                            <button onClick={onDeleteHandler} data-tooltip-target="tooltip-document" type="button" className="max-md:pl-2 inline-flex ml-20 flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                                <svg className="w-5 h-5 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z" />
-                                </svg>
-                                {/* <span className="sr-only">New document</span> */}
-                                <span className="max-md:whitespace-normal text-sm text-gray-500 whitespace-nowrap dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Delete Selected</span>
-                            </button>
-                        </>    
-                    }
-                </div>
-                <div className='flex w-full justify-end'>
-                    <Pagination 
-                        className=' mt-5 mr-3 ' 
-                        showSizeChanger={true}
-                        showQuickJumper={false}
-                        pageSizeOptions={[2, 4, 6, 8, 10, 12, 15, 25, 50, 100]}
-                        onChange={onChange}
-                        onShowSizeChange={(current, size) => {
-                            console.log('🔥🔥🔥 CRITICAL: onShowSizeChange DEFINITELY CALLED! 🔥🔥🔥');
-                            console.log('🔥 FIRST LOG: onShowSizeChange handler entry point');
-                            console.log('🔥 onShowSizeChange called - size:', size, 'current:', current);
-                            console.log('🔥 Type of size:', typeof size, 'Type of current:', typeof current);
-                            console.log('🔥 userInfo before change:', {
-                                filterPageNumber: userInfo.filterPageNumber,
-                                filterPerPage: userInfo.filterPerPage
-                            });
-                            
-                            try {
-                                // Set ref flag to prevent onChange from interfering
-                                console.log('🔥 Setting isChangingPageSize REF to true');
-                                isChangingPageSizeRef.current = true;
-                                
-                                // Force a unique update by adding timestamp to ensure React detects the change
-                                const userInfoObj = {
-                                    ...userInfo, 
-                                    filterPerPage: size.toString(),
-                                    filterUpdate: userInfo.filterUpdate + Math.random().toString(36).substr(2, 9)
-                                };
-                                console.log('🔥 BottomIcon onShowSizeChange - userInfoObj:', {
-                                    filterPageNumber: userInfoObj.filterPageNumber,
-                                    filterPerPage: userInfoObj.filterPerPage,
-                                    libraryName: userInfoObj.libraryName
-                                });
-                                
-                                console.log('🔥 About to call setUserInfoData...');
-                                console.log('🔥 userInfoObj being passed to setUserInfoData:', JSON.stringify(userInfoObj, null, 2));
-                                dynamicData.mutations.setUserInfoData(userInfoObj);
-                                console.log('🔥 setUserInfoData called successfully');
-                                
-                                // Check if the state was actually updated
-                                setTimeout(() => {
-                                    const updatedUserInfo = dynamicData.state.userInfo;
-                                    console.log('🔥 VERIFICATION - Updated state after setUserInfoData:', {
-                                        filterPageNumber: updatedUserInfo.filterPageNumber,
-                                        filterPerPage: updatedUserInfo.filterPerPage
-                                    });
-                                }, 50);
-                                
-                                console.log('🔥 About to call setPageSize...');
-                                setPageSize(size);
-                                console.log('🔥 setPageSize called successfully');
-                                
-                                // Clear the ref flag after a delay to allow onChange to work normally for actual page navigation
-                                setTimeout(() => {
-                                    console.log('🔥 Clearing isChangingPageSize REF to false');
-                                    isChangingPageSizeRef.current = false;
-                                }, 100);
-                                
-                            } catch (error) {
-                                console.error('🔥 ERROR in onShowSizeChange:', error);
-                                isChangingPageSizeRef.current = false; // Clear flag on error
-                            }
-                        }}
-                        current={current} 
-                        pageSize={pageSize} 
-                        total={referrer.filterCount} 
-                    />
-                </div>
-            </div>
+        : <div>
+            {contextHolder}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              width: '100%',
+              height: '52px',
+              padding: '0 16px',
+              background: '#ffffff',
+              gap: '0',
+            }}>
+              {/* Left: action buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                {referrer.hasSelected ? (
+                  <>
+                    {/* Selection count badge */}
+                    <span style={{
+                      fontSize: '12px', fontWeight: 600, color: '#6b7280',
+                      background: '#f3f4f6', border: '1px solid #e5e7eb',
+                      borderRadius: '20px', padding: '2px 10px', marginRight: '4px',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {referrer.fileSelected?.length ?? 0} selected
+                    </span>
 
-        </div>
+                    {fileLocation.selected === 'inventory' && (
+                      <button
+                        onClick={onDownloadHandler}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '5px',
+                          padding: '5px 13px', borderRadius: '8px', fontSize: '13px',
+                          fontWeight: 500, color: '#374151', background: '#f3f4f6',
+                          border: '1px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.15s',
+                          whiteSpace: 'nowrap',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#e5e7eb')}
+                        onMouseLeave={e => (e.currentTarget.style.background = '#f3f4f6')}
+                      >
+                        <svg width="14" height="14" fill="none" viewBox="0 0 20 19" xmlns="http://www.w3.org/2000/svg">
+                          <path stroke="#6b7280" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 15h.01M4 12H2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-3M9.5 1v10.93m4-3.93-4 4-4-4"/>
+                        </svg>
+                        Download
+                      </button>
+                    )}
+
+                    <button
+                      onClick={onDeleteHandler}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '5px',
+                        padding: '5px 13px', borderRadius: '8px', fontSize: '13px',
+                        fontWeight: 500, color: '#dc2626', background: '#fef2f2',
+                        border: '1px solid #fecaca', cursor: 'pointer', transition: 'all 0.15s',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.borderColor = '#fca5a5'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fecaca'; }}
+                    >
+                      <svg width="14" height="14" fill="none" viewBox="0 0 18 20" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke="#dc2626" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z"/>
+                      </svg>
+                      Delete
+                    </button>
+                  </>
+                ) : (
+                  <span style={{ fontSize: '12px', color: '#9ca3af' }}>No items selected</span>
+                )}
+              </div>
+
+              {/* Vertical divider */}
+              <div style={{
+                width: '1px', height: '24px', background: '#e5e7eb',
+                margin: '0 14px', flexShrink: 0,
+              }} />
+
+              {/* Right: pagination */}
+              <div style={{ marginLeft: 'auto' }}>
+                <Pagination
+                  showSizeChanger={true}
+                  showQuickJumper={false}
+                  pageSizeOptions={[2, 4, 6, 8, 10, 12, 15, 25, 50, 100]}
+                  onChange={onChange}
+                  onShowSizeChange={(current, size) => {
+                    console.log('🔥🔥🔥 CRITICAL: onShowSizeChange DEFINITELY CALLED! 🔥🔥🔥');
+                    console.log('🔥 FIRST LOG: onShowSizeChange handler entry point');
+                    console.log('🔥 onShowSizeChange called - size:', size, 'current:', current);
+                    console.log('🔥 Type of size:', typeof size, 'Type of current:', typeof current);
+                    console.log('🔥 userInfo before change:', {
+                        filterPageNumber: userInfo.filterPageNumber,
+                        filterPerPage: userInfo.filterPerPage
+                    });
+                    
+                    try {
+                        console.log('🔥 Setting isChangingPageSize REF to true');
+                        isChangingPageSizeRef.current = true;
+                        
+                        const userInfoObj = {
+                            ...userInfo, 
+                            filterPerPage: size.toString(),
+                            filterUpdate: userInfo.filterUpdate + Math.random().toString(36).substr(2, 9)
+                        };
+                        dynamicData.mutations.setUserInfoData(userInfoObj);
+                        
+                        setTimeout(() => {
+                            const updatedUserInfo = dynamicData.state.userInfo;
+                            console.log('🔥 VERIFICATION - Updated state after setUserInfoData:', {
+                                filterPageNumber: updatedUserInfo.filterPageNumber,
+                                filterPerPage: updatedUserInfo.filterPerPage
+                            });
+                        }, 50);
+                        
+                        setPageSize(size);
+                        
+                        setTimeout(() => {
+                            isChangingPageSizeRef.current = false;
+                        }, 100);
+                        
+                    } catch (error) {
+                        console.error('🔥 ERROR in onShowSizeChange:', error);
+                        isChangingPageSizeRef.current = false;
+                    }
+                  }}
+                  current={current}
+                  pageSize={pageSize}
+                  total={referrer.filterCount}
+                  size="small"
+                />
+              </div>
+            </div>
+          </div>
     )
 }
 
