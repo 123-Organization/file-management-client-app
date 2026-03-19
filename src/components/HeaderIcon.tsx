@@ -179,6 +179,7 @@ const HeaderIcon: React.FC = (): JSX.Element => {
               width: 100%;
               height: 64px;
               gap: 6px;
+              position: relative;
             }
 
             /* Logo section */
@@ -194,27 +195,29 @@ const HeaderIcon: React.FC = (): JSX.Element => {
 
             /* Grouped nav pill container */
             .header-nav-group {
+              position: absolute;
+              left: 50%;
+              transform: translateX(-50%);
               display: inline-flex;
               align-items: center;
-              gap: 2px;
-              background: #f3f4f6;
-              border: 1px solid #e5e7eb;
-              border-radius: 10px;
-              padding: 3px;
+              gap: 16px;
+              background: transparent;
+              border: none;
+              padding: 0;
             }
 
             /* Individual nav button inside the group */
             .header-nav-btn {
               display: inline-flex;
               align-items: center;
-              gap: 6px;
-              padding: 6px 13px;
+              gap: 8px;
+              padding: 8px 16px;
               border-radius: 8px;
-              font-size: 13px;
+              font-size: 15px;
               font-weight: 500;
               color: #4b5563;
-              background: transparent;
-              border: none;
+              background: #f3f4f6;
+              border: 1px solid #e5e7eb;
               cursor: pointer;
               transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
               white-space: nowrap;
@@ -289,26 +292,18 @@ const HeaderIcon: React.FC = (): JSX.Element => {
               }
             </div>
 
-            {/* Mobile library switcher */}
-            <button onClick={() => navigate('/thumbnail')} type="button" className="header-nav-btn-standalone md:hidden">
-              <svg width="15" height="15" fill="none" viewBox="0 0 20 16" xmlns="http://www.w3.org/2000/svg">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5h6M9 8h6m-6 3h6M4.996 5h.01m-.01 3h.01m-.01 3h.01M2 1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
-              </svg>
-              <Dropdown menu={menuProps}><Space>My Libraries</Space></Dropdown>
-            </button>
-
             {/* Grouped toolbar actions */}
             {location.pathname === '/thumbnail' && (
               <div className="header-nav-group">
                 <button onClick={() => setOpenUpload(true)} type="button" className="header-nav-btn">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 15V4M12 4L8.5 7.5M12 4L15.5 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M20 16.5C21.1 15.7 22 14.5 22 13C22 10.5 20 8.5 17.5 8.5C17 8.5 16.5 8.6 16.1 8.7C15.4 6.5 13.3 5 11 5C8 5 5.5 7.5 5.5 10.5C5.5 11 5.6 11.5 5.7 11.9C4.2 12.6 3.1 14 3.1 15.7C3.1 18 5.1 20 7.5 20H18.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Upload
                 </button>
                 <button onClick={() => setOpenFilter(true)} type="button" className="header-nav-btn">
-                  <svg width="15" height="15" fill="none" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="18" height="18" fill="none" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 17V1m0 0L1 4m3-3 3 3m4-3h6l-6 6h6m-7 10 3.5-7 3.5 7m-6.125-2H16"/>
                   </svg>
                   Filter & Sort

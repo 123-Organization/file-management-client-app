@@ -758,7 +758,7 @@ const Gallary: React.FC = (): JSX.Element => {
                         const isImageTransparent = isTransparentFile(image.title);
                         return (            
                             <div key={i}   className={`border rounded-lg shadow-lg border-gray-100 ${image.isSelected || (referrerImages?.length && referrerImages.includes(image.guid)) ?'isSelectedImg':''} ${loadingThumbnails[image.guid!] ? 'opacity-60 cursor-not-allowed' : ''}`} >
-                                <div onClick={()=> handleSelect(i)}  className={`min-h-[300px] flex justify-center items-center ${loadingThumbnails[image.guid!] ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                                <div onClick={()=> handleSelect(i)}  className={`min-h-[220px] pt-4 flex justify-center items-center ${loadingThumbnails[image.guid!] ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                                   <div>
                                   
 

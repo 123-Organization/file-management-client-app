@@ -16,6 +16,9 @@ import UppyUploadBox from './UppyUploadBox';
 import config  from "../config/configs";
 import { sendEvent } from '../helpers/GA4Events';
 import tiffDefault from "../assets/images/tiff_default.png"
+import googleDriveIcon from "../assets/provider/icon_googledrive.svg";
+import dropboxIcon from "../assets/provider/icon_dropbox.svg";
+import artzipIcon from "../assets/provider/icon_artzip_32.svg";
 
 // File type icons for non-image files
 const FileTypeIcon = ({ fileType, fileName }: { fileType: string, fileName: string }) => {
@@ -1422,26 +1425,47 @@ const UploadModal = ({ openModel=false, setOpen=(val)=>val }: UploadModalProps) 
                         Browse Files
                       </button>
 
-                      <div className="upload-type-badges">
+                      {/* External source icon buttons */}
+                      <div
+                        style={{ display: 'flex', flexDirection: 'row', gap: '10px', marginTop: '14px', justifyContent: 'center' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {[
+                          { icon: googleDriveIcon, label: 'Google Drive', href: `${config.COMPANION_BASE_URL}/connect/googledrive` },
+                          { icon: dropboxIcon, label: 'Dropbox', href: `${config.COMPANION_BASE_URL}/connect/dropbox` },
+                          { icon: artzipIcon, label: 'Artzip', href: `https://app.artzip.com/referrals/finerworks` },
+                        ].map(({ icon, label, href }) => (
+                          <a
+                            key={label}
+                            href={href}
+                            target="_blank"
+                            rel="noreferrer"
+                            title={label}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                              width: '44px', height: '44px',
+                              borderRadius: '10px', border: '1px solid #e5e7eb',
+                              background: '#ffffff', transition: 'border-color 0.2s, box-shadow 0.2s',
+                              flexShrink: 0,
+                            }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#9ca3af'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)'; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
+                          >
+                            <img src={icon} alt={label} style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
+                          </a>
+                        ))}
+                      </div>
+
+                      <div className="upload-type-badges" style={{ marginTop: '14px' }}>
                         {['JPG', 'PNG', 'TIFF', 'SVG', 'PDF', 'EPS', 'BMP'].map(t => (
                           <span key={t} className="upload-type-badge">{t}</span>
                         ))}
                       </div>
                     </div>
 
-                    {/* More sources (UppyUploadBox) */}
-                    <div className="upload-more-sources">
-                      <details style={{ textAlign: 'center' }}>
-                        <summary className="upload-more-sources-toggle" style={{ listStyle: 'none', outline: 'none' }}>
-                          <svg width="12" height="12" fill="none" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 1v18M1 10h18"/>
-                          </svg>
-                          More upload sources
-                        </summary>
-                        <div style={{ marginTop: '12px', padding: '12px', background: '#fafafa', borderRadius: '10px', border: '1px solid #f0f0f0' }}>
-                          <UppyUploadBox setOpen={setOpen} />
-                        </div>
-                      </details>
+                    {/* Uppy upload sources — kept for actual upload functionality */}
+                    <div style={{ marginTop: '12px' }} onClick={(e) => e.stopPropagation()}>
+                      <UppyUploadBox setOpen={setOpen} />
                     </div>
 
                     {/* Error display */}

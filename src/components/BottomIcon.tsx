@@ -160,25 +160,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
                       {referrer.fileSelected?.length ?? 0} selected
                     </span>
 
-                    {fileLocation.selected === 'inventory' && (
-                      <button
-                        onClick={onDownloadHandler}
-                        style={{
-                          display: 'inline-flex', alignItems: 'center', gap: '5px',
-                          padding: '5px 13px', borderRadius: '8px', fontSize: '13px',
-                          fontWeight: 500, color: '#374151', background: '#f3f4f6',
-                          border: '1px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.15s',
-                          whiteSpace: 'nowrap',
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#e5e7eb')}
-                        onMouseLeave={e => (e.currentTarget.style.background = '#f3f4f6')}
-                      >
-                        <svg width="14" height="14" fill="none" viewBox="0 0 20 19" xmlns="http://www.w3.org/2000/svg">
-                          <path stroke="#6b7280" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 15h.01M4 12H2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-3M9.5 1v10.93m4-3.93-4 4-4-4"/>
-                        </svg>
-                        Download
-                      </button>
-                    )}
+
 
                     <button
                       onClick={onDeleteHandler}
