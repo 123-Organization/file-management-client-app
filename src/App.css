@@ -25,28 +25,8 @@
 .ant-layout {
   background: var(--color-bg) !important;
 }
-.ant-layout-header {
-  height: 64px !important;
-  line-height: 64px !important;
-  background: var(--color-surface) !important;
-  border-bottom: 1px solid var(--color-border) !important;
-  box-shadow: var(--shadow-sm) !important;
-  padding: 0 16px !important;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
 .ant-layout-content {
   background: var(--color-bg) !important;
-}
-.ant-layout-footer {
-  background: var(--color-surface) !important;
-  border-top: 1px solid var(--color-border) !important;
-  box-shadow: 0 -1px 4px rgba(0,0,0,0.05) !important;
-  padding: 0 !important;
-  position: sticky !important;
-  bottom: 0 !important;
-  z-index: 100 !important;
 }
 
 .App-logo {

@@ -4,13 +4,12 @@ import { Layout, theme } from 'antd';
 import Router from "./routes";
 import { useLocation } from "react-router-dom";
 
-import HeaderIcon from './components/HeaderIcon';
 import BottomIcon from './components/BottomIcon';
 import { useDynamicData } from './context/DynamicDataProvider';
 import ReactGA from "react-ga4";
 import { sendEvent } from './helpers/GA4Events';
 
-const { Header, Footer, Content } = Layout;
+const { Footer, Content } = Layout;
 
 interface ISettings {
   settings ?: object
@@ -123,16 +122,24 @@ const App: React.FC = () => {
 
   return (
     <Layout className="layout">
-      <Header style={{ display: 'flex', alignItems: 'center', backgroundColor: '#fff', }}>
-        <HeaderIcon />
-      </Header>
-      <Content style={{ padding: '50px' }}>
+      <Content style={{ padding: '20px 50px 70px 50px' }}>
         <div className="site-layout-content" style={{ background: colorBgContainer, minHeight: '600px' }}>
           <Router />
         </div>
       </Content>
-      <Footer style={{ textAlign: 'center', backgroundColor: '#fff', }}>
-        <BottomIcon />
+      <Footer style={{ 
+        position: 'fixed', 
+        bottom: 24, 
+        width: '100%', 
+        zIndex: 1000, 
+        padding: 0,
+        backgroundColor: 'transparent', 
+        border: 'none',
+        pointerEvents: 'none'
+      }}>
+        <div style={{ pointerEvents: 'auto' }}>
+          <BottomIcon />
+        </div>
      </Footer>
     </Layout>
   );

@@ -2,9 +2,10 @@ import React, { useEffect, useState, useRef } from 'react'
 import { message, PaginationProps, Spin } from 'antd';
 import { Pagination } from 'antd';
 import { useDynamicData } from '../context/DynamicDataProvider';
-import { deleteImages } from '../api/gallaryApi';
+import { deleteImages, postPrintImages } from '../api/gallaryApi';
 import { useMutation } from '@tanstack/react-query';
 import { sendEvent } from '../helpers/GA4Events';
+import { useNavigate } from 'react-router';
 
 
 
@@ -15,6 +16,8 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const [current, setCurrent] = useState(1);
     const [pageSize, setPageSize] = useState(parseInt(userInfo.filterPerPage) || 12);
     const isChangingPageSizeRef = useRef(false);
+    const [spinLoader, setSpinLoader] = useState(false);
+    const navigate = useNavigate();
 
     
     const {
@@ -41,6 +44,29 @@ const BottomIcon: React.FC = (): JSX.Element => {
           'deleted': 'true'
         };
         sendEvent(userInfo.GAID,eventName,eventParams);
+    }
+
+    const {
+        mutate: printImagesDataFn,
+       } = useMutation((data: any) => postPrintImages(data), {
+        onSuccess(data) {
+            console.log('postPrintImages...', data)
+            messageApi.open({
+                type: 'success',
+                content: 'Print api',
+              });
+              setSpinLoader(false)
+              window.parent.postMessage(data.data,'*')
+              navigate('/thumbnail?guid='+data.data+'&timestamp='+(new Date()).toISOString().replace(/[^\d]/g,''))
+        },
+        onError(error: any) {},
+      });
+
+    const createPrints = () => {
+        if (spinLoader) return false;
+        setSpinLoader(true)
+        let guids = referrer.fileSelected.map((image: { guid: string })=>image.guid);
+        printImagesDataFn({guids});
     }
     
     const onChange: PaginationProps['onChange']|any = (filterPageNumber:number) => {
@@ -132,41 +158,46 @@ const BottomIcon: React.FC = (): JSX.Element => {
         
     return (
         isLoadingImgDelete
-        ? <div className='pt-5 pb-2'>
+        ? <div className='pt-5 pb-2 text-center'>
             <Spin tip="Deleting files..." ><></></Spin>
           </div>
-        : <div>
+        : <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%',
+          }}>
             {contextHolder}
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              width: '100%',
-              height: '52px',
-              padding: '0 16px',
               background: '#ffffff',
-              gap: '0',
+              padding: '8px 20px',
+              borderRadius: '100px',
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+              border: '1px solid rgba(229, 231, 235, 0.8)',
+              gap: '16px',
+              maxWidth: '90vw',
+              backdropFilter: 'blur(8px)',
             }}>
               {/* Left: action buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                 {referrer.hasSelected ? (
                   <>
                     {/* Selection count badge */}
                     <span style={{
-                      fontSize: '12px', fontWeight: 600, color: '#6b7280',
+                      fontSize: '12px', fontWeight: 600, color: '#111827',
                       background: '#f3f4f6', border: '1px solid #e5e7eb',
-                      borderRadius: '20px', padding: '2px 10px', marginRight: '4px',
+                      borderRadius: '20px', padding: '4px 12px', marginRight: '4px',
                       whiteSpace: 'nowrap',
                     }}>
                       {referrer.fileSelected?.length ?? 0} selected
                     </span>
 
-
-
                     <button
                       onClick={onDeleteHandler}
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: '5px',
-                        padding: '5px 13px', borderRadius: '8px', fontSize: '13px',
+                        padding: '6px 14px', borderRadius: '100px', fontSize: '13px',
                         fontWeight: 500, color: '#dc2626', background: '#fef2f2',
                         border: '1px solid #fecaca', cursor: 'pointer', transition: 'all 0.15s',
                         whiteSpace: 'nowrap',
@@ -179,62 +210,57 @@ const BottomIcon: React.FC = (): JSX.Element => {
                       </svg>
                       Delete
                     </button>
+
+                    <button
+                      onClick={createPrints}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '5px',
+                        padding: '7px 18px', borderRadius: '100px', fontSize: '13px',
+                        fontWeight: 600, color: '#ffffff', background: '#111827',
+                        border: 'none', cursor: 'pointer', transition: 'all 0.15s ease',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#1f2937'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    >
+                      <Spin spinning={spinLoader} size="small" style={{ color: '#fff' }}>
+                        <span>{userInfo.button_text}</span>
+                      </Spin>
+                    </button>
                   </>
                 ) : (
-                  <span style={{ fontSize: '12px', color: '#9ca3af' }}>No items selected</span>
+                  <span style={{ fontSize: '13px', color: '#6b7280', padding: '0 8px' }}>Select items to act</span>
                 )}
               </div>
 
               {/* Vertical divider */}
               <div style={{
-                width: '1px', height: '24px', background: '#e5e7eb',
-                margin: '0 14px', flexShrink: 0,
+                width: '1px', height: '28px', background: '#e5e7eb',
+                flexShrink: 0,
               }} />
 
               {/* Right: pagination */}
-              <div style={{ marginLeft: 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Pagination
                   showSizeChanger={true}
                   showQuickJumper={false}
                   pageSizeOptions={[2, 4, 6, 8, 10, 12, 15, 25, 50, 100]}
                   onChange={onChange}
                   onShowSizeChange={(current, size) => {
-                    console.log('🔥🔥🔥 CRITICAL: onShowSizeChange DEFINITELY CALLED! 🔥🔥🔥');
-                    console.log('🔥 FIRST LOG: onShowSizeChange handler entry point');
-                    console.log('🔥 onShowSizeChange called - size:', size, 'current:', current);
-                    console.log('🔥 Type of size:', typeof size, 'Type of current:', typeof current);
-                    console.log('🔥 userInfo before change:', {
-                        filterPageNumber: userInfo.filterPageNumber,
-                        filterPerPage: userInfo.filterPerPage
-                    });
-                    
                     try {
-                        console.log('🔥 Setting isChangingPageSize REF to true');
                         isChangingPageSizeRef.current = true;
-                        
                         const userInfoObj = {
                             ...userInfo, 
                             filterPerPage: size.toString(),
                             filterUpdate: userInfo.filterUpdate + Math.random().toString(36).substr(2, 9)
                         };
                         dynamicData.mutations.setUserInfoData(userInfoObj);
-                        
-                        setTimeout(() => {
-                            const updatedUserInfo = dynamicData.state.userInfo;
-                            console.log('🔥 VERIFICATION - Updated state after setUserInfoData:', {
-                                filterPageNumber: updatedUserInfo.filterPageNumber,
-                                filterPerPage: updatedUserInfo.filterPerPage
-                            });
-                        }, 50);
-                        
                         setPageSize(size);
-                        
                         setTimeout(() => {
                             isChangingPageSizeRef.current = false;
                         }, 100);
-                        
                     } catch (error) {
-                        console.error('🔥 ERROR in onShowSizeChange:', error);
                         isChangingPageSizeRef.current = false;
                     }
                   }}
@@ -249,4 +275,4 @@ const BottomIcon: React.FC = (): JSX.Element => {
     )
 }
 
-export default BottomIcon
+export default BottomIcon;

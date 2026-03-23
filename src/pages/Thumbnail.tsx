@@ -1,11 +1,25 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Gallary from '../components/Gallary'
 import { useDynamicData } from '../context/DynamicDataProvider';
+import FilterSortModal from '../components/FilterSortModal';
+import UploadModal from '../components/UploadModal';
 
 const Thumbnail: React.FC = (): JSX.Element => {
 
   const dynamicData: any = useDynamicData();
-  const { fileLocation, userInfo } = dynamicData.state;
+  const { fileLocation, userInfo, openUpload: contextOpenUpload } = dynamicData.state;
+
+  const [openFilter, setOpenFilter] = useState(false);
+  const [openUpload, setOpenUpload] = useState(false);
+
+  // Sync local upload state with context signal from Gallery
+  useEffect(() => {
+    if (contextOpenUpload) {
+      setOpenUpload(true);
+      dynamicData.mutations.setOpenUpload(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contextOpenUpload]);
 
   const libraryMeta: Record<string, { label: string; icon: JSX.Element; desc: string }> = {
     temporary: {
@@ -51,7 +65,7 @@ const Thumbnail: React.FC = (): JSX.Element => {
       <style>{`
         .sidebar-container {
           position: fixed;
-          top: 64px;
+          top: 0;
           right: 0;
           bottom: 52px;
           width: inherit;
@@ -166,6 +180,29 @@ const Thumbnail: React.FC = (): JSX.Element => {
           align-items: center;
           gap: 6px;
         }
+        .sidebar-action-btn {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          gap: 8px;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #374151;
+          background: #f9fafb;
+          border: 1px solid #e5e7eb;
+          cursor: pointer;
+          transition: background 0.15s ease, border-color 0.15s ease;
+          margin-bottom: 8px;
+        }
+        .sidebar-action-btn:hover {
+          background: #f3f4f6;
+          border-color: #d1d5db;
+        }
+        .sidebar-action-btn svg {
+          color: #6b7280;
+        }
       `}</style>
 
       <div className='flex'>
@@ -176,6 +213,19 @@ const Thumbnail: React.FC = (): JSX.Element => {
         {availableLibraries.length > 0 && (
           <div className='sidebar-container md:w-2/12 max-md:hidden max-md:w-0'>
             <div className="sidebar-top">
+              <button onClick={() => setOpenUpload(true)} type="button" className="sidebar-action-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 15V4M12 4L8.5 7.5M12 4L15.5 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 16.5C21.1 15.7 22 14.5 22 13C22 10.5 20 8.5 17.5 8.5C17 8.5 16.5 8.6 16.1 8.7C15.4 6.5 13.3 5 11 5C8 5 5.5 7.5 5.5 10.5C5.5 11 5.6 11.5 5.7 11.9C4.2 12.6 3.1 14 3.1 15.7C3.1 18 5.1 20 7.5 20H18.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Upload
+              </button>
+              <button onClick={() => setOpenFilter(true)} type="button" className="sidebar-action-btn" style={{ marginBottom: '16px' }}>
+                <svg width="18" height="18" fill="none" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 17V1m0 0L1 4m3-3 3 3m4-3h6l-6 6h6m-7 10 3.5-7 3.5 7m-6.125-2H16"/>
+                </svg>
+                Filter & Sort
+              </button>
               <div className="sidebar-top-label">Libraries</div>
             </div>
 
@@ -213,6 +263,9 @@ const Thumbnail: React.FC = (): JSX.Element => {
           </div>
         )}
       </div>
+
+      <FilterSortModal openModel={openFilter} setOpen={setOpenFilter} />
+      <UploadModal openModel={openUpload} setOpen={setOpenUpload} />
     </div>
   )
 }
