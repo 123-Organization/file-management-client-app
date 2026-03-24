@@ -203,6 +203,32 @@ const Thumbnail: React.FC = (): JSX.Element => {
         .sidebar-action-btn svg {
           color: #6b7280;
         }
+        .sidebar-upload-btn {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          gap: 8px;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #ffffff;
+          background: #0d9488;
+          border: 1px solid #0d9488;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          margin-bottom: 8px;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .sidebar-upload-btn:hover {
+          background: #0f766e;
+          border-color: #0f766e;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar-upload-btn svg {
+          color: #ffffff;
+        }
       `}</style>
 
       <div className='flex'>
@@ -213,7 +239,7 @@ const Thumbnail: React.FC = (): JSX.Element => {
         {availableLibraries.length > 0 && (
           <div className='sidebar-container md:w-2/12 max-md:hidden max-md:w-0'>
             <div className="sidebar-top">
-              <button onClick={() => setOpenUpload(true)} type="button" className="sidebar-action-btn">
+              <button onClick={() => setOpenUpload(true)} type="button" className="sidebar-upload-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 15V4M12 4L8.5 7.5M12 4L15.5 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M20 16.5C21.1 15.7 22 14.5 22 13C22 10.5 20 8.5 17.5 8.5C17 8.5 16.5 8.6 16.1 8.7C15.4 6.5 13.3 5 11 5C8 5 5.5 7.5 5.5 10.5C5.5 11 5.6 11.5 5.7 11.9C4.2 12.6 3.1 14 3.1 15.7C3.1 18 5.1 20 7.5 20H18.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

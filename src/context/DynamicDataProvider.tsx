@@ -1,6 +1,7 @@
-import { createContext, useContext, FunctionComponent, useState,useEffect } from "react";
+import { createContext, useContext, FunctionComponent, useState, useEffect, useCallback } from "react";
 import { IFileLocationType } from "../types/IFileLocationType";
 import { useCookies } from 'react-cookie';
+import { useSearchParams } from "react-router-dom";
 
 const DynamicDataContext = createContext({});
 
@@ -93,18 +94,52 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
   
   
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [state, setState] = useState(() => {
+    const urlPage = searchParams.get('page');
+    const urlLimit = searchParams.get('limit');
+
     return {
       referrer,
       fileLocation,
       userInfo: {
         ...userInfo,
+        filterPageNumber: urlPage || userInfo.filterPageNumber,
+        filterPerPage: urlLimit || userInfo.filterPerPage,
         librarySessionId: cookies['Session'] || userInfo.librarySessionId,
         libraryAccountKey: cookies['AccountGUID'] || userInfo.libraryAccountKey,
       },
       openUpload: false
     };
   });
+
+  // Sync state to URL when userInfo pagination changes
+  useEffect(() => {
+    const currentPage = state.userInfo.filterPageNumber;
+    const currentLimit = state.userInfo.filterPerPage;
+    
+    const params = new URLSearchParams(searchParams);
+    let changed = false;
+
+    if (currentPage !== "1" || params.has('page')) {
+      if (params.get('page') !== currentPage) {
+        params.set('page', currentPage);
+        changed = true;
+      }
+    }
+    
+    if (currentLimit !== "12" || params.has('limit')) {
+      if (params.get('limit') !== currentLimit) {
+        params.set('limit', currentLimit);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [state.userInfo.filterPageNumber, state.userInfo.filterPerPage, setSearchParams, searchParams]);
 
   useEffect(() => {
     console.log('🍪 DynamicDataProvider cookies useEffect triggered - this might be overriding our pagination state!');

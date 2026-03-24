@@ -861,16 +861,19 @@ const Gallary: React.FC = (): JSX.Element => {
                     }
                     .upload-add-btn {
                       padding: 10px 28px;
-                      background: #1f2937;
+                      background: #0d9488;
                       border-radius: 999px;
                       color: white;
                       font-size: 13px;
                       font-weight: 600;
                       letter-spacing: 0.4px;
-                      transition: background 0.2s ease;
+                      transition: all 0.2s ease;
+                      border: 1px solid #0d9488;
                     }
                     .empty-upload-zone:hover .upload-add-btn {
-                      background: #111827;
+                      background: #0f766e;
+                      border-color: #0f766e;
+                      transform: scale(1.05);
                     }
                     .upload-divider {
                       display: flex;

@@ -13,7 +13,7 @@ const BottomIcon: React.FC = (): JSX.Element => {
     const dynamicData: any = useDynamicData();
     const { userInfo, referrer, fileLocation } = dynamicData.state;
     const [messageApi, contextHolder] = message.useMessage();
-    const [current, setCurrent] = useState(1);
+    const [current, setCurrent] = useState(parseInt(userInfo.filterPageNumber) || 1);
     const [pageSize, setPageSize] = useState(parseInt(userInfo.filterPerPage) || 12);
     const isChangingPageSizeRef = useRef(false);
     const [spinLoader, setSpinLoader] = useState(false);
