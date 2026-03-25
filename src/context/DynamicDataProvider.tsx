@@ -99,14 +99,17 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
   const [state, setState] = useState(() => {
     const urlPage = searchParams.get('page');
     const urlLimit = searchParams.get('limit');
+    
+    const storedPage = localStorage.getItem('pagination_page');
+    const storedLimit = localStorage.getItem('pagination_limit');
 
     return {
       referrer,
       fileLocation,
       userInfo: {
         ...userInfo,
-        filterPageNumber: urlPage || userInfo.filterPageNumber,
-        filterPerPage: urlLimit || userInfo.filterPerPage,
+        filterPageNumber: urlPage || storedPage || userInfo.filterPageNumber,
+        filterPerPage: urlLimit || storedLimit || userInfo.filterPerPage,
         librarySessionId: cookies['Session'] || userInfo.librarySessionId,
         libraryAccountKey: cookies['AccountGUID'] || userInfo.libraryAccountKey,
       },
@@ -139,6 +142,10 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
     if (changed) {
       setSearchParams(params, { replace: true });
     }
+
+    // Always sync to localStorage
+    localStorage.setItem('pagination_page', currentPage);
+    localStorage.setItem('pagination_limit', currentLimit);
   }, [state.userInfo.filterPageNumber, state.userInfo.filterPerPage, setSearchParams, searchParams]);
 
   useEffect(() => {
