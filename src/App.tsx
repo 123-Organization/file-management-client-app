@@ -82,12 +82,15 @@ const App: React.FC = () => {
         terms_of_service_url: settings['terms_of_service_url']?settings['terms_of_service_url']:"/terms.aspx",
         button_text: settings['button_text']?settings['button_text']:"Create Print",
         account_id: settings['account_id']?settings['account_id']:0,
-        libraryName: settings['libraries'].length===1
-          ? settings['libraries'][0] 
-          : ( settings['libraries'].length===2 
-             ? userInfo.libraryName
-             :""
-             ),
+        libraryName: (settings['libraries'].includes("inventory") && settings['libraries'].includes("temporary"))
+          ? "temporary"
+          : (settings['libraries'].includes("inventory") 
+            ? "inventory" 
+            : (settings['libraries'].includes("temporary") 
+               ? "temporary" 
+               : (settings['libraries'][0] || userInfo.libraryName)
+              )
+            ),
       }
 
       

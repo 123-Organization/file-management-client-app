@@ -51,7 +51,6 @@ const Thumbnail: React.FC = (): JSX.Element => {
     const userInfoObj = { ...userInfo, libraryName };
     const isUpdatedUser = JSON.stringify(userInfo) !== JSON.stringify(userInfoObj);
     if (isUpdatedUser) {
-      userInfoObj.filterPageNumber = "1";
       dynamicData.mutations.setUserInfoData(userInfoObj);
     }
   };

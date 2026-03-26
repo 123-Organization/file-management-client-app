@@ -49,12 +49,12 @@ const referrer: IFileUpload = {
 };
 
 const fileLocation: IFileLocation = {
-  "selected": IFileLocationType.Inventory
+  "selected": IFileLocationType.Temporary
 };
 
 //sync
 const userInfo: IUserInfo = {
-  "libraryName": "inventory",
+  "libraryName": "temporary",
   "librarySessionId": "",
   "libraryAccountKey": "",
   "librarySiteId": "2",
@@ -100,8 +100,10 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
     const urlPage = searchParams.get('page');
     const urlLimit = searchParams.get('limit');
     
-    const storedPage = localStorage.getItem('pagination_page');
-    const storedLimit = localStorage.getItem('pagination_limit');
+    // We'll initially use namespaced keys if available
+    const initialLibrary = userInfo.libraryName;
+    const storedPage = localStorage.getItem(`pagination_${initialLibrary}_page`);
+    const storedLimit = localStorage.getItem(`pagination_${initialLibrary}_limit`);
 
     return {
       referrer,
@@ -142,40 +144,43 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
     if (changed) {
       setSearchParams(params, { replace: true });
     }
+  }, [state.userInfo.filterPageNumber, state.userInfo.filterPerPage, setSearchParams]);
 
-    // Always sync to localStorage
-    localStorage.setItem('pagination_page', currentPage);
-    localStorage.setItem('pagination_limit', currentLimit);
-  }, [state.userInfo.filterPageNumber, state.userInfo.filterPerPage, setSearchParams, searchParams]);
+  // Sync to local storage when pagination values change
+  useEffect(() => {
+    const library = state.userInfo.libraryName;
+    localStorage.setItem(`pagination_${library}_page`, state.userInfo.filterPageNumber);
+    localStorage.setItem(`pagination_${library}_limit`, state.userInfo.filterPerPage);
+  }, [state.userInfo.filterPageNumber, state.userInfo.filterPerPage]);
 
   useEffect(() => {
-    console.log('🍪 DynamicDataProvider cookies useEffect triggered - this might be overriding our pagination state!');
-    console.log('🍪 Previous state:', {
-      filterPageNumber: state.userInfo.filterPageNumber,
-      filterPerPage: state.userInfo.filterPerPage,
-      libraryName: state.userInfo.libraryName
-    });
-    console.log('🍪 Cookies changed:', cookies);
-    
-    setState((prevState) => {
-      const newState = {
+    setState((prevState: any) => ({
+      ...prevState,
+      userInfo: {
+        ...prevState.userInfo,
+        librarySessionId: cookies['Session'] || prevState.userInfo.librarySessionId,
+        libraryAccountKey: cookies['AccountGUID'] || prevState.userInfo.libraryAccountKey,
+      },
+    }));
+  }, [cookies]);
+
+  // Handle library switch - load last known pagination state
+  useEffect(() => {
+    const library = state.userInfo.libraryName;
+    const storedPage = localStorage.getItem(`pagination_${library}_page`) || "1";
+    const storedLimit = localStorage.getItem(`pagination_${library}_limit`) || "12";
+
+    if (state.userInfo.filterPageNumber !== storedPage || state.userInfo.filterPerPage !== storedLimit) {
+      setState((prevState: any) => ({
         ...prevState,
         userInfo: {
           ...prevState.userInfo,
-          librarySessionId: cookies['Session'] || prevState.userInfo.librarySessionId,
-          libraryAccountKey: cookies['AccountGUID'] || prevState.userInfo.libraryAccountKey,
-        },
-      };
-      
-      console.log('🍪 New state being set:', {
-        filterPageNumber: newState.userInfo.filterPageNumber,
-        filterPerPage: newState.userInfo.filterPerPage,
-        libraryName: newState.userInfo.libraryName
-      });
-      
-      return newState;
-    });
-  }, [cookies]);
+          filterPageNumber: storedPage,
+          filterPerPage: storedLimit,
+        }
+      }));
+    }
+  }, [state.userInfo.libraryName]);
 
   // define getters
   const getters = {
@@ -185,15 +190,12 @@ export const DynamicDataProvider: FunctionComponent<DynamicDataProviderProps> = 
   // define mutations
   const mutations = {
     setReferrerData: (referrer: IFileUpload): void => {
-      console.log('setReferrerData',referrer)
       setState((state: any) => ({ ...state, referrer }));
     },
     setFileLocationData: (fileLocation: IFileLocation): void => {
       setState((state: any) => ({ ...state, fileLocation }));
     },
     setUserInfoData: (userInfo: IUserInfo): void => {
-      console.log('🏪 DynamicDataProvider setUserInfoData - filterPerPage:', userInfo.filterPerPage, 'filterPageNumber:', userInfo.filterPageNumber);
-      console.trace('🏪 STACK TRACE - Who called setUserInfoData:');
       setState((state: any) => ({ ...state, userInfo }));
     },
     setOpenUpload: (openUpload: boolean): void => {
